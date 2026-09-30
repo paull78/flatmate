@@ -5,11 +5,11 @@ import type { Primitive } from "../src/view/scene-types";
 import { dividedRoomDoc, labelledDoc, withOrphan } from "./builders";
 import { FakeShell } from "./fake-shell";
 
-function layer(shell: FakeShell, name: string): Primitive[] {
+function layer(shell: FakeShell, name: string): readonly Primitive[] {
   return shell.scene().layers.find((l) => l.name === name)?.primitives ?? [];
 }
 const fills = (shell: FakeShell, color: string) => layer(shell, "zoneFills").filter((p) => p.kind === "polygon" && p.color === color);
-const texts = (shell: FakeShell) => layer(shell, "annotations").flatMap((p) => (p.kind === "text" ? [p.text] : []));
+const texts = (shell: FakeShell) => layer(shell, "tags").flatMap((p) => (p.kind === "text" ? [p.text] : []));
 
 describe("zones in the Scene (spec §3.6, §5.6)", () => {
   it("fills labelled rooms and draws their tags", () => {

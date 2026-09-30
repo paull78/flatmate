@@ -11,29 +11,44 @@ import { HELPER_FONT } from "./fonts";
 import { drawHelper } from "./helper";
 import { labelBox } from "./labels";
 import type { Layer, LayerName, Primitive, Scene } from "./scene-types";
-import { drawZones } from "./zones-layer";
+import { idsKey, idsOf, memoLast } from "./memo";
+import { tagsLayer, zoneFillsLayer } from "./zones-layer";
 
-export const LAYER_ORDER: readonly LayerName[] = ["grid", "zoneFills", "walls", "annotations", "overlays", "presence"];
+export const LAYER_ORDER: readonly LayerName[] = ["grid", "zoneFills", "walls", "tags", "annotations", "overlays", "presence"];
 const MAX_GRID_LINES = 400;
 const PREVIEW_WALL = `${PREVIEW_OP}/w0`; // the wall created by the wall tool's preview addWall
 const WALL_EDGE_PX = 1; // width of the outline segments drawn over each wall fill
 
-type Layers = Record<LayerName, Primitive[]>;
+/** The layers built fresh on every event; walls, zoneFills and tags come from memoized builders (spec §5.9). */
+type Layers = Record<Exclude<LayerName, "walls" | "zoneFills" | "tags">, Primitive[]>;
+const NONE: readonly Primitive[] = [];
 
 export function buildScene(state: EditorState, host: Host): Scene {
-  const layers: Layers = { grid: [], zoneFills: [], walls: [], annotations: [], overlays: [], presence: [] };
+  const layers: Layers = { grid: [], annotations: [], overlays: [], presence: [] };
   drawGrid(state.camera, layers.grid);
   const doc = sceneDocument(state);
+  let walls = NONE;
+  let zoneFills = NONE;
+  let tags = NONE;
   if (doc) {
-    drawZones(state, doc, layers, host); // floors under the walls; tags in annotations
-    drawWalls(state, doc, layers.walls);
+    const labels = idsKey(state.selection.filter((r) => r.table === "zoneLabels").map((r) => r.id));
+    const zoneTool = state.tool.name === "zone" ? state.tool.state : null;
+    zoneFills = zoneFillsLayer(doc, labels, zoneTool !== null, zoneTool?.hoverFaceKey ?? null);
+    tags = tagsLayer(doc, state.camera.zoom, host, labels);
+    walls = wallsLayer(
+      doc,
+      idsKey(state.selection.filter((r) => r.table === "walls").map((r) => r.id)),
+      state.hover?.table === "walls" ? state.hover.id : null,
+      idsKey([...invalidWalls(state, doc)]),
+    );
     drawSelection(state, doc, layers.overlays);
     drawHelper(state, doc, layers.annotations, host); // selected wall, Select tool only
     drawToolOverlay(state, layers, host);
   }
   drawSnap(state, layers.overlays);
   drawPresence(state, layers.presence);
-  return { layers: LAYER_ORDER.map((name): Layer => ({ name, primitives: layers[name] })) };
+  const all: Record<LayerName, readonly Primitive[]> = { ...layers, walls, zoneFills, tags };
+  return { layers: LAYER_ORDER.map((name): Layer => ({ name, primitives: all[name] })) };
 }
 
 /** The document to draw: a gesture's preview while one is active, otherwise the visible document. */
@@ -79,10 +94,10 @@ function drawGrid(camera: Camera, out: Primitive[]): void {
  * under WebGL the segments give wall edges analytic antialiasing. All fills come before all edges, the order
  * the WebGL renderer draws a layer in (polygons, then segments).
  */
-function drawWalls(state: EditorState, doc: Document, out: Primitive[]): void {
-  const selected = new Set(state.selection.filter((r) => r.table === "walls").map((r) => r.id));
-  const hovered = state.hover?.table === "walls" ? state.hover.id : null;
-  const invalid = invalidWalls(state, doc);
+const wallsLayer = memoLast((doc: Document, selectedWalls: string, hovered: string | null, invalidWallIds: string): readonly Primitive[] => {
+  const selected = idsOf(selectedWalls);
+  const invalid = idsOf(invalidWallIds);
+  const out: Primitive[] = [];
   const edges: Primitive[] = [];
   for (const [id, points] of wallOutlines(doc)) {
     const color = invalid.has(id)
@@ -100,7 +115,8 @@ function drawWalls(state: EditorState, doc: Document, out: Primitive[]): void {
     });
   }
   out.push(...edges);
-}
+  return out;
+});
 
 /** While a drag is invalid, the walls around the dragged joints are drawn red (spec §5.7). */
 function invalidWalls(state: EditorState, doc: Document): Set<string> {

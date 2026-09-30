@@ -12,6 +12,7 @@ export type Primitive =
   | { kind: "disc"; center: Point; radius: Width; color: Color }
   | { kind: "text"; text: string; at: Point; size: number; color: Color; align: Align; rotation: number }; // size in px
 
-export type LayerName = "grid" | "zoneFills" | "walls" | "annotations" | "overlays" | "presence";
-export type Layer = { name: LayerName; primitives: Primitive[] };
-export type Scene = { layers: Layer[] }; // always all six layers, in LAYER_ORDER
+export type LayerName = "grid" | "zoneFills" | "walls" | "tags" | "annotations" | "overlays" | "presence";
+/** Read-only: an unchanged layer is the same array from one Scene to the next (spec §5.9). */
+export type Layer = { name: LayerName; primitives: readonly Primitive[] };
+export type Scene = { layers: Layer[] }; // always all seven layers, in LAYER_ORDER

@@ -8,7 +8,7 @@ export const cameraFixture: Camera = {
 };
 
 export function sceneFixture(): Scene {
-  const names = ["grid", "zoneFills", "walls", "annotations", "overlays", "presence"] as const;
+  const names = ["grid", "zoneFills", "walls", "tags", "annotations", "overlays", "presence"] as const;
   return { layers: names.map((name) => ({ name, primitives: [] })) };
 }
 

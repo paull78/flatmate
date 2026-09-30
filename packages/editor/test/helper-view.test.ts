@@ -9,7 +9,7 @@ import { FakeShell } from "./fake-shell";
 
 const camera = (zoom: number): Camera => ({ center: { x: 3, y: 2 }, zoom, viewport: { width: 1200, height: 800 }, dpr: 1 });
 
-function layer(shell: FakeShell, name: string): Primitive[] {
+function layer(shell: FakeShell, name: string): readonly Primitive[] {
   return shell.scene().layers.find((l) => l.name === name)?.primitives ?? [];
 }
 const helperSegments = (shell: FakeShell) =>

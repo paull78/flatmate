@@ -28,6 +28,15 @@
 - [x] **Step 3:** `pnpm check`; `?perf` on the 50×50 grid before and after (pan and zoom, both renderers), numbers in `rendering.md`.
 - [x] **Review** (editor core, done: no defects; keys complete, no shared result is mutated, `zoneOfLabel` matches the old search): cache keys complete (nothing else feeds a layout), no stale layout after an edit, remote change, rename or zoom.
 
+## Task P3: WebGL reuses unchanged layers (editor + web) — size M, editor core
+
+**Spec:** §5.9 ("Unchanged layers keep their array", the `tags` layer), §6.2 (a GPU buffer per batch). **Why:** after P2 a pan step at 50×50 spends 16 ms in the WebGL draw: the editor makes new arrays for every layer on every event, and the renderer re-uploads every batch on every frame (one shared buffer per kind). **Files:** `packages/editor/src/view/{scene,zones-layer,scene-types}.ts` (+ a small memo helper), `packages/web/src/adapters/webgl-renderer.ts`, `packages/web/src/adapters/webgl/instances.ts` (per-layer build), tests in both packages, `packages/web/test/fixtures.ts`.
+
+- [x] **Step 1: Tests first** (seen red): the layer order is grid, zoneFills, walls, tags, annotations, overlays, presence; tag plates and text are in `tags`; after a pan, `walls`, `zoneFills` and `tags` are the same arrays and `grid` is not; a selection change, a hover change, an invalid drag, a zoom (tags only), the Zone tool and an edit each give new arrays for the layers that read them; `buildLayer` gives the same batches as today's `buildFrame` for one layer; the demo frames' draw-call counts.
+- [x] **Step 2: Implement:** layer builders take only their inputs as arguments and are memoized on the last arguments (===); WebGL keeps per-layer batches with their own buffer and VAO, rebuilt when the layer's array changes, deleted on dispose.
+- [x] **Step 3:** `pnpm check`, `pnpm e2e` (renderers spec: pixel probes, context loss), `?perf` before/after on the 50×50 grid.
+- [x] **Review** (editor core + WebGL, done: no defects; keys complete, no shared layer mutated, buffers freed on rebuild and dispose, paint order unchanged): memo keys complete (each builder reads only its arguments), no stale layer after edits, remote changes, undo, tool switches; GPU buffers freed on layer change and dispose, context loss still falls back.
+
 ## Progress
 
 - [x] P1.1 done (seeding takes 0.2 s for 30×30, 1.1 s for 50×50: 5 100 walls, 800 KB)
@@ -43,3 +52,4 @@
 | 2026-09-30 | P1.2 | measure | `?perf` on the grids (headless Chromium, M4 Pro GPU): 50×50 update 40 ms vs draw 9 ms (Canvas2D) / 15 ms (WebGL); WebGL slower than Canvas2D | numbers and causes recorded (tags 17 of 26 ms of `buildScene`; WebGL rebuilds instances per Scene) | `rendering.md` |
 | 2026-09-30 | P2 | measure | Node, one update at 50×50: pan 49 → 12 ms with tags cached, → 3.3 ms with outlines cached too; browser `?perf`: pan update 40 → 3.5 ms, zoom 26 → 6.5 ms | draw now dominates (Canvas2D 11 ms, WebGL 16 ms); WebGL layer reuse noted as the next lever | `rendering.md`, `domain-geometry.md`, `editor-interaction.md` |
 | 2026-09-30 | P2 | finding | "Zoom is fast, pan is slow" (user): hover hit-testing stops at the first wall hit but otherwise lays out every tag; a zoom keeps the point under the cursor (often on a wall), a pan sweeps across room interiors | fixed by the tag cache | `editor-interaction.md` |
+| 2026-09-30 | P3 | measure | 50×50 WebGL draw per pan step 16 → 5.0 ms (Canvas2D 10.5 ms), per zoom 15.5 → 5.9 ms; editor update unchanged (about 3 ms pan, 6 ms zoom) | step 5 now takes 8 draw calls (tags layer); text overlay is what remains | `rendering.md` |

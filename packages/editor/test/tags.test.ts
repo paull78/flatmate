@@ -16,7 +16,8 @@ describe("tag layouts are cached (spec §5.9, P2)", () => {
     const first = tagLayout(doc, "L1", camera, host);
     expect(first).not.toBeNull();
     expect(tagLayout(doc, "L1", camera, host)).toBe(first);
-    expect(tagLayout(doc, "L1", { ...camera, center: { x: 40, y: -7 } }, host)).toBe(first);
+    const panned: Camera = { ...camera, center: { x: 40, y: -7 } };
+    expect(tagLayout(doc, "L1", panned, host)).toBe(first);
   });
 
   it("lays out again after a zoom, on a new document, or with another Host", () => {
@@ -104,7 +105,8 @@ function zoomedShell(doc: Document, zoom: number, center: Point): FakeShell {
   return shell;
 }
 
-const annotations = (shell: FakeShell): Primitive[] => shell.scene().layers.find((l) => l.name === "annotations")?.primitives ?? [];
+/** The tags layer (spec §5.9: zone tags have their own layer). */
+const annotations = (shell: FakeShell): readonly Primitive[] => shell.scene().layers.find((l) => l.name === "tags")?.primitives ?? [];
 const tagTexts = (shell: FakeShell) => annotations(shell).flatMap((p) => (p.kind === "text" ? [p] : []));
 const plates = (shell: FakeShell) => annotations(shell).flatMap((p) => (p.kind === "polygon" ? [p] : []));
 

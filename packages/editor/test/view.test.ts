@@ -15,12 +15,12 @@ import { FakeHost } from "./fake-shell";
 
 const host = new FakeHost();
 
-function layer(scene: Scene, name: (typeof LAYER_ORDER)[number]): Primitive[] {
+function layer(scene: Scene, name: (typeof LAYER_ORDER)[number]): readonly Primitive[] {
   return scene.layers.find((l) => l.name === name)?.primitives ?? [];
 }
 
 /** Wall fills only: since S1 the walls layer also holds 1 px edge segments over each fill. */
-function fills(primitives: Primitive[]): Primitive[] {
+function fills(primitives: readonly Primitive[]): Primitive[] {
   return primitives.filter((p) => p.kind === "polygon");
 }
 
@@ -191,10 +191,10 @@ describe("buildViewModel", () => {
 // Added in review: spec rules and README constants the plan's tests above leave unpinned.
 describe("buildScene: spec rules", () => {
   const texts = (scene: Scene): Primitive[] => layer(scene, "annotations").filter((p) => p.kind === "text");
-  const colored = (ps: Primitive[], color: string): Primitive[] => ps.filter((p) => "color" in p && p.color === color);
+  const colored = (ps: readonly Primitive[], color: string): Primitive[] => ps.filter((p) => "color" in p && p.color === color);
 
   it("orders the layers as §5.9 lists them", () => {
-    expect([...LAYER_ORDER]).toEqual(["grid", "zoneFills", "walls", "annotations", "overlays", "presence"]);
+    expect([...LAYER_ORDER]).toEqual(["grid", "zoneFills", "walls", "tags", "annotations", "overlays", "presence"]);
   });
 
   it("draws an ok drag attempt's document normally", () => {

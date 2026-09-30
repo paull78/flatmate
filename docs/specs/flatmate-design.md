@@ -775,7 +775,7 @@ Independent **policies** return **candidates**; a pure **chooser** picks the bes
 **Scene**: what to draw, in world coordinates, in ordered layers (like Zed's `Scene`):
 
 ```ts
-type Scene = { layers: Layer[] };   // grid, zoneFills, walls, annotations, overlays, presence
+type Scene = { layers: Layer[] };   // grid, zoneFills, walls, tags, annotations, overlays, presence
 type Primitive =
   | { kind: "segment";  a: Point; b: Point; width: Width; color: Color; cap: "butt" | "round"; dash?: number[] }
   | { kind: "polygon";  points: Point[]; color: Color }
@@ -786,6 +786,8 @@ type Width = { px: number } | { m: number };  // screen-constant hairlines vs. w
 // dash lengths are screen px; arc radius is metres; angles and text rotation are world radians, counter-clockwise;
 // text size is px, drawn upright on screen with a middle baseline
 ```
+
+**Unchanged layers keep their array (P3, 2026-09-30).** The three large layers are pure functions of a few inputs, and the Scene reuses the previous primitives array (the same object) when those inputs are identical: `walls` (the document drawn, the selected walls, the hovered wall, the walls drawn red for an invalid drag), `zoneFills` (the document, the selected labels, whether the Zone tool is active and the face it hovers) and `tags` (the document, the zoom, the Host, the selected labels). Zone tags have their own layer, just before `annotations`, so the paint order is unchanged. Panning changes none of these inputs, so only `grid`, `overlays` and `presence` are new arrays; a renderer may skip work for a layer whose array it has already seen (§6.2).
 
 **ViewModel**: what the panels show, not how:
 
@@ -854,7 +856,7 @@ Geometry primitives only (segments, arcs, discs, polygons); text is delegated to
    └──────────────┘             color.a *= coverage
 ```
 
-`d` is an exact distance in CSS pixels, so `d * dpr` is in device pixels (the same as `d / fwidth(d)` for these fields, without derivatives). One draw call per non-empty (layer × primitive kind): layers in order, and within a layer polygons, segments, arcs, discs (Canvas2D keeps scene order, so the scene must not rely on paint order inside a layer where shapes of different kinds overlap: the helper's dimension line stops at its label plate instead of being covered by it. What remains differs only for an instant while dragging a joint: a snap guide ends under a handle disc, and the red ghost disc sits over an on-wall snap cross). Today's editor emits at most 9 such pairs; the demo's step 4 frame takes 5 draw calls and step 5 takes 7. Camera centre, zoom, half viewport and dpr are uniforms; instance data is rebuilt for each new Scene, which the editor produces after every event. No speed is claimed unless measured.
+`d` is an exact distance in CSS pixels, so `d * dpr` is in device pixels (the same as `d / fwidth(d)` for these fields, without derivatives). One draw call per non-empty (layer × primitive kind): layers in order, and within a layer polygons, segments, arcs, discs (Canvas2D keeps scene order, so the scene must not rely on paint order inside a layer where shapes of different kinds overlap: the helper's dimension line stops at its label plate instead of being covered by it. What remains differs only for an instant while dragging a joint: a snap guide ends under a handle disc, and the red ghost disc sits over an on-wall snap cross). Today's editor emits at most 10 such pairs (counts for the demo frames are pinned in the renderer tests). Camera centre, zoom, half viewport and dpr are uniforms. Each (layer × kind) batch has its own GPU buffer, built and uploaded only when its layer's primitives array is a new object (P3, 2026-09-30): a pan uploads the grid, overlays and presence, not the walls, floors or tag plates (§5.9). No speed is claimed unless measured (§6.3).
 
 **Text:** under WebGL all text is drawn on the Canvas2D overlay above all geometry, so tag and helper text can cover handles, snap glyphs and remote cursors; Canvas2D keeps the scene's order. Translucent walls (the wall tool's preview) get a slightly darker rim where the edge segments overlap the fill, in both renderers.
 

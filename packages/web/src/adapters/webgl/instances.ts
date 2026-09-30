@@ -1,5 +1,5 @@
 import earcut from "earcut";
-import type { LayerName, Primitive, Scene, Width } from "@fm/editor";
+import type { Layer, LayerName, Primitive, Scene, Width } from "@fm/editor";
 import { assertNever } from "@fm/protocol";
 
 // Scene → GPU-ready typed arrays, one batch per non-empty (layer × kind), in draw order. Pure: no GL, no camera.
@@ -98,36 +98,44 @@ function pushDisc(out: number[], p: Extract<Primitive, { kind: "disc" }>): void 
   out.push(p.center.x, p.center.y, ...width(p.radius), ...parseColor(p.color));
 }
 
+/** The whole Scene: each layer's batches and texts, in layer order. */
 export function buildFrame(scene: Scene): Frame {
+  const frames = scene.layers.map(buildLayer);
+  return { batches: frames.flatMap((f) => f.batches), texts: frames.flatMap((f) => f.texts) };
+}
+
+/**
+ * One layer's batches (kinds in KIND_ORDER) and texts. The WebGL renderer builds and uploads a layer again only
+ * when its primitives array is a new object (spec §6.2, P3).
+ */
+export function buildLayer(layer: Layer): Frame {
   const batches: Batch[] = [];
   const texts: TextPrimitive[] = [];
-  for (const layer of scene.layers) {
-    const values: Record<GeometryKind, number[]> = { polygon: [], segment: [], arc: [], disc: [] };
-    for (const p of layer.primitives) {
-      switch (p.kind) {
-        case "polygon":
-          pushPolygon(values.polygon, p);
-          break;
-        case "segment":
-          pushSegment(values.segment, p);
-          break;
-        case "arc":
-          pushArc(values.arc, p);
-          break;
-        case "disc":
-          pushDisc(values.disc, p);
-          break;
-        case "text":
-          texts.push(p);
-          break;
-        default:
-          assertNever(p);
-      }
+  const values: Record<GeometryKind, number[]> = { polygon: [], segment: [], arc: [], disc: [] };
+  for (const p of layer.primitives) {
+    switch (p.kind) {
+      case "polygon":
+        pushPolygon(values.polygon, p);
+        break;
+      case "segment":
+        pushSegment(values.segment, p);
+        break;
+      case "arc":
+        pushArc(values.arc, p);
+        break;
+      case "disc":
+        pushDisc(values.disc, p);
+        break;
+      case "text":
+        texts.push(p);
+        break;
+      default:
+        assertNever(p);
     }
-    for (const kind of KIND_ORDER) {
-      const v = values[kind];
-      if (v.length > 0) batches.push({ layer: layer.name, kind, data: new Float32Array(v), count: v.length / STRIDE[kind] });
-    }
+  }
+  for (const kind of KIND_ORDER) {
+    const v = values[kind];
+    if (v.length > 0) batches.push({ layer: layer.name, kind, data: new Float32Array(v), count: v.length / STRIDE[kind] });
   }
   return { batches, texts };
 }

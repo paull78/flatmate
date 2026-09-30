@@ -13,6 +13,7 @@ import {
   UNIT_PX,
   arcSpan,
   buildFrame,
+  buildLayer,
   dashPair,
   parseColor,
   type Batch,
@@ -206,7 +207,7 @@ describe("buildFrame on the demo drawing", () => {
   it("draws step 4 in 5 draw calls, and the edge segments are the walls' outline edges", () => {
     const scene = step4().scene();
     const frame = buildFrame(scene);
-    expect(names(frame.batches)).toEqual(["grid/segment", "zoneFills/polygon", "walls/polygon", "walls/segment", "annotations/polygon"]);
+    expect(names(frame.batches)).toEqual(["grid/segment", "zoneFills/polygon", "walls/polygon", "walls/segment", "tags/polygon"]);
     const walls = scene.layers.find((l) => l.name === "walls")?.primitives ?? [];
     const outlines = walls.flatMap((p) => (p.kind === "polygon" ? [p] : []));
     expect(frame.batches[3]?.count).toBe(outlines.reduce((n, p) => n + p.points.length, 0));
@@ -223,7 +224,7 @@ describe("buildFrame on the demo drawing", () => {
     expect(triangleArea(batch)).toBeCloseTo(outlines.reduce((a, p) => a + ringArea(p.points), 0), 4); // float32 vertices
   });
 
-  it("draws step 5 (a selected wall with its helper) in 7 draw calls", () => {
+  it("draws step 5 (a selected wall with its helper) in 8 draw calls: tag plates and the helper plate are separate layers", () => {
     const shell = step4();
     shell.click({ x: 6, y: 1 });
     expect(names(buildFrame(shell.scene()).batches)).toEqual([
@@ -231,9 +232,23 @@ describe("buildFrame on the demo drawing", () => {
       "zoneFills/polygon",
       "walls/polygon",
       "walls/segment",
+      "tags/polygon",
       "annotations/polygon",
       "annotations/segment",
       "overlays/disc",
     ]);
+  });
+});
+
+describe("buildLayer (spec §6.2, P3)", () => {
+  it("builds one layer's batches and texts; buildFrame is the layers' results in order", () => {
+    const seg = { kind: "segment", a: { x: 0, y: 0 }, b: { x: 1, y: 0 }, width: { px: 1 }, color: "#000000", cap: "butt" } as const;
+    const disc = { kind: "disc", center: { x: 1, y: 2 }, radius: { px: 5 }, color: "#ffffff" } as const;
+    const text = { kind: "text", text: "Kitchen", at: { x: 0, y: 0 }, size: 12, color: "#000000", align: "center", rotation: 0 } as const;
+    const scene = sceneWith({ walls: [seg, disc], tags: [text, seg], presence: [disc] });
+    const perLayer = scene.layers.map((l) => buildLayer(l));
+    expect(names(perLayer.flatMap((f) => f.batches))).toEqual(["walls/segment", "walls/disc", "tags/segment", "presence/disc"]);
+    expect(buildFrame(scene)).toEqual({ batches: perLayer.flatMap((f) => f.batches), texts: perLayer.flatMap((f) => f.texts) });
+    expect(buildLayer({ name: "grid", primitives: [] })).toEqual({ batches: [], texts: [] });
   });
 });

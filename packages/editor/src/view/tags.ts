@@ -40,7 +40,7 @@ export function areaFieldText(zone: Zone | null): string {
  * its zone's outline, else the name alone centred on the label point if that fits, else null (hidden). An orphan
  * always shows both lines. Null also when the label does not exist.
  */
-export function tagLayout(doc: Document, labelId: string, camera: Camera, host: Host): TagLayout | null {
+export function tagLayout(doc: Document, labelId: string, camera: Pick<Camera, "zoom">, host: Host): TagLayout | null {
   // Cached per Host → document → zoom (spec §5.9): nothing else feeds a layout, and documents are immutable values.
   let byDoc = layoutCache.get(host);
   if (!byDoc) {
@@ -62,7 +62,7 @@ export function tagLayout(doc: Document, labelId: string, camera: Camera, host: 
 /** One zoom per document: panning reuses it, a zoom step replaces it. Shared results: read-only for callers. */
 const layoutCache = new WeakMap<Host, WeakMap<Document, { zoom: number; layouts: Map<string, TagLayout | null> }>>();
 
-function computeTagLayout(doc: Document, labelId: string, camera: Camera, host: Host): TagLayout | null {
+function computeTagLayout(doc: Document, labelId: string, camera: Pick<Camera, "zoom">, host: Host): TagLayout | null {
   // The ID may come from outside the document: an Object.prototype member name would find the inherited member.
   const label = isValidId(labelId) ? doc.zoneLabels[labelId] : undefined;
   if (!label) return null;
