@@ -4,6 +4,8 @@ A small collaborative 2D CAD editor for floor plans.
 
 You draw walls with the keyboard and mouse, click inside a room to see its clear area, resize a wall by typing its length, and edit the same drawing from two browser windows. Underneath, the drawing rules and the editing behaviour live in two platform-neutral TypeScript packages that run unchanged in the browser, in tests and on the server.
 
+![Alice and Bob editing the same floor plan in two windows](docs/images/two-windows.gif)
+
 ## Run it
 
 Requirements: Node 22 and pnpm 10.
@@ -22,26 +24,26 @@ The toolbar's renderer button switches between Canvas2D (the default) and a WebG
 
 | Command | What it does |
 |---------|--------------|
-| `pnpm demo:seed` | adds a "Sample apartment" project (the room after demo step 4); run it before starting the server |
-| `pnpm demo:headless` | replays demo steps 2–6 in the headless editor, one narrated test per step |
+| `pnpm demo:seed` | adds a "Sample apartment" project (the room after step 4 of "Try it"); run it before starting the server |
+| `pnpm demo:headless` | replays steps 2–6 of "Try it" in the headless editor, with no browser, one narrated test per step |
 | `pnpm demo:script` | builds a 4 × 5 m room with a divider through the domain API only and prints its two areas |
 | `pnpm check` | typecheck, lint, dependency rules and all Vitest unit/integration tests |
 | `pnpm e2e` | Playwright tests in Chromium (install the browser once with `pnpm --filter @fm/web exec playwright install chromium`) |
-| `pnpm screenshots` | while `pnpm demo` runs: five demo screenshots into `docs/reports/screenshots/canvas2d/` (`FM_RENDERER=webgl` for `webgl/`) |
+| `pnpm screenshots` | while `pnpm demo` runs: five screenshots into `docs/reports/screenshots/canvas2d/` (`FM_RENDERER=webgl` for `webgl/`) |
 | `pnpm dev:server` | the server alone on `ws://localhost:8787`, in its restart loop; project files go to `packages/server/data/` (`PORT`, `DATA_DIR` override) |
 | `pnpm dev` | the web app alone; without a server URL it runs one unsaved in-memory drawing with no project list |
 
-## The five-minute demo
+## Try it
 
-1. As Alice, create a project called "Apartment".
-2. Press `W`. Click the origin. Holding `Shift`, move right, type `6` and `Enter`. Do the same with `4` up and `6` left, then click the first joint to close the room.
-3. Still holding `Shift`, draw a divider between the midpoints of the bottom and top walls. The midpoint snap makes both ends exact, and the walls split at T-junctions.
-4. Press `Z` and click inside each room: each shows 10.64 m² (walls are 0.20 m thick).
-5. Press `V`, select the right wall, click its length, type `3.5` and `Enter`: the top-right corner moves down and the areas update.
-6. Drag that corner across the divider: the preview turns red and snaps back on release.
-7. Open "Apartment" as Bob: each window shows the other person's cursor once they move the mouse, and Bob's changes show up for Alice.
-8. Alice moves a joint twice and undoes both. After Bob edits that joint, Alice's redo is unavailable, with an explanation that the drawing changed remotely.
-9. `pnpm demo:headless` and `pnpm demo:script` show the same core without a browser.
+With `pnpm demo` running, open the two windows above.
+
+1. As Alice, create a project called "Apartment", then open it as Bob. Each window shows the other person's cursor, and each edit appears in both.
+2. Press `W` and click the origin. Holding `Shift`, move right, type `6` and press `Enter`. Do the same with `4` up and `6` left, then click the first joint to close the room.
+3. Still holding `Shift`, draw a divider between the midpoints of the bottom and top walls. The midpoint snap makes both ends exact, and the walls split where the divider meets them.
+4. Press `Z` and click inside each room: each gets a tag with its clear area, 10.64 m² (walls are 0.20 m thick). Rename a room in the panel on the right.
+5. Press `V`, select the right wall, click its length, type `3.5` and press `Enter`: the top-right corner moves down and both areas update.
+6. Drag that corner across the divider: the preview turns red and snaps back when you let go.
+7. As Alice, move a joint twice and undo both moves. Once Bob edits that joint, Alice's redo is unavailable, with a note that the drawing changed remotely.
 
 ## Use with Claude
 
@@ -136,9 +138,9 @@ Alice's editor             server, one project at a time             Bob's edito
 |-------|----------------|-------|
 | Domain | invariants I1–I8, wall splits, mitered outlines, zones and clear areas, label merging, patches and inverses, serialization | `packages/domain/test` |
 | Editor | reducer tables for local and shared documents; headless scenarios that drive the fake shell with pointer and key events, including the narrated demo | `packages/editor/test` |
-| Sync | two headless editors against the server app: conflicts, invalid concurrent walls, undo races, demo steps 7 and 8, blocking while an edit is outstanding, a lost ack settled by a same-ID resend | `packages/sync-tests/test` |
+| Sync | two headless editors against the server app: conflicts, invalid concurrent walls, undo races, "Try it" steps 1 and 7, blocking while an edit is outstanding, a lost ack settled by a same-ID resend | `packages/sync-tests/test` |
 | Server | submit decisions, per-project queue, JSON repository, receipts, crash-only restart, WebSocket transport, the demo seed | `packages/server/test` |
-| Web | Vitest for the adapters, panels, renderer switch and the WebGL instance builder; Playwright in Chromium: draw the demo room with typed lengths, two windows editing one project, and pixel probes of both renderers (toggle mid-drawing, fallback on missing WebGL2 or a lost context) | `packages/web/test`, `packages/web/e2e` |
+| Web | Vitest for the adapters, panels, renderer switch and the WebGL instance builder; Playwright in Chromium: draw the "Try it" room with typed lengths, two windows editing one project, and pixel probes of both renderers (toggle mid-drawing, fallback on missing WebGL2 or a lost context) | `packages/web/test`, `packages/web/e2e` |
 | MCP | tool input bounds, the drawing summary, the session and every tool against the real server app (refusals, rejections, drops, parallel calls), the MCP surface over an in-memory transport, and one stdio end-to-end test against a spawned server | `packages/mcp/test` |
 | Scripts | the domain-only room script | `scripts/test` |
 
