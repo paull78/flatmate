@@ -1,0 +1,12 @@
+{
+  "name": "@fm/editor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./testing": "./test/testing.ts" },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json"
+  },
+  "dependencies": { "@fm/domain": "workspace:*", "@fm/protocol": "workspace:*" }
+}

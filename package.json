@@ -1,0 +1,34 @@
+{
+  "name": "flatmate",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint .",
+    "depcruise": "depcruise packages scripts --config .dependency-cruiser.cjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm depcruise && pnpm test",
+    "dev": "pnpm --filter @fm/web dev",
+    "dev:server": "pnpm --filter @fm/server dev",
+    "demo": "bash scripts/demo.sh",
+    "demo:seed": "pnpm --filter @fm/server exec tsx scripts/run-seed-demo.ts",
+    "demo:headless": "pnpm --filter @fm/editor exec vitest run test/scenarios/demo-narrated.test.ts --reporter=verbose",
+    "demo:script": "tsx scripts/build-room.ts",
+    "e2e": "pnpm --filter @fm/web e2e",
+    "mcp": "pnpm --silent --filter @fm/mcp start",
+    "screenshots": "FM_SCREENSHOTS=1 pnpm --filter @fm/web exec playwright test e2e/screenshots.spec.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "dependency-cruiser": "^18.4.0",
+    "eslint": "^10.11.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.2"
+  }
+}

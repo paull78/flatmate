@@ -1,0 +1,328 @@
+:root {
+  --bg: #f4f3ef;
+  --panel: #ffffff;
+  --border: #e3e1db;
+  --text: #1f1f1f;
+  --muted: #7a776f;
+  --accent: #2f6fed;
+  --accent-text: #ffffff;
+  --danger: #e5484d;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  height: 100%;
+  user-select: none;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.toolbar button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.toolbar button:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.toolbar kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--border);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  min-height: 0;
+}
+
+.canvas-host {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.canvas-host canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.properties {
+  padding: 12px;
+  overflow: auto;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+}
+
+.properties h2 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.field-label,
+.field-unit,
+.muted {
+  color: var(--muted);
+}
+
+.field input {
+  width: 100%;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+  user-select: text;
+}
+
+.field input[readonly] {
+  background: var(--bg);
+  border-color: transparent;
+}
+
+.command-bar {
+  display: flex;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.command-prompt {
+  color: var(--muted);
+}
+
+.command-value {
+  min-width: 2ch;
+  font-weight: 600;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.project-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.collaborators {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.collaborators li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--panel);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+  pointer-events: none;
+}
+
+.project-list {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  background: var(--bg);
+  overflow: auto;
+}
+
+.project-list h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.project-list form {
+  display: flex;
+  gap: 8px;
+}
+
+.project-list input {
+  width: 240px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  user-select: text;
+}
+
+.project-list button,
+.projects-button {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.project-list button[type="submit"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.project-list ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 320px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-list li button {
+  width: 100%;
+  text-align: left;
+}
+
+.project-list .error {
+  color: var(--danger);
+}
+
+.projects-button {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+/* Phase 8 visual pass: tokens and restyling only; layout stays in the rules above.
+   Keep --fm-bg equal to COLORS.background (packages/editor/src/view/colors.ts). */
+:root {
+  --fm-bg: #f4f4f2;
+  --fm-panel: #ffffff;
+  --fm-border: #e2e2de;
+  --fm-text: #1d1d1f;
+  --fm-muted: #6b6b6b;
+  --fm-accent: #2563eb;
+  --fm-accent-soft: #2563eb14;
+  --fm-danger: #e5484d;
+  --fm-radius: 8px;
+  --fm-shadow: 0 1px 2px #0000000f, 0 4px 12px #00000014;
+  --fm-font: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fm-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* the phase 4 tokens follow the palette */
+  --bg: var(--fm-bg);
+  --panel: var(--fm-panel);
+  --border: var(--fm-border);
+  --text: var(--fm-text);
+  --muted: var(--fm-muted);
+  --accent: var(--fm-accent);
+  --danger: var(--fm-danger);
+  font-family: var(--fm-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.fm-toolbar button { border-color: transparent; background: transparent; }
+.fm-toolbar button:hover:not(:disabled) { background: #0000000a; }
+.fm-toolbar button[aria-pressed="true"] { background: var(--fm-accent-soft); border-color: transparent; color: var(--fm-accent); font-weight: 600; }
+.fm-toolbar kbd { font: 11px var(--fm-mono); color: var(--fm-muted); }
+
+.fm-commandbar { font-family: var(--fm-mono); }
+
+.fm-properties .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.fm-properties input:focus { outline: 2px solid var(--fm-accent); outline-offset: -1px; border-color: transparent; }
+
+.fm-toast { border-radius: var(--fm-radius); box-shadow: var(--fm-shadow); font-weight: 500; }
+
+.fm-projectlist form, .fm-projectlist ul { background: var(--fm-panel); border: 1px solid var(--fm-border); border-radius: var(--fm-radius); box-shadow: var(--fm-shadow); padding: 12px; }
+
+/* S1: stacked canvases and the renderer toggle. The WebGL canvas lies under the input canvas and never takes input. */
+.canvas-host .gl-canvas { pointer-events: none; }
+.renderer-toggle { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.renderer-notice { color: var(--fm-danger); font-size: 12px; }

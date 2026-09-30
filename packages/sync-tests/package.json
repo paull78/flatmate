@@ -1,0 +1,19 @@
+{
+  "name": "@fm/sync-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fm/domain": "workspace:*",
+    "@fm/editor": "workspace:*",
+    "@fm/protocol": "workspace:*",
+    "@fm/server": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3"
+  }
+}

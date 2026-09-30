@@ -1,0 +1,35 @@
+# Rendering
+
+[← index](INDEX.md)
+
+## Decisions
+
+| Decision | Why | Spec |
+|----------|-----|------|
+| Plan-time readings, confirmed in phase 3 (2026-09-29): an invalid drag draws red only the walls at the dragged joints, plus a small red ghost disc at the cursor; the wall tool's live label reads `6.00 m  90°` (`toFixed(2)`, degrees counter-clockwise from +x, world y up) in the annotations layer with a background box; handles and snap glyphs are screen-sized; the grid skips drawing above 400 lines, which the 16 px minimum step never reaches at supported zooms (dead safety valve); major lines every 5 steps fall at 2.5 m or 25 m for some zooms (phase 8 polish) | The spec says "drawn red" and "live length and angle" without the detail | §5.5, §5.7, §5.9 |
+| `Renderer` port consumes a platform-neutral **Scene** (segment, polygon, arc, disc, text; widths in px or m) in ordered layers | Zed-style scene; renderer swappable live | §5.9, §6 |
+| React UI shell; **Canvas2D renderer is demo-critical** | Safe path | §6.1 |
+| **WebGL2 SDF renderer is a follow-up** after the Canvas2D demo (§11 item 2, built in parallel with M1; implemented in S1): instanced quads, SDF segments/arcs/discs, earcut polygons (2026-09-27; order updated 2026-09-29) | User wants renderer portability shown next without making it a demo blocker | §6.2, §11 |
+| **Text always on a Canvas2D overlay** (both renderers); no glyph atlas | Glyph atlas cut for scope | §6 |
+| The `render` effect carries the camera; the shell never reads editor state to draw (2026-09-27) | Effects stay complete data; found while planning phase 4 | §5.2 |
+| Scene units: dashes in screen px, arc radius in metres, angles and text rotation in world radians CCW, text upright with a middle baseline in `UI_FONT` (2026-09-27) | Both renderers and `Host.textMetrics` must agree | §5.9 |
+| Palette is hex-only in `COLORS` (`#rrggbb`/`#rrggbbaa`), guarded by a WCAG contrast test; `--fm-bg` mirrors `COLORS.background`; `textMuted` stays `#6b6b6b` so `DEFAULT_ME_COLOR` matches it (2026-09-29) | One source of colours for canvas and panels | §6.1 |
+| The `walls` layer draws each wall as a filled outline polygon **plus** thin outline segments along its edges, in both renderers (2026-09-29, S1 option A) | Under WebGL the segments get analytic (SDF) AA, so wall edges do not depend on MSAA; Canvas2D gets slightly crisper edges too | §5.9, §6.2 |
+| The scene does not rely on paint order inside a layer where kinds overlap: the helper's dimension line is clipped to stop at its label plate (`outsideBox`), so WebGL's polygon-then-segment order draws the same as Canvas2D; momentary drag overlaps (snap guide under a handle disc, ghost disc over an on-wall snap cross) are accepted (2026-09-29, S1.2 review) | WebGL batches by kind, so a plate that hides a line in Canvas2D does not hide it in WebGL; fixing the scene keeps both renderers identical and the draw-call counts unchanged | §6.2 |
+| Zone tags fit their room: both lines if the box fits inside the room's floor outline on screen (four corners, `pointInPolygon`), else the name alone centred, else hidden (not drawn, not hittable; the floor still selects the zone); orphan labels always show both lines (2026-09-30, user report: tags overlapping when zoomed out) | Fixed-size text on a shrinking room overlaps; per-room fit keeps big rooms labelled, unlike a global zoom threshold (the user chose it) | §5.9 |
+| SDF debug view `?sdf=debug` (shell only): segments, arcs and discs draw their distance field as 4 px bands fading by 16 px outside the shape, quads padded to 16 px in this mode only; polygons unchanged; Canvas2D ignores it (2026-09-30, user: "switching does not show any difference") | The WebGL picture is meant to match Canvas2D, so SDF antialiasing is invisible; the view makes it demonstrable without changing the editor or the draw calls | §6.2 |
+| Renderer choice is shell-only: `RendererSwitch` (toolbar button, `?renderer=webgl|canvas2d`), default Canvas2D; WebGL2 missing or context lost → Canvas2D plus a toolbar notice, no restore; the effect runner's `setRenderer` redraws the last scene at once (S1, 2026-09-29) | The editor never knows which renderer draws; the demo never depends on WebGL | §1.4, §6.2 |
+| Two stacked canvases: `gl-canvas` (WebGL2, no input) under `canvas` (input; Canvas2D, or the transparent text overlay under WebGL). The 2D context has no `alpha: false` (S1, 2026-09-29) | A canvas keeps the context type and attributes of its first `getContext` call | §6.1, §6.2 |
+| WebGL draws one call per non-empty (layer × kind), kinds polygon → segment → arc → disc within a layer; 5 draw calls at demo step 4, 7 at step 5, at most 9 pairs today; the scene doesn't rely on paint order inside a layer (see the helper row) (S1, 2026-09-29, builder tests) | Computed, not estimated | §6.2 |
+| SDF coverage is `clamp(0.5 − d·dpr, 0, 1)` with `d` in CSS px (S1, 2026-09-29) | Exact distances make it equal to `d / fwidth(d)` without derivatives in branches | §6.2 |
+| Wall edges: `{ px: 1 }`, round caps, fill colour; translucent walls (preview) get a slightly darker rim from the overlap (S1, 2026-09-29) | Round caps close outer miter corners; the rim is accepted | §6.2 |
+
+## Don't
+
+- Don't claim analytic AA for polygons — only SDF primitives get it; polygons rely on MSAA (edges hidden under wall outlines).
+- Don't quote a draw-call estimate: it is one per non-empty (layer × kind), computed as 5 (demo step 4) and 7 (step 5), at most 9 today; the earlier "about 10–15" was wrong (2026-09-29).
+- Don't call `loseContext()` when disposing the WebGL renderer: the canvas keeps that lost context, and toggling back could never get a working one.
+- Don't give the input canvas `alpha: false`: under WebGL it is the transparent text overlay.
+- Don't claim pixel parity or speed for WebGL: it is compared by eye and by pixel probes; speed is not measured unless the gate report says how.
+- Don't let the demo depend on WebGL.
+- Don't hide one primitive under another of a different kind in the same layer (e.g. a plate over a line): WebGL draws by kind, not scene order. Clip the hidden one instead (2026-09-29; the old "only overlaps ≤ 1 px" claim was wrong).

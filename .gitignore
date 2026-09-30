@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+data/
+*.tmp
+.claude/worktrees/
+packages/web/dist/
+packages/web/test-results/
+packages/web/playwright-report/

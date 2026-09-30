@@ -1,0 +1,25 @@
+{
+  "name": "@fm/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "@fm/domain": "workspace:*",
+    "@fm/editor": "workspace:*",
+    "@fm/protocol": "workspace:*",
+    "ws": "^8.22.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@fm/server": "workspace:*",
+    "@types/node": "^26.6.3",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15"
+  }
+}
