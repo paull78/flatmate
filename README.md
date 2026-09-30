@@ -41,7 +41,7 @@ With `pnpm demo` running, open the two windows above.
 2. Press `W` and click the origin. Holding `Shift`, move right, type `6` and press `Enter`. Do the same with `4` up and `6` left, then click the first joint to close the room.
 3. Still holding `Shift`, draw a divider between the midpoints of the bottom and top walls. The midpoint snap makes both ends exact, and the walls split where the divider meets them.
 4. Press `Z` and click inside each room: each gets a tag with its clear area, 10.64 m² (walls are 0.20 m thick). Rename a room in the panel on the right.
-5. Press `V`, select the right wall, click its length, type `3.5` and press `Enter`: the top-right corner moves down and both areas update.
+5. Press `V` and select the right wall. Click the length shown next to it: the label turns into a field. Type `3.5` and press `Enter`: the top-right corner moves down and both areas update.
 6. Drag that corner across the divider: the preview turns red and snaps back when you let go.
 7. As Alice, move a joint twice and undo both moves. Once Bob edits that joint, Alice's redo is unavailable, with a note that the drawing changed remotely.
 

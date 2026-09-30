@@ -704,6 +704,7 @@ Selection rules:
 - Moving a selected wall translates its two endpoints once by the pointer delta rounded to the grid; moving a selected joint moves that joint to the snapped pointer, ignoring the joint and its own walls as snap targets. Connected walls follow shared endpoints.
 - Deleting a selected joint deletes its incident walls, then removes unused joints.
 - Helper editing keeps endpoint `a` fixed and visibly marks it. Endpoint switching is deferred.
+- While editing, the helper plate looks like a text field: a 1 px blue outline. Before the first key it shows the current length on a light blue fill, like selected text that typing replaces; from the first key the fill is white and the plate shows the typed value. The command bar shows "Wall length" (U2, 2026-09-30).
 
 ### 5.7 Gestures: preview and commit
 

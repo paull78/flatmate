@@ -19,5 +19,7 @@ export const COLORS = {
   zoneHint: "#2563eb1f", // faint unlabelled-room hint while Z is active
   text: "#1d1d1f",
   textMuted: "#6b6b6b", // same grey as DEFAULT_ME_COLOR in state.ts
+  field: "#ffffff", // a value being typed (the helper while editing)
+  fieldSelection: "#2563eb33", // light selection blue: the value typing will replace
   helper: "#0f766e", // teal: distinct from the selection blue, so helper text is easy to tell apart (and to filter in tests)
 } as const;

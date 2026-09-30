@@ -110,6 +110,61 @@ describe("helper dimension in the Scene", () => {
   });
 });
 
+describe("helper editing looks like a text field (spec §5.6, U2)", () => {
+  /** The plate polygon's fill and the blue outline segments around it. */
+  function field(shell: FakeShell) {
+    const box = plate(shell);
+    const annotations = layer(shell, "annotations");
+    const fills = annotations.flatMap((p) =>
+      p.kind === "polygon" && p.points.length === 4 && p.points[0]?.x === box.min.x && p.points[0]?.y === box.min.y ? [p.color] : [],
+    );
+    const outline = annotations.flatMap((p) => (p.kind === "segment" && p.color === COLORS.wallSelected ? [p] : []));
+    return { fills, outline };
+  }
+  function editRight(): FakeShell {
+    const shell = FakeShell.withDocument(roomDoc());
+    const right = wallBetween(shell.doc(), { x: 6, y: 0 }, { x: 6, y: 4 });
+    shell.click({ x: 6, y: 1 });
+    const at = helperLabelAt(shell.doc(), right, shell.state.camera);
+    if (!at) throw new Error("no helper");
+    shell.click(at);
+    return shell;
+  }
+
+  it("a selected wall's helper is a plain plate with no outline", () => {
+    const shell = FakeShell.withDocument(roomDoc());
+    shell.click({ x: 6, y: 1 });
+    expect(field(shell)).toEqual({ fills: [COLORS.background], outline: [] });
+  });
+
+  it("before the first key: blue outline, selection fill, the current length", () => {
+    const shell = editRight();
+    const { fills, outline } = field(shell);
+    expect(fills).toEqual([COLORS.fieldSelection]);
+    expect(outline).toHaveLength(4);
+    expect(helperTexts(shell)).toEqual(["4.00"]);
+  });
+
+  it("after a key: blue outline, white fill, the typed value; Esc restores the plain plate", () => {
+    const shell = editRight();
+    shell.key("3");
+    const { fills, outline } = field(shell);
+    expect(fills).toEqual([COLORS.field]);
+    expect(outline).toHaveLength(4);
+    expect(helperTexts(shell)).toEqual(["3"]);
+    shell.key("Escape");
+    expect(field(shell)).toEqual({ fills: [COLORS.background], outline: [] });
+  });
+
+  it("the outline is the plate's four sides", () => {
+    const shell = editRight();
+    const box = plate(shell);
+    const corners = field(shell).outline.map((s) => [s.a, s.b]);
+    const c = { bl: box.min, br: { x: box.max.x, y: box.min.y }, tr: box.max, tl: { x: box.min.x, y: box.max.y } };
+    expect(corners).toEqual([[c.bl, c.br], [c.br, c.tr], [c.tr, c.tl], [c.tl, c.bl]]);
+  });
+});
+
 describe("outsideBox", () => {
   const min = { x: 0, y: 0 };
   const max = { x: 2, y: 2 };

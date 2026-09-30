@@ -114,10 +114,17 @@ export function drawHelper(state: EditorState, doc: Document, out: Primitive[], 
   // The line stops at the plate: WebGL draws a layer's polygons before its segments, so a plate cannot hide it.
   for (const [p, q] of outsideBox(a, b, box.min, box.max)) out.push(seg(p, q));
   out.push(seg(sub(a, tick), add(a, tick)), seg(sub(b, tick), add(b, tick)));
-  out.push({
-    kind: "polygon",
-    points: [box.min, { x: box.max.x, y: box.min.y }, box.max, { x: box.min.x, y: box.max.y }],
-    color: COLORS.background,
-  });
+  const corners = [box.min, { x: box.max.x, y: box.min.y }, box.max, { x: box.min.x, y: box.max.y }];
+  const tool = state.tool;
+  const editing = tool.name === "select" && tool.state.kind === "editingHelper" ? tool.state.value : null;
+  // While editing, the plate looks like a text field: the current length stays "selected" until the first key (§5.6).
+  const fill = editing === null ? COLORS.background : editing === "" ? COLORS.fieldSelection : COLORS.field;
+  out.push({ kind: "polygon", points: corners, color: fill });
+  if (editing !== null) {
+    corners.forEach((p, i) => {
+      const q = corners[(i + 1) % corners.length] ?? p;
+      out.push({ kind: "segment", a: p, b: q, width: { px: 1 }, color: COLORS.wallSelected, cap: "round" }); // round caps close the corners
+    });
+  }
   out.push({ kind: "text", text: box.text, at: box.at, size: HELPER_FONT.size, color: COLORS.helper, align: "center", rotation: 0 });
 }
