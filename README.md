@@ -49,6 +49,10 @@ With `pnpm demo` running, open the two windows above.
 
 `packages/mcp` is an MCP server: Claude edits the drawing as a third collaborator, through the same editor core and the same server rules as the browser windows. Start the demo first (`pnpm demo`); the MCP server connects to `ws://localhost:8787` as "Claude".
 
+![Claude Code drawing a penthouse in Flatmate, then adding a greenhouse next to the balcony](docs/images/claude-penthouse.gif)
+
+The prompts in this recording (sped up): *"Make a new project in flatmate. Call it NY Penthouse. Make a nice apartment with a large open area and a balcony. Make it nice and cozy."*, then *"Nice, but add a greenhouse accessible from the balcony."*
+
 Claude Code, from the repository root:
 
 ```bash
