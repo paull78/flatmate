@@ -10,6 +10,35 @@ import { FakeHost, FakeShell } from "./fake-shell";
 const camera: Camera = { center: { x: 3, y: 2 }, zoom: DEFAULT_ZOOM, viewport: { width: 1200, height: 800 }, dpr: 1 };
 const host = new FakeHost();
 
+describe("tag layouts are cached (spec §5.9, P2)", () => {
+  it("returns the same layout for the same document, zoom and Host, also after a pan", () => {
+    const doc = labelledDoc();
+    const first = tagLayout(doc, "L1", camera, host);
+    expect(first).not.toBeNull();
+    expect(tagLayout(doc, "L1", camera, host)).toBe(first);
+    expect(tagLayout(doc, "L1", { ...camera, center: { x: 40, y: -7 } }, host)).toBe(first);
+  });
+
+  it("lays out again after a zoom, on a new document, or with another Host", () => {
+    const doc = labelledDoc();
+    const first = tagLayout(doc, "L1", camera, host);
+    const zoomed = tagLayout(doc, "L1", { ...camera, zoom: camera.zoom * 2 }, host);
+    expect(zoomed).not.toBe(first);
+    expect(zoomed?.max.x).toBeLessThan(first?.max.x ?? 0); // same text, half the world size
+    expect(tagLayout(labelledDoc(), "L1", camera, host)).not.toBe(first);
+    expect(tagLayout(doc, "L1", camera, new FakeHost())).not.toBe(tagLayout(doc, "L1", camera, host));
+  });
+
+  it("a renamed label gets a new layout (its document is a new value)", () => {
+    const doc = labelledDoc();
+    const before = tagLayout(doc, "L1", camera, host);
+    const renamed = unwrap(execute(doc, { type: "renameZone", id: "L1", name: "A much longer room name" })).doc;
+    const after = tagLayout(renamed, "L1", camera, host);
+    expect(after?.lines[0]?.text).toBe("A much longer room name");
+    expect(after).not.toBe(before);
+  });
+});
+
 describe("zone tags (spec §3.6)", () => {
   it("formats areas with two decimals", () => {
     expect(formatArea(10.64)).toBe("10.64 m²");

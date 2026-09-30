@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { faceAt, orphanLabelIds, zones } from "../src/queries/zones";
+import { faceAt, orphanLabelIds, zoneOfLabel, zones } from "../src/queries/zones";
 import { validateDocument } from "../src/validate";
 import { docOf, rectDoc } from "./helpers";
 
@@ -16,6 +16,16 @@ describe("zones", () => {
     expect(z.map((x) => x.area?.toFixed(2))).toEqual(["10.64", "10.64"]);
     expect(z.flatMap((x) => x.labelIds).sort()).toEqual(["L1", "L2"]);
     expect(orphanLabelIds(divided())).toEqual(["L9"]);
+  });
+
+  it("looks up a label's room from the cached result (P2)", () => {
+    const doc = divided();
+    const kitchen = zones(doc).find((z) => z.labelIds.includes("L1"));
+    expect(kitchen).toBeDefined();
+    expect(zoneOfLabel(doc, "L1")).toBe(kitchen);
+    expect(zoneOfLabel(doc, "L9")).toBeNull(); // orphan
+    expect(zoneOfLabel(doc, "missing")).toBeNull();
+    expect(zoneOfLabel(doc, "constructor")).toBeNull(); // not an inherited Object member
   });
 
   it("memoizes by document identity", () => {

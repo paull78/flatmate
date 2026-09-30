@@ -17,7 +17,7 @@ export type Zone = {
 
 const UNSUPPORTED_BOUNDARY = "Area unavailable: unsupported boundary";
 
-type Analysis = { faces: BoundedFace[]; zones: Zone[]; orphans: string[] };
+type Analysis = { faces: BoundedFace[]; zones: Zone[]; orphans: string[]; byLabel: Map<string, Zone> };
 const memo = new WeakMap<Document, Analysis>();
 
 function publicFace(f: BoundedFace): Face {
@@ -65,7 +65,9 @@ function analyse(doc: Document): Analysis {
       ? { face: publicFace(f), floor: inset.floor, area: inset.area, unavailable: null, labelIds }
       : { face: publicFace(f), floor: null, area: null, unavailable: AREA_UNAVAILABLE, labelIds };
   });
-  const result = { faces, zones, orphans };
+  const byLabel = new Map<string, Zone>();
+  for (const z of zones) for (const id of z.labelIds) byLabel.set(id, z);
+  const result = { faces, zones, orphans, byLabel };
   memo.set(doc, result);
   return result;
 }
@@ -77,6 +79,11 @@ function analyse(doc: Document): Analysis {
  */
 export function zones(doc: Document): readonly Zone[] {
   return analyse(doc).zones;
+}
+
+/** The room holding this label, or null for an orphan or an unknown ID (spec §3.6): a lookup in the cached analysis. */
+export function zoneOfLabel(doc: Document, labelId: string): Zone | null {
+  return analyse(doc).byLabel.get(labelId) ?? null;
 }
 
 /**

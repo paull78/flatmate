@@ -1,6 +1,6 @@
 import { COLORS, type Camera, type Scene } from "@fm/editor";
 import { backingSize, drawTextOverlay } from "./canvas2d-renderer";
-import type { Renderer } from "./renderer";
+import type { OnFrame, Renderer } from "./renderer";
 import {
   ARC_FLOATS,
   DISC_FLOATS,
@@ -129,7 +129,7 @@ function fit(canvas: HTMLCanvasElement, size: { width: number; height: number })
  * rebuilt only for a new Scene object, which in practice is every editor event (the editor rebuilds its Scene).
  * `sdfDebug` (`?sdf=debug`) compiles the SDF programs in their debug form (see shaders.ts); nothing else changes.
  */
-export function createWebGLRenderer(glCanvas: HTMLCanvasElement, overlay: HTMLCanvasElement, onLost: () => void, options: { sdfDebug: boolean }): Renderer | null {
+export function createWebGLRenderer(glCanvas: HTMLCanvasElement, overlay: HTMLCanvasElement, onLost: () => void, options: { sdfDebug: boolean; onFrame?: OnFrame }): Renderer | null {
   const gl = glCanvas.getContext("webgl2", { antialias: true, alpha: false, premultipliedAlpha: true });
   const text = overlay.getContext("2d");
   if (gl === null || gl.isContextLost() || text === null) {
@@ -167,12 +167,17 @@ export function createWebGLRenderer(glCanvas: HTMLCanvasElement, overlay: HTMLCa
     if (pending === null || lost) return;
     const { scene, camera } = pending;
     pending = null;
+    const started = performance.now();
     if (built === null || built.scene !== scene) built = { scene, frame: buildFrame(scene) };
     const size = backingSize(camera);
     fit(glCanvas, size);
     fit(overlay, size);
     drawGeometry(gl, programs, built.frame, camera, size);
     drawTextOverlay(text, built.frame.texts, camera);
+    if (options.onFrame) {
+      gl.finish(); // only when measuring (spec §6.3): waits for the GPU, so the time includes its work
+      options.onFrame(performance.now() - started, scene);
+    }
   };
 
   return {

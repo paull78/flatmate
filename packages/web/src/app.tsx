@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { UiAction } from "@fm/editor";
 import { CommandBar } from "./panels/CommandBar";
+import { PerfPanel } from "./panels/PerfPanel";
 import { ProjectList } from "./panels/ProjectList";
 import { PropertiesPanel } from "./panels/PropertiesPanel";
 import { RendererToggle } from "./panels/RendererToggle";
 import { StatusBar } from "./panels/StatusBar";
 import { Toast } from "./panels/Toast";
 import { Toolbar } from "./panels/Toolbar";
-import type { RendererSwitch } from "./renderer-switch";
+import type { PerfMeter } from "./perf";
+import type { RendererKind, RendererSwitch } from "./renderer-switch";
 import type { EditorStore } from "./store";
 
 export type AppProps = {
@@ -16,9 +18,11 @@ export type AppProps = {
   /** `canvas` takes input and Canvas2D (or, under WebGL, the text overlay); `glCanvas` lies under it for WebGL. */
   mountCanvas(canvas: HTMLCanvasElement, glCanvas: HTMLCanvasElement): () => void;
   serverMode?: boolean;
+  /** `?perf` (spec §6.3): shows the meter's numbers over the canvas. */
+  perf?: PerfMeter | null;
 };
 
-export function App({ store, renderer, mountCanvas, serverMode = false }: AppProps) {
+export function App({ store, renderer, mountCanvas, serverMode = false, perf = null }: AppProps) {
   const view = useSyncExternalStore(store.subscribe, store.getView);
   const choice = useSyncExternalStore(renderer.subscribe, renderer.getChoice);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -43,6 +47,7 @@ export function App({ store, renderer, mountCanvas, serverMode = false }: AppPro
           <canvas ref={glCanvasRef} className="gl-canvas" data-testid="gl-canvas" aria-hidden="true" />
           <canvas ref={canvasRef} data-testid="canvas" style={{ cursor: view.cursor }} />
           {view.projectList !== null ? <ProjectList list={view.projectList} send={send} /> : null}
+          {perf !== null ? <PerfReadout meter={perf} renderer={choice.kind} /> : null}
           {serverMode && view.project !== null ? (
             <button
               type="button"
@@ -62,4 +67,14 @@ export function App({ store, renderer, mountCanvas, serverMode = false }: AppPro
       <Toast view={view} />
     </div>
   );
+}
+
+/** Reads the meter twice a second; drawing it on every frame would add to what it measures. */
+function PerfReadout({ meter, renderer }: { meter: PerfMeter; renderer: RendererKind }) {
+  const [summary, setSummary] = useState(meter.summary);
+  useEffect(() => {
+    const id = setInterval(() => setSummary(meter.summary()), 500);
+    return () => clearInterval(id);
+  }, [meter]);
+  return <PerfPanel summary={summary} renderer={renderer} />;
 }

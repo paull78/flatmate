@@ -4,14 +4,20 @@ import { cross, distance, distanceToSegment, dot, isSimplePolygon, normalize, po
 import { WALL_THICKNESS, type Document } from "../src/model";
 import { wallOutlines } from "../src/queries/outlines";
 import { validateDocument } from "../src/validate";
-import { docOf } from "./helpers";
+import { docOf, rectDoc } from "./helpers";
 
 const HALF = WALL_THICKNESS / 2;
 
-const close = (points: { x: number; y: number }[] | undefined) =>
+const close = (points: readonly { x: number; y: number }[] | undefined) =>
   (points ?? []).map((p) => ({ x: Math.round(p.x * 1e6) / 1e6 + 0, y: Math.round(p.y * 1e6) / 1e6 + 0 }));
 
 describe("wallOutlines", () => {
+  it("is cached by document identity, like the rooms (spec §3.6, P2)", () => {
+    const doc = rectDoc(0, 0, 6, 4);
+    expect(wallOutlines(doc)).toBe(wallOutlines(doc));
+    expect(wallOutlines(rectDoc(0, 0, 6, 4))).not.toBe(wallOutlines(doc));
+  });
+
   it("gives no outlines for an empty document", () => {
     expect(wallOutlines({ joints: {}, walls: {}, zoneLabels: {} }).size).toBe(0);
   });

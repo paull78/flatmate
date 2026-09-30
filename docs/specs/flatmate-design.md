@@ -313,6 +313,8 @@ For each joint, sort incident walls by angle. For each pair of angularly adjacen
 5. Offset each boundary inward by `WALL_THICKNESS / 2` (0.10 m) and intersect consecutive offset lines. Accept only a simple polygon with positive area whose inset edges retain their source direction (positive dot product and positive length). Otherwise show "Area unavailable: unsupported geometry". These conservative checks can decline valid complicated rooms and do not diagnose every failure as insufficient width.
 6. Resolve labels by point containment in supported simple face rings, even when their inset area is unavailable. Unlabelled faces appear as faint hints while `Z` is active.
 
+The result (rooms, and the room of each label) is computed once per document and cached by document identity; `zoneOfLabel(doc, labelId)` reads a label's room from that result. Wall outlines (§3.5) are cached the same way (P2).
+
 The initial area display supports simple closed rings and two rooms made by a divider. For other bounded faces, the editor may show "Area unavailable" while keeping the drawing editable. Nested rings and bridge-connected loops are deferred (§11).
 
 Clicking within ε of a room boundary does not create a label. Clicking an already labelled face selects its zone and highlights the floor shape; `labelZone` itself refuses a face that already holds a label (two concurrent labels of one room can still both be accepted and are both shown). Splitting a room leaves each label in the face containing its stored point. Moving joints (a drag or a wall resize) never changes which room a label belongs to: a label whose point no longer resolves to its room (the same face, identified by its boundary walls) moves to an interior point of that room (the floor's area centroid if inside, else the middle of the widest horizontal span through it); labels still inside their room stay where they are. Supported constraint: two moves of one room's joints that are both in flight at once can together push its label out (each alone kept it inside); the label then shows as an orphan on both clients until someone moves it back or relabels. When deletion merges labelled rooms, combine their labels into one as described below. Labels outside every supported face appear as orphans, "no enclosing walls": a label resolves to the innermost face containing its point, and it is an orphan when that face is unsupported (its walk repeats a joint) or the point is within ε of its boundary. Room identity is derived; labels are independent annotations.
@@ -816,6 +818,8 @@ ViewModel = {
 
 A hidden tag is not drawn and is not a click target; clicking the room's floor still selects the zone (§5.6). A label in no room (orphan) always shows both lines. Zooming out therefore hides small rooms' tags first while large rooms keep theirs.
 
+**Tag layouts are cached (P2, 2026-09-30).** A tag's layout depends only on the document, its label, the zoom and the Host's text widths, so it is computed once per (document, zoom, Host) and reused by drawing and by hit-testing (hover and clicks). Panning changes none of these, so it lays out no tags; each zoom step or document change lays them out again. The room holding a label is looked up in a table the domain builds with the rooms (§3.6), not searched per tag. Documents are immutable values, so the cache never serves a stale layout.
+
 React renders the ViewModel as toolbar, command bar and properties panel; another host could render the same object differently; tests assert on it. **UI logic lives once in the editor; only the look is re-created per host.**
 
 ---
@@ -863,6 +867,20 @@ Geometry primitives only (segments, arcs, discs, polygons); text is delegated to
 ```
  normal:  ━━━━━━━━          ?sdf=debug:  ░▒░▒━━━━━━━━▒░▒░   bands every 4 px of distance, fading by 16 px
 ```
+
+### 6.3 Measuring speed (shell and scripts only, P1, 2026-09-30)
+
+Two tools, so speed claims come from numbers:
+
+- **A large drawing:** `pnpm demo:seed-grid [N]` stores a project "Grid N×N": N × N square rooms of 3 m, each labelled ("Room i.j"), so 2N(N+1) walls, (N+1)² joints and N² labels (default N = 30). The document is written directly as joints, walls and labels (building it with `execute` wall by wall takes minutes at this size), then accepted through the server's ordinary submit decision as one changeset, so the domain validates it once. Run it before starting the server, like `demo:seed`; it is idempotent by name.
+- **A readout:** `?perf` shows a small panel over the canvas, refreshed twice a second, with the average and worst of the last 120 samples of:
+  - **update**: the editor's `update` call per event (the reducer, rooms and areas when the document changed, the Scene and the ViewModel);
+  - **draw**: the renderer's frame. Under WebGL the frame ends with `gl.finish()` in this mode only, so it includes the GPU's work (and the Canvas2D text overlay); under Canvas2D it is the `drawScene` call. The panel names the renderer.
+  - the Scene's primitive count.
+
+  It changes nothing without `?perf`; the editor and the Scene do not change.
+
+Rooms are cached per document (§3.6), so panning and zooming a drawing that does not change finds rooms once; an edit, and every drag preview, finds them again for the new document.
 
 ---
 

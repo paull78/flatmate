@@ -16,6 +16,7 @@
     "dev:server": "pnpm --filter @fm/server dev",
     "demo": "bash scripts/demo.sh",
     "demo:seed": "pnpm --filter @fm/server exec tsx scripts/run-seed-demo.ts",
+    "demo:seed-grid": "pnpm --filter @fm/server exec tsx scripts/run-seed-grid.ts",
     "demo:headless": "pnpm --filter @fm/editor exec vitest run test/scenarios/demo-narrated.test.ts --reporter=verbose",
     "demo:script": "tsx scripts/build-room.ts",
     "e2e": "pnpm --filter @fm/web e2e",

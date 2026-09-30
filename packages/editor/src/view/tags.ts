@@ -1,4 +1,4 @@
-import { isValidId, pointInPolygon, sortedIds, zones, type Document, type Zone } from "@fm/domain";
+import { isValidId, pointInPolygon, sortedIds, zoneOfLabel as domainZoneOfLabel, type Document, type Zone } from "@fm/domain";
 import type { Point } from "@fm/protocol";
 import type { Camera } from "../camera";
 import type { Host } from "../ports/host";
@@ -18,9 +18,9 @@ export function formatArea(area: number): string {
   return `${area.toFixed(2)} m²`;
 }
 
-/** The derived zone that holds this label, or null for an orphan. */
+/** The derived zone that holds this label, or null for an orphan: a lookup in the domain's cached rooms (§3.6). */
 export function zoneOfLabel(doc: Document, labelId: string): Zone | null {
-  return zones(doc).find((z) => z.labelIds.includes(labelId)) ?? null;
+  return domainZoneOfLabel(doc, labelId);
 }
 
 /** Second tag line: the clear area, a short unavailable note, or the orphan note. */
@@ -41,6 +41,28 @@ export function areaFieldText(zone: Zone | null): string {
  * always shows both lines. Null also when the label does not exist.
  */
 export function tagLayout(doc: Document, labelId: string, camera: Camera, host: Host): TagLayout | null {
+  // Cached per Host → document → zoom (spec §5.9): nothing else feeds a layout, and documents are immutable values.
+  let byDoc = layoutCache.get(host);
+  if (!byDoc) {
+    byDoc = new WeakMap();
+    layoutCache.set(host, byDoc);
+  }
+  let cached = byDoc.get(doc);
+  if (!cached || cached.zoom !== camera.zoom) {
+    cached = { zoom: camera.zoom, layouts: new Map() };
+    byDoc.set(doc, cached);
+  }
+  const hit = cached.layouts.get(labelId);
+  if (hit !== undefined) return hit;
+  const layout = computeTagLayout(doc, labelId, camera, host);
+  cached.layouts.set(labelId, layout);
+  return layout;
+}
+
+/** One zoom per document: panning reuses it, a zoom step replaces it. Shared results: read-only for callers. */
+const layoutCache = new WeakMap<Host, WeakMap<Document, { zoom: number; layouts: Map<string, TagLayout | null> }>>();
+
+function computeTagLayout(doc: Document, labelId: string, camera: Camera, host: Host): TagLayout | null {
   // The ID may come from outside the document: an Object.prototype member name would find the inherited member.
   const label = isValidId(labelId) ? doc.zoneLabels[labelId] : undefined;
   if (!label) return null;

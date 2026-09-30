@@ -326,3 +326,16 @@ body,
 .canvas-host .gl-canvas { pointer-events: none; }
 .renderer-toggle { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .renderer-notice { color: var(--fm-danger); font-size: 12px; }
+
+/* ?perf readout (spec §6.3) */
+.perf-panel {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #1d1d1fcc;
+  color: #ffffff;
+  font: 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+  pointer-events: none;
+}

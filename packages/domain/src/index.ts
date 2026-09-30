@@ -12,7 +12,7 @@ export * from "./commands/types";
 export { execute } from "./commands/execute";
 export { wallOutlines } from "./queries/outlines";
 export type { Face } from "./queries/faces";
-export { zones, orphanLabelIds, faceAt, type Zone } from "./queries/zones";
+export { zones, zoneOfLabel, orphanLabelIds, faceAt, type Zone } from "./queries/zones";
 export { wallHelperDimension } from "./queries/helpers";
 export { hitCandidates } from "./queries/hit";
 export * from "./serialize";

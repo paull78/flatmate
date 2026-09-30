@@ -92,7 +92,18 @@ function withoutRepeats(ring: Point[]): Point[] {
  * At a joint of 3 or more walls the outline runs through the joint between its two corners.
  * Inner corners are limited so each outline stays within its wall body, plus its outer miters and bevels.
  */
-export function wallOutlines(doc: Document): Map<string, Point[]> {
+export function wallOutlines(doc: Document): ReadonlyMap<string, readonly Point[]> {
+  // Cached by document identity like the rooms (spec §3.6): shared by every caller, so read-only.
+  const cached = outlineMemo.get(doc);
+  if (cached) return cached;
+  const result = computeOutlines(doc);
+  outlineMemo.set(doc, result);
+  return result;
+}
+
+const outlineMemo = new WeakMap<Document, ReadonlyMap<string, readonly Point[]>>();
+
+function computeOutlines(doc: Document): Map<string, Point[]> {
   const byJoint = jointWalls(doc);
   const cache = new Map<string, Spoke[]>();
   const spokesAt = (jointId: string): Spoke[] => {

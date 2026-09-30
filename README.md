@@ -25,6 +25,7 @@ The toolbar's renderer button switches between Canvas2D (the default) and a WebG
 | Command | What it does |
 |---------|--------------|
 | `pnpm demo:seed` | adds a "Sample apartment" project (the room after step 4 of "Try it"); run it before starting the server |
+| `pnpm demo:seed-grid [N]` | adds a "Grid N×N" project of N × N labelled 3 m rooms (default 30; 50 gives 5,100 walls) for speed tests; run it before starting the server. Open any drawing with `?perf` to see update and draw times |
 | `pnpm demo:headless` | replays steps 2–6 of "Try it" in the headless editor, with no browser, one narrated test per step |
 | `pnpm demo:script` | builds a 4 × 5 m room with a divider through the domain API only and prints its two areas |
 | `pnpm check` | typecheck, lint, dependency rules and all Vitest unit/integration tests |

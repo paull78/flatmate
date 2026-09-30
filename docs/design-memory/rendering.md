@@ -23,6 +23,9 @@
 | WebGL draws one call per non-empty (layer × kind), kinds polygon → segment → arc → disc within a layer; 5 draw calls at demo step 4, 7 at step 5, at most 9 pairs today; the scene doesn't rely on paint order inside a layer (see the helper row) (S1, 2026-09-29, builder tests) | Computed, not estimated | §6.2 |
 | SDF coverage is `clamp(0.5 − d·dpr, 0, 1)` with `d` in CSS px (S1, 2026-09-29) | Exact distances make it equal to `d / fwidth(d)` without derivatives in branches | §6.2 |
 | Wall edges: `{ px: 1 }`, round caps, fill colour; translucent walls (preview) get a slightly darker rim from the overlap (S1, 2026-09-29) | Round caps close outer miter corners; the rim is accepted | §6.2 |
+| Speed is measured, not claimed: `pnpm demo:seed-grid [N]` makes a large drawing and `?perf` shows update and draw times (average and worst of 120), with `gl.finish()` under WebGL so draw includes the GPU (2026-09-30, P1) | The user asked to test SDF speed; the app had no numbers | §6.3 |
+| First numbers (2026-09-30, headless Chromium, ANGLE Metal on an Apple M4 Pro, 1400×900 at 2×, 150 wheel pans; one run each): 30×30 grid (16 734 primitives): update 9.2 ms avg, draw Canvas2D 4.2 ms, WebGL 6.6 ms; 50×50 (45 814 primitives): update 40 ms, draw Canvas2D 9.0 ms, WebGL 15.1 ms. The editor's update costs more than either draw; in Node, `buildScene` at 50×50 takes 26 ms, 17 of them for room tags. WebGL is not faster here: it rebuilds its instance buffers for every new Scene (the editor makes one per event), text is still Canvas2D, and `gl.finish()` stalls the pipeline | Numbers from §6.3's tools; speed-ups would start with the Scene (tags, off-screen culling, reusing the Scene when only the camera pans), not the shaders | §6.3 |
+| After P2 (cached tag layouts, label → room table, cached wall outlines; same setup): 50×50 pan update 40 → 3.5 ms, zoom 26 → 6.5 ms; draw is now the larger part (Canvas2D 11 ms, WebGL 16 ms with `gl.finish()`). Next lever: WebGL rebuilds and uploads every instance buffer for each new Scene; reusing unchanged layers would leave only the grid to rebuild on a pan (2026-09-30) | Measured with §6.3's tools | §5.9, §6.3 |
 
 ## Don't
 
@@ -30,6 +33,6 @@
 - Don't quote a draw-call estimate: it is one per non-empty (layer × kind), computed as 5 (demo step 4) and 7 (step 5), at most 9 today; the earlier "about 10–15" was wrong (2026-09-29).
 - Don't call `loseContext()` when disposing the WebGL renderer: the canvas keeps that lost context, and toggling back could never get a working one.
 - Don't give the input canvas `alpha: false`: under WebGL it is the transparent text overlay.
-- Don't claim pixel parity or speed for WebGL: it is compared by eye and by pixel probes; speed is not measured unless the gate report says how.
+- Don't claim pixel parity or speed for WebGL: it is compared by eye and by pixel probes. Speed claims need `?perf` numbers with the machine and drawing named; on the grid seed WebGL was slower than Canvas2D (2026-09-30).
 - Don't let the demo depend on WebGL.
 - Don't hide one primitive under another of a different kind in the same layer (e.g. a plate over a line): WebGL draws by kind, not scene order. Clip the hidden one instead (2026-09-29; the old "only overlaps ≤ 1 px" claim was wrong).

@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { initialState } from "@fm/editor";
+import { initialState, type Scene } from "@fm/editor";
 import { attachInput } from "./adapters/input";
 import { createCanvas2DRenderer } from "./adapters/canvas2d-renderer";
 import { createEffectRunner } from "./adapters/effect-runner";
@@ -10,6 +10,7 @@ import { createWsServer, serverSink } from "./adapters/ws-server";
 import { App } from "./app";
 import { displayNameFrom, serverUrlFrom, tabClientId } from "./identity";
 import { createRendererSwitch, rendererFrom, sdfDebugFrom } from "./renderer-switch";
+import { createPerfMeter, perfFrom, primitiveCount } from "./perf";
 import { createEditorStore } from "./store";
 import "./styles.css";
 
@@ -28,7 +29,10 @@ const initial = initialState(
   },
   host,
 );
-const store = createEditorStore({ initial, host });
+// ?perf: times each update and each drawn frame (spec §6.3); off, nothing is measured.
+const perf = perfFrom(location.search) ? createPerfMeter() : null;
+const onFrame = perf === null ? undefined : (ms: number, scene: Scene) => perf.draw(ms, primitiveCount(scene));
+const store = createEditorStore({ initial, host, onUpdate: perf?.update });
 const timers = createTimers(store.dispatch);
 // Canvas2D unless ?renderer=webgl (spec §1.4 step 10); the toolbar toggles it live.
 const rendererSwitch = createRendererSwitch(rendererFrom(location.search));
@@ -46,7 +50,7 @@ function mountCanvas(canvas: HTMLCanvasElement, glCanvas: HTMLCanvasElement): ()
   store.setRunner(runner.run);
   // Under WebGL, `canvas` (on top, taking input) becomes the transparent text overlay over `glCanvas`.
   const detachRenderer = rendererSwitch.attach(
-    { canvas2d: () => createCanvas2DRenderer(canvas), webgl: (onLost) => createWebGLRenderer(glCanvas, canvas, onLost, { sdfDebug }) },
+    { canvas2d: () => createCanvas2DRenderer(canvas, onFrame), webgl: (onLost) => createWebGLRenderer(glCanvas, canvas, onLost, { sdfDebug, onFrame }) },
     runner.setRenderer,
   );
   const detach = attachInput(canvas, store.dispatch); // sends viewportResized at once → first frame
@@ -68,4 +72,4 @@ window.addEventListener("beforeunload", (e) => {
 
 const root = document.getElementById("root");
 if (root === null) throw new Error("#root element missing");
-createRoot(root).render(<App store={store} renderer={rendererSwitch} mountCanvas={mountCanvas} serverMode={serverUrl !== null} />);
+createRoot(root).render(<App store={store} renderer={rendererSwitch} mountCanvas={mountCanvas} serverMode={serverUrl !== null} perf={perf} />);

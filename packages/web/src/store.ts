@@ -18,7 +18,8 @@ export type EditorStore = {
 };
 
 /** Holds the editor state; the shell's only mutable copy of it. */
-export function createEditorStore(opts: { initial: EditorState; host: Host }): EditorStore {
+/** `onUpdate` receives the time of each `update` call in ms (the `?perf` readout, spec §6.3). */
+export function createEditorStore(opts: { initial: EditorState; host: Host; onUpdate?: (ms: number) => void }): EditorStore {
   let state = opts.initial;
   let view = buildViewModel(state, opts.host);
   let run: (effects: Effect[]) => void = () => {};
@@ -32,7 +33,9 @@ export function createEditorStore(opts: { initial: EditorState; host: Host }): E
     draining = true;
     try {
       for (let next = queue.shift(); next !== undefined; next = queue.shift()) {
+        const started = opts.onUpdate ? performance.now() : 0;
         const result = update(state, next, opts.host);
+        opts.onUpdate?.(performance.now() - started);
         state = result.state;
         run(result.effects);
       }

@@ -1,6 +1,6 @@
 import { COLORS, UI_FONT, worldToScreen, type Camera, type Primitive, type Scene, type Width } from "@fm/editor";
 import { assertNever } from "@fm/protocol";
-import type { Renderer } from "./renderer";
+import type { OnFrame, Renderer } from "./renderer";
 
 /** The subset of CanvasRenderingContext2D the renderer uses; tests pass a recording fake. */
 export interface DrawContext {
@@ -132,7 +132,7 @@ export function backingSize(camera: Camera): { width: number; height: number } {
 }
 
 /** Canvas2D renderer: keeps the latest scene and draws it once per animation frame. */
-export function createCanvas2DRenderer(canvas: HTMLCanvasElement): Renderer {
+export function createCanvas2DRenderer(canvas: HTMLCanvasElement, onFrame?: OnFrame): Renderer {
   // Not `alpha: false`: under WebGL the same canvas is the transparent text overlay, and a canvas keeps the
   // attributes of its first getContext call. drawScene paints an opaque background, so nothing shows through.
   const ctx = canvas.getContext("2d");
@@ -145,10 +145,12 @@ export function createCanvas2DRenderer(canvas: HTMLCanvasElement): Renderer {
     if (pending === null) return;
     const { scene, camera } = pending;
     pending = null;
+    const started = performance.now();
     const size = backingSize(camera);
     if (canvas.width !== size.width) canvas.width = size.width;
     if (canvas.height !== size.height) canvas.height = size.height;
     drawScene(ctx, scene, camera);
+    onFrame?.(performance.now() - started, scene);
   };
 
   return {
