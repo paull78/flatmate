@@ -2,7 +2,7 @@
 
 A small collaborative 2D CAD editor for floor plans.
 
-You draw walls with the keyboard and mouse, click inside a room to see its clear area, resize a wall by typing its length, and edit the same drawing from two browser windows. Underneath, the drawing rules and the editing behaviour live in two platform-neutral TypeScript packages that run unchanged in the browser, in tests and on the server.
+You draw walls with the keyboard and mouse, click inside a room to see its clear area, resize a wall by typing its length, and edit the same drawing from multiple browser windows. Underneath, the domain and the editor tools live in two platform-neutral TypeScript packages that run unchanged in the browser, in tests and on the server.
 
 ![Alice and Bob editing the same floor plan in two windows](docs/images/two-windows.gif)
 
@@ -20,7 +20,7 @@ Open two windows side by side:
 - http://localhost:5173/?name=Alice
 - http://localhost:5173/?name=Bob
 
-The toolbar's renderer button switches between Canvas2D (the default) and a WebGL2 renderer live; `?renderer=webgl` starts with WebGL. If WebGL2 is missing or its context is lost, the app falls back to Canvas2D and says so.
+The toolbar's renderer button switches between Canvas2D (the default) and a WebGL2 SDF renderer live; `?renderer=webgl` starts with WebGL. If WebGL2 is missing or its context is lost, the app falls back to Canvas2D and says so.
 
 | Command | What it does |
 |---------|--------------|
