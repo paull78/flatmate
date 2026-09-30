@@ -51,7 +51,7 @@ With `pnpm demo` running, open the two windows above.
 
 ![Claude Code drawing a penthouse in Flatmate, then adding a greenhouse next to the balcony](docs/images/claude-penthouse.gif)
 
-The prompts in this recording (sped up): *"Make a new project in flatmate. Call it NY Penthouse. Make a nice apartment with a large open area and a balcony. Make it nice and cozy."*, then *"Nice, but add a greenhouse accessible from the balcony."*
+The prompts in this recording (sped up): *"Make a new project in flatmate. Call it NY Penthouse. Make a nice apartment with a large open area and a balcony. Make it nice and cozy."*, then *"Nice, but add a greenhouse accessible from the balcony."*, and a few questions about the result (how big is it, what would it cost).
 
 Claude Code, from the repository root:
 
