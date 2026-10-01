@@ -78,6 +78,7 @@ export function sharedOnEvent(d: SharedDocument, e: ServerEvent, host: Host): St
       return e.state === "open" ? requestSnapshot(d, host) : disconnected(d);
     case "welcome":
     case "openFailed":
+    case "projectDeleted":
     case "presence":
     case "presenceLeft":
       return same(d); // identity, failed opens and presence belong to the session (session.ts)

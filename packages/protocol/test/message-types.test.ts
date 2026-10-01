@@ -16,6 +16,8 @@ function describeServerMessage(m: ServerMessage): string {
       return `snapshot ${m.projectId}@${m.seq}`;
     case "openFailed":
       return `openFailed ${m.projectId}/${m.generation}`;
+    case "projectDeleted":
+      return `projectDeleted ${m.projectId}/${m.generation}`;
     case "changes":
       return `changes ${m.seq}`;
     case "ack":

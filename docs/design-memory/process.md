@@ -76,6 +76,8 @@
 32. **An order-dependent effect breaks when a second backend orders differently:** the helper plate hid its dimension line only because Canvas2D paints in scene order; WebGL batches by kind and drew the line through the number. The plan had claimed "only overlaps of 1 px or less" without checking every layer. When a new backend changes an implicit order, audit every place that relied on it, and prefer geometry that needs no order (2026-09-29, S1.2 review).
 33. **A check-then-act sequence must hold its lock for the whole sequence:** `draw_room` pre-checked four walls, then queued each wall separately, so a parallel tool call ran between them and the room stopped half-way on a domain error the pre-check was meant to rule out. Serialise the unit the guarantee is about (the tool call), not its steps, and test it with two calls in parallel (2026-09-29, M1 Review B).
 
+34. **A new operation in a second queue breaks invariants the first queue gave for free:** the project list read every `*.json` it had just listed, safe only because no file ever disappeared (saves rename atomically; create and list share one queue). Project delete moves a file from the project's queue, so a list running at the same time read a missing file, and crash-only turned that into a server restart. The in-memory test repository could not show it; a real-file race test (20 overlapping list/remove pairs) did. When an operation runs in a new queue, list what the other queues assumed about the data it touches (2026-10-01, D1 review).
+
 ## Open options
 
 - Sender could receive only `changes` as acknowledgement, with bare `ack` reserved for duplicate resends (one less message on the common path). Not adopted yet.

@@ -59,6 +59,7 @@ const serverEventTypes: Record<ServerEvent["type"], true> = {
   welcome: true,
   snapshot: true,
   openFailed: true,
+  projectDeleted: true,
   changes: true,
   ack: true,
   rejected: true,
@@ -70,13 +71,14 @@ const uiActionTypes: Record<UiAction["type"], true> = {
   createProject: true,
   openProject: true,
   showProjectList: true,
+  deleteProject: true,
   pickTool: true,
   setField: true,
   undo: true,
   redo: true,
 };
 const workspaceEventTypes: Record<WorkspaceEvent["type"], true> = { projects: true, created: true, failed: true };
-const workspaceOpTypes: Record<WorkspaceOp["type"], true> = { list: true, create: true, open: true };
+const workspaceOpTypes: Record<WorkspaceOp["type"], true> = { list: true, create: true, delete: true, open: true };
 const noticeTypes: Record<Notice["type"], true> = { accepted: true, rejected: true, remoteChange: true, resynced: true, offline: true };
 const snapKinds: Record<SnapKind, true> = {
   endpoint: true, midpoint: true, perpendicular: true, onWall: true, angle: true, aligned: true, grid: true, none: true,
@@ -134,11 +136,11 @@ describe("ports", () => {
 
   it("pins the server event, UI action, workspace, notice and snap kind variants", () => {
     expect(Object.keys(serverEventTypes)).toEqual([
-      "welcome", "snapshot", "openFailed", "changes", "ack", "rejected", "presence", "presenceLeft", "connection",
+      "welcome", "snapshot", "openFailed", "projectDeleted", "changes", "ack", "rejected", "presence", "presenceLeft", "connection",
     ]);
-    expect(Object.keys(uiActionTypes)).toEqual(["createProject", "openProject", "showProjectList", "pickTool", "setField", "undo", "redo"]);
+    expect(Object.keys(uiActionTypes)).toEqual(["createProject", "openProject", "showProjectList", "deleteProject", "pickTool", "setField", "undo", "redo"]);
     expect(Object.keys(workspaceEventTypes)).toEqual(["projects", "created", "failed"]);
-    expect(Object.keys(workspaceOpTypes)).toEqual(["list", "create", "open"]);
+    expect(Object.keys(workspaceOpTypes)).toEqual(["list", "create", "delete", "open"]);
     expect(Object.keys(noticeTypes)).toEqual(["accepted", "rejected", "remoteChange", "resynced", "offline"]);
     expect(Object.keys(snapKinds)).toEqual(["endpoint", "midpoint", "perpendicular", "onWall", "angle", "aligned", "grid", "none"]);
   });

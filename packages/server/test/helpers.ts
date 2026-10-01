@@ -114,6 +114,7 @@ export function gatedRepository(): { repository: ProjectRepository; hold(): void
       list: () => inner.list(),
       create: (name) => inner.create(name),
       load: (id) => inner.load(id),
+      remove: (id) => inner.remove(id),
       save: async (state) => {
         if (gate) await gate;
         await inner.save(state);

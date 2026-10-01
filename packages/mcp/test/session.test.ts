@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { MESSAGES, rectangleRoom, type Command } from "@fm/domain";
-import { CONNECTION_DROPPED, NO_ANSWER, NO_DRAWING, type EditorSession } from "../src/session";
-import { TestServer } from "./harness";
+import { PROJECT_DELETED } from "@fm/editor";
+import type { ServerMessage } from "@fm/protocol";
+import { createNodeHost } from "../src/node-host";
+import { CONNECTION_DROPPED, EditorSession, NO_ANSWER, NO_DRAWING, type LinkHandlers } from "../src/session";
+import { MemoryLink, TestServer } from "./harness";
 
 const wall = (opId: string, from: { x: number; y: number }, to: { x: number; y: number }): Command =>
   ({ type: "addWall", opId, from: { at: from }, to: { at: to } });
@@ -120,5 +123,37 @@ describe("EditorSession against the real server app (spec §12)", () => {
     await session.createProject("Apartment");
     link.hold();
     expect(await session.edit(wall("w", { x: 0, y: 0 }, { x: 4, y: 0 }))).toEqual({ ok: false, error: NO_ANSWER });
+  });
+
+  it("ends an edit waiting on the server with the delete toast when the project is deleted; the next edit has no drawing", async () => {
+    const server = new TestServer();
+    // A session whose link also lets the test deliver a server message and see the generation it opened.
+    const wire: { handlers: LinkHandlers | null; link: MemoryLink | null; generation: string } = { handlers: null, link: null, generation: "" };
+    const session = new EditorSession({
+      clientId: "claude", name: "Claude", host: createNodeHost(), timeoutMs: 2000,
+      connect: (h) => {
+        const memory = new MemoryLink(server.app, h);
+        wire.handlers = h;
+        wire.link = memory;
+        return {
+          send: (msg) => {
+            if (msg.type === "openProject") wire.generation = msg.generation;
+            memory.send(msg);
+          },
+          close: () => memory.close(),
+        };
+      },
+    });
+    sessions.push(session);
+    const created = await session.createProject("Apartment");
+    if (!created.ok) throw new Error(created.error);
+    const deliver = (msg: ServerMessage): void => wire.handlers?.message(msg);
+    wire.link?.hold();
+    const pending = session.edit(wall("w", { x: 0, y: 0 }, { x: 4, y: 0 }));
+    await server.settle();
+    deliver({ type: "projectDeleted", projectId: created.value.id, generation: wire.generation });
+    expect(await pending).toEqual({ ok: false, error: PROJECT_DELETED });
+    expect(session.drawing()).toBeNull();
+    expect(await session.edit(wall("v", { x: 0, y: 0 }, { x: 0, y: 3 }))).toEqual({ ok: false, error: NO_DRAWING });
   });
 });

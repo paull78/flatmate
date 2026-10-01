@@ -46,3 +46,25 @@ test("two windows share a project: each sees the other, and Bob's wall move chan
   await expect(alice.locator('[data-field-id="length"]')).toHaveValue("7.00");
   await expect(bob.getByTestId("project-status")).toHaveText("saved");
 });
+
+test("deleting a project sends the window that has it open back to the list (spec §7.2.1)", async ({ browser }) => {
+  const project = `Doomed ${Date.now()}`;
+  const alice = await openAs(browser, "Alice");
+  await alice.getByPlaceholder("Project name").fill(project);
+  await alice.getByRole("button", { name: "Create" }).click();
+  await expect(alice.getByTestId("project-name")).toHaveText(project);
+
+  const bob = await openAs(browser, "Bob");
+  const row = bob.getByRole("listitem").filter({ hasText: project });
+  await row.getByRole("button", { name: "Delete" }).click();
+  await expect(row).toContainText("Anyone who has it open is sent back to the project list.");
+  await row.getByRole("button", { name: "Cancel" }).click();
+  await expect(bob.getByRole("button", { name: project })).toBeVisible(); // Cancel deletes nothing
+  await row.getByRole("button", { name: "Delete" }).click();
+  await row.getByRole("button", { name: "Delete" }).click(); // the confirming Delete
+
+  await expect(bob.getByRole("button", { name: project })).toHaveCount(0);
+  await expect(alice.getByTestId("project-list")).toBeVisible();
+  await expect(alice.getByRole("status")).toHaveText("This project was deleted");
+  await expect(alice.getByRole("button", { name: project })).toHaveCount(0);
+});

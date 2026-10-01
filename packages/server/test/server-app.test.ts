@@ -213,6 +213,64 @@ describe("server app: submissions", () => {
   });
 });
 
+describe("server app: deleting projects (spec §7.2.1)", () => {
+  it("tells every subscriber, answers the sender with the new list, and forgets the project", async () => {
+    const ctx = setup();
+    const { alice, bob, projectId } = await room(ctx);
+    const carol = ctx.join("carol");
+    const other = await createProject(ctx, carol, "Studio");
+    carol.conn.take();
+    carol.send({ type: "deleteProject", requestId: "d1", projectId });
+    await ctx.app.idle();
+    expect(alice.conn.take()).toEqual([{ type: "projectDeleted", projectId, generation: "ga" }]);
+    expect(bob.conn.take()).toEqual([{ type: "projectDeleted", projectId, generation: "gb" }]);
+    expect(carol.conn.take()).toEqual([{ type: "projects", requestId: "d1", items: [{ id: other, name: "Studio" }] }]);
+    expect(await ctx.repository.load(projectId)).toBeNull();
+
+    alice.send({ type: "submit", projectId, generation: "ga", changeset: putJoint("c1", "j1", 1) });
+    alice.send({ type: "presence", projectId, generation: "ga", cursor: { x: 1, y: 1 }, selection: [] });
+    bob.send({ type: "openProject", projectId, generation: "gb2" });
+    await ctx.app.idle();
+    expect(alice.conn.take()).toEqual([{ type: "rejected", projectId, generation: "ga", changesetId: "c1", reason: { kind: "unknownProject" } }]);
+    expect(bob.conn.take()).toEqual([{ type: "openFailed", projectId, generation: "gb2", message: "Unknown project" }]);
+  });
+
+  it("answers an unknown project with an error for the request", async () => {
+    const ctx = setup();
+    const alice = ctx.join("alice");
+    alice.conn.take();
+    alice.send({ type: "deleteProject", requestId: "d1", projectId: "missing" });
+    await ctx.app.idle();
+    expect(alice.conn.take()).toEqual([{ type: "error", requestId: "d1", message: "Unknown project" }]);
+  });
+
+  it("waits for a save in progress: the queued submission is acked before the delete", async () => {
+    const gated = gatedRepository();
+    const ctx = setup({ repository: gated.repository });
+    const { alice, bob, projectId } = await room(ctx);
+    gated.hold();
+    alice.send({ type: "submit", projectId, generation: "ga", changeset: putJoint("c1", "j1", 1) });
+    bob.send({ type: "deleteProject", requestId: "d1", projectId });
+    await tick();
+    expect(bob.conn.messages).toEqual([]);
+    gated.release();
+    await ctx.app.idle();
+    expect(alice.conn.types()).toEqual(["changes", "ack", "projectDeleted"]);
+    expect(await gated.repository.load(projectId)).toBeNull();
+  });
+
+  it("a failed remove is fatal (crash-only, spec §7.2)", async () => {
+    const inner = createInMemoryRepository();
+    const ctx = setup({ repository: { ...inner, remove: () => Promise.reject(new Error("EACCES")) } });
+    const { alice, bob, projectId } = await room(ctx);
+    bob.send({ type: "deleteProject", requestId: "d1", projectId });
+    await ctx.app.idle();
+    expect(ctx.fatal).toEqual([new Error("EACCES")]);
+    expect(alice.conn.take()).toEqual([]);
+    expect(bob.conn.take()).toEqual([]);
+  });
+});
+
 describe("server app: presence", () => {
   it("relays presence to the other subscribers with name and colour", async () => {
     const ctx = setup();

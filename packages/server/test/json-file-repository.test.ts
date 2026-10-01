@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -29,6 +29,28 @@ describe("JSON file repository", () => {
     await repo.save(next);
     expect(await repo.load(state.meta.id)).toEqual(next);
     expect(await readdir(dir)).toEqual([`${state.meta.id}.json`]);
+  });
+
+  it("remove moves the file into deleted/, where list and load no longer see it", async () => {
+    const repo = createJsonFileRepository(dir);
+    const gone = await repo.create("Apartment");
+    const kept = await repo.create("Studio");
+    await repo.remove(gone.meta.id);
+    expect(await repo.list()).toEqual([kept.meta]);
+    expect(await repo.load(gone.meta.id)).toBeNull();
+    expect(await readdir(join(dir, "deleted"))).toEqual([`${gone.meta.id}.json`]);
+    expect(JSON.parse(await readFile(join(dir, "deleted", `${gone.meta.id}.json`), "utf8"))).toEqual(gone);
+    await expect(createJsonFileRepository(dir).list()).resolves.toEqual([kept.meta]); // after a restart too
+  });
+
+  it("a list that overlaps a remove skips the file that just moved (it would crash the server)", async () => {
+    const repo = createJsonFileRepository(dir);
+    const kept = await repo.create("Kept");
+    for (let i = 0; i < 20; i += 1) {
+      const gone = await repo.create(`Gone ${i}`); // list (workspace queue) and remove (project queue) run concurrently
+      const [listed] = await Promise.all([repo.list(), repo.remove(gone.meta.id)]);
+      expect(listed).toContainEqual(kept.meta);
+    }
   });
 
   it("ignores a temporary file left by an interrupted write", async () => {

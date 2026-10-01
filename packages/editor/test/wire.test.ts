@@ -22,6 +22,7 @@ describe("wire mappings (one translation for every shell)", () => {
     const messages: ServerMessage[] = [
       { type: "welcome", clientId: "tab1", color: "#e5484d" },
       { type: "openFailed", projectId: "p1", generation: "g1", message: "Unknown project" },
+      { type: "projectDeleted", projectId: "p1", generation: "g1" },
       { type: "ack", projectId: "p1", generation: "g1", changesetId: "c1", seq: 3 },
       { type: "presenceLeft", projectId: "p1", generation: "g1", clientId: "bob" },
     ];
@@ -32,6 +33,9 @@ describe("wire mappings (one translation for every shell)", () => {
     expect(clientMessageFor({ type: "workspace", op: { type: "list", requestId: "r1" } })).toEqual({ type: "listProjects", requestId: "r1" });
     expect(clientMessageFor({ type: "workspace", op: { type: "create", requestId: "r2", name: "Apartment" } })).toEqual({
       type: "createProject", requestId: "r2", name: "Apartment",
+    });
+    expect(clientMessageFor({ type: "workspace", op: { type: "delete", requestId: "r3", projectId: "p1" } })).toEqual({
+      type: "deleteProject", requestId: "r3", projectId: "p1",
     });
     expect(clientMessageFor({ type: "workspace", op: { type: "open", projectId: "p1", generation: "g1" } })).toEqual({
       type: "openProject", projectId: "p1", generation: "g1",

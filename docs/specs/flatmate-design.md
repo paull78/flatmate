@@ -558,7 +558,7 @@ export interface Host {
 // editor/src/ports/effects.ts
 export type Effect =
   | { type: "render";       scene: Scene; view: ViewModel; camera: Camera }   // the shell never reads editor state
-  | { type: "workspace";    op: WorkspaceOp }        // list / create / open (server or folder)
+  | { type: "workspace";    op: WorkspaceOp }        // list / create / delete / open (server or folder)
   | { type: "saveSnapshot"; projectId: string; writeId: string; content: string }   // local file only (X1)
   | { type: "submit";       projectId: string; generation: string; changeset: Changeset }   // shared only
   | { type: "presence";     projectId: string; generation: string; cursor: Point | null; selection: EntityRef[] }   // shared only
@@ -574,13 +574,14 @@ export type Event =
   | { type: "timerFired"; timerId: string }
   | { type: "workspaceEvent"; event: WorkspaceEvent }  // projects, created, failed (a local file's opened: X1)
   | { type: "saveResult"; writeId: string; ok: boolean; error?: string }
-  | { type: "serverEvent"; event: ServerEvent }        // welcome, snapshot, openFailed, changes, ack, rejected, presence, presenceLeft, connection
+  | { type: "serverEvent"; event: ServerEvent }        // welcome, snapshot, openFailed, projectDeleted, changes, ack, rejected, presence, presenceLeft, connection
   | { type: "viewportResized"; size: Size; devicePixelRatio: number }
   | { type: "command"; command: Command };            // M1: a domain command from a shell without pointer input (§12)
 
 type UiAction =                                        // what React panels send; tests send the same
   | { type: "createProject"; name: string }
   | { type: "openProject"; id: string }
+  | { type: "deleteProject"; id: string }             // project list only; the panel confirms first (§7.2.1)
   | { type: "showProjectList" }
   | { type: "pickTool"; tool: "select" | "wall" | "zone" }
   | { type: "setField"; fieldId: string; value: string }   // properties panel, e.g. zone name → renameZone
@@ -1005,7 +1006,7 @@ Both kinds are pure reducers with no network, timers or `await` inside, tested b
 The server's application core knows only projects, sequence numbers and generic changesets. It declares two ports; the composition root plugs in the adapters. Only shared documents use the server; local files never pass through it (§7.8).
 
 ```
-          ws-server.ts (web): listProjects · createProject · openProject · submit · presence
+          ws-server.ts (web): listProjects · createProject · deleteProject · openProject · submit · presence
                                                        │ WebSocket (§7.2)
                                                        ▼
                               ┌──────────────────── server ─────────────────────┐
@@ -1029,6 +1030,7 @@ interface ProjectRepository {
   create(name: string): Promise<ProjectMeta>;
   load(id: string): Promise<ProjectState>;
   save(id: string, state: ProjectState): Promise<void>;   // atomic; resolves after host persistence completion
+  remove(id: string): Promise<void>;   // moves data/<id>.json into data/deleted/ (restorable by hand)
 }
 type ProjectState = {
   meta: ProjectMeta;
@@ -1048,10 +1050,11 @@ type ProjectState = {
 | `hello { clientId, name }` (first message) | `welcome { clientId, color }` |
 | `listProjects` | `projects { items }` |
 | `createProject { name }` | `projectCreated { meta }` |
+| `deleteProject { requestId, projectId }` | `projects { items }` (the new list, to the sender); `projectDeleted { projectId, generation }` to every session that has the project open |
 | `openProject { projectId, generation }` | `snapshot { meta, doc, versions, seq }` (always the full document); `openFailed { projectId, generation, message }` for an unknown project |
 | `submit { changeset }` | `changes { seq, changeset, clientId }` (broadcast, including sender); `ack { changesetId, seq }` (sender) |
 | | `rejected { changesetId, reason }` (sender only) |
-| | `error { requestId, message }` for a list/create request (`requestId`) or a malformed message that cannot be answered with `rejected` (`requestId: null`); it never ends an open |
+| | `error { requestId, message }` for a list/create/delete request (`requestId`) or a malformed message that cannot be answered with `rejected` (`requestId: null`); it never ends an open |
 | `presence { cursor, selection }` | `presence { clientId, name, color, cursor, selection }`; `presenceLeft { clientId }` |
 
 **Delivery rules:**
@@ -1071,6 +1074,20 @@ type ProjectState = {
 One connection has one active project. On connection the client sends its tab-scoped client ID and display name; the server assigns a colour. The web shell reads the display name from the `?name=` URL parameter (default "Guest"). Authentication remains out of scope. Project messages carry `projectId` and the recipient's client-generated session generation. Ignore events from an old connection or generation; the server likewise ignores a submit or presence carrying a stale generation, and rejects a submit for a project the session has not opened with `unknownProject`. List/create requests use request IDs. A failed open is answered with `openFailed` carrying the request's `projectId` and `generation`, never an uncorrelated `error`, so a late reply cannot cancel a newer open. The first message must be `hello`; anything else closes the connection. Presence bypasses the project queue and is not replayed to clients that join later.
 
 Creating a project opens it, unless another project was opened or is opening by the time the server confirms the creation; then the new project is only added to the list. Switching waits for the outstanding submission to settle. It is disabled while disconnected with unresolved submissions. Opening a project runs in the per-project queue: capture and enqueue its snapshot, then subscribe before processing the next submission. This guarantees that later changes follow the snapshot on that connection. Leaving removes presence and the subscription.
+
+**Deleting a project.** Each row of the project list has a Delete button. It asks in place: "Delete "Apartment"? Anyone who has it open is sent back to the project list." with Delete and Cancel. The editor sends `deleteProject` only from the project list (no drawing open, no open in progress). The server runs the delete in that project's queue, so it waits for a save in progress, and every later submit, open or presence for the project finds nothing: it moves the file (`repository.remove`), forgets the project in memory, sends `projectDeleted` to every subscriber with that subscriber's generation, then answers the sender with the new list. An unknown project gets `error { requestId, message: "Unknown project" }`. A project list read at the same time skips a file the delete has just moved. A failed move stops the server like a failed save (crash-only, §7.2).
+
+```
+Bob (project list)          server (Apartment's queue)                Alice (Apartment open, edit pending)
+ Delete ─ deleteProject ─►  waits for the save in progress
+                            move data/<id>.json → data/deleted/
+                            projectDeleted ──────────────────────────► closes the drawing: drops the pending
+ ◄──────── projects (new list)                                          edit, history, selection; shows the
+                            Alice's queued submit → rejected             list and the toast "This project was
+                              {unknownProject}, ignored (no drawing)     deleted"
+```
+
+The client treats its open project as gone when `projectDeleted` matches its project and generation, or when `openFailed` answers its own reopen (it was offline during the delete, §7.7). Either way it leaves the drawing as if the user had asked for the list, without waiting for the outstanding edit: it drops the edit, gestures, selection, presence and history, asks for the list and shows the toast "This project was deleted". Other clients' lists are not refreshed; opening a project that is gone shows "Unknown project" in the list. Not supported: deleting from inside a drawing, undoing a delete, restoring from the app (move the file back while the server is stopped).
 
 Snapshots include the complete version map with tombstones. Opening, reconnecting or recovering a sequence gap cancels gestures and clears undo/redo history. Pending submissions remain until their outcome is resolved; their acceptance after a reconnect does not restore old history.
 
@@ -1403,8 +1420,8 @@ These are outside the initial build. Add one only after the Canvas2D demo is sta
 
 1. **MCP server: Claude as a collaborator (M1).** A new shell, `packages/mcp`, speaks MCP over stdio and runs the headless editor against the collaboration server like a third window: tools to list, create and open projects, read the drawing (walls, joints, rooms with areas), and edit through domain commands (draw a room, add a wall or many walls, set a wall length, move a joint, label, rename, delete). Every edit goes through the editor's commit path, waits for the server's accept or reject, and returns the reason to Claude; presence shows a "Claude" cursor. Design and constraints in §12. Developed in parallel with item 2. Done (gate M1).
 2. **WebGL2 SDF renderer and live Canvas2D toggle.** Developed in parallel with item 1: it visibly proves the renderer port while keeping text on Canvas2D. Design and trade-offs in §6.2. Done (gate S1).
-3. **More CAD snaps.** Add perpendicular and angle steps with corresponding glyphs and tie rules (§5.8). Cheap and visible: snapping is editor-only and was the cleanest area of the build, and angle snaps remove the demo's hold-Shift workaround.
-4. **Project delete.** A delete button next to each project in the list, confirmed with a dialog that says anyone who has the project open will be sent back to the project list. The server runs the delete inside that project's queue (so a save in progress cannot write the file back), moves the file to `DATA_DIR/deleted/` (restorable by hand) and tells every client that has the project open; their editor closes the drawing, drops the pending edit, history and selection, and shows the project list with a toast. Later requests for the project get the unknown-project answer. Needs a new request and a new broadcast message (§7.2), a repository `remove`, and one editor event. Medium: it touches protocol, server app, editor and web; Claude's MCP session only needs to survive being sent back to the list (added 2026-09-30, user).
+3. **More CAD snaps.** Add perpendicular and angle steps with corresponding glyphs and tie rules (§5.8). Cheap and visible: snapping is editor-only and was the cleanest area of the build, and angle snaps remove the demo's hold-Shift workaround. Done (C1, 2026-09-30).
+4. **Project delete.** A Delete button per project in the list, confirmed in place; the server moves the file to `DATA_DIR/deleted/` inside the project's queue and sends everyone who has it open back to the list with a toast. Design in §7.2.1 ("Deleting a project"); plan `docs/plans/flatmate-delete/`. Done (D1, 2026-10-01).
 5. **Interior wall crossings.** Split every intersected wall and the new segment with deterministic IDs. Keep the initial T-junction rule until this is tested (§3.4). Riskier: geometry produced the most defects in the build, and crossings touch IDs, dependencies and label merges.
 6. **Richer selection.** Add Shift multi-select, box select, then coalesced arrow-key nudge if the interaction is worth showing (§5.6).
 7. **Complex zones and label merges.** Handle nested/bridge-connected rings and merges of three or more labels, with explicit area semantics and tests (§3.6).
@@ -1460,6 +1477,7 @@ add_wall(a, b) ─► schema OK ─► dispatch { type: "command", command: addW
    └─ submit effect, changeset c7 ─► server
         ├─ changes + ack c7 ─► no edit outstanding ─► reply: drawing summary
         ├─ rejected c7      ─► the editor's toast text ("Walls can't cross", …) ─► reply
+        ├─ project deleted  ─► the editor is back on the list ─► reply: "This project was deleted" (§7.2.1)
         ├─ connection lost  ─► reply: dropped (the editor resends c7 with the same ID on reconnect, §7.7)
         └─ no answer in 10 s ─► reply: no answer (call get_drawing to check)
 ```
@@ -1477,6 +1495,7 @@ Compact JSON in metres (coordinates rounded to millimetres, areas to hundredths 
 - **`draw_room` is four edits.** `rectangleRoom` returns four `addWall` commands and the event carries one, so the room is four changesets. The four commands are first run together with `execute` on the current drawing: if the rules refuse any, nothing is submitted. Another person's edit between them can still stop the room after one to three walls; the reply says so.
 - **`add_walls` is one edit per wall**, like `draw_room`, for the same reason. All the walls are first run in order with `execute` on the current drawing: if the rules refuse any, nothing is submitted and the reply names that wall (its position in the list) and the reason. Another person's edit can still stop it part-way; the reply says how many walls were drawn. It exists so that a larger layout is one tool call instead of one model turn per wall (a 30-wall maze would otherwise take 30 turns).
 - **`list_projects` closes the drawing** (§12.2).
+- **No tool deletes a project.** If a person deletes the open project, the waiting edit (or the rest of `draw_room` or `add_walls`) ends with "This project was deleted"; the next edit gets "No project is open" (§7.2.1).
 - **One project, one connection** per MCP server process. The server URL comes from `FM_SERVER_URL` (default `ws://localhost:8787`) and the client name from `FM_NAME` (default "Claude"). If the server is not running, `list_projects`, `create_project` and `open_project` wait up to 10 s for the connection, then reply that it is not connected; an edit on an open drawing gets the editor's offline text at once.
 - **Presence:** after an accepted edit, the shell sends one pointer move through `update` at the edit's place (for `draw_room`, the room's centre; for `add_walls`, the middle of the last wall; `delete` moves none), so the windows show the "Claude" cursor there (§7.6). No new message.
 - **stdout carries the protocol:** the shell logs only to stderr, and `pnpm mcp` runs pnpm with `--silent`.

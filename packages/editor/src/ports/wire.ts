@@ -17,6 +17,7 @@ export function serverMessageEvent(msg: ServerMessage): Event {
     case "welcome":
     case "snapshot":
     case "openFailed":
+    case "projectDeleted":
     case "changes":
     case "ack":
     case "rejected":
@@ -37,6 +38,8 @@ export function clientMessageFor(effect: ServerEffect): ClientMessage {
           return { type: "listProjects", requestId: op.requestId };
         case "create":
           return { type: "createProject", requestId: op.requestId, name: op.name };
+        case "delete":
+          return { type: "deleteProject", requestId: op.requestId, projectId: op.projectId };
         case "open":
           return { type: "openProject", projectId: op.projectId, generation: op.generation };
         default:

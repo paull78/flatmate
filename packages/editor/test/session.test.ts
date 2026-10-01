@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { toStored } from "@fm/domain";
 import type { ServerEvent, WorkspaceEvent } from "../src/ports/events";
-import { LEAVE_BLOCKED, NAME_REQUIRED, OFFLINE_LIST } from "../src/session";
+import { LEAVE_BLOCKED, NAME_REQUIRED, OFFLINE_LIST, PROJECT_DELETED } from "../src/session";
 import { jointAt, pointOf, roomDoc, serverState } from "./builders";
 import { FakeRemote } from "./fake-remote";
 import { FakeHost, FakeShell } from "./fake-shell";
@@ -144,6 +144,109 @@ describe("session: project list and opening (spec §7.2.1)", () => {
     shell.ui({ type: "createProject", name: "Apartment" });
     expect(shell.state.document?.kind).toBe("local");
     expect(shell.effectsOf("workspace")).toEqual([]);
+  });
+});
+
+describe("session: deleting a project from the list (spec §7.2.1)", () => {
+  it("asks the server to delete a listed project", () => {
+    const shell = serverShell();
+    workspace(shell, { type: "projects", requestId: "id0", items: [PROJECT] });
+    shell.ui({ type: "deleteProject", id: "p1" });
+    expect(shell.effectsOf("workspace")).toEqual([{ type: "workspace", op: { type: "delete", requestId: "id1", projectId: "p1" } }]);
+    expect(shell.view().projectList).toEqual({ items: [PROJECT], loading: true, error: null });
+    workspace(shell, { type: "projects", requestId: "id1", items: [] });
+    expect(shell.view().projectList).toEqual({ items: [], loading: false, error: null });
+  });
+
+  it("ignores a delete with a drawing open, while opening, in local mode, or with an invalid id", () => {
+    const r = FakeRemote.open(roomDoc());
+    const before = r.shell.effectsOf("workspace").length;
+    r.shell.ui({ type: "deleteProject", id: "p1" });
+    expect(r.shell.effectsOf("workspace")).toHaveLength(before);
+    expect(r.shell.state.document?.kind).toBe("shared");
+
+    const opening = serverShell();
+    opening.ui({ type: "openProject", id: "p1" });
+    const open = lastOpen(opening);
+    opening.ui({ type: "deleteProject", id: "p1" });
+    expect(opening.effectsOf("workspace").map((e) => e.op.type)).toEqual(["open"]);
+    expect(opening.state.workspace.opening).toEqual({ projectId: "p1", generation: open.generation });
+
+    const local = FakeShell.local();
+    local.ui({ type: "deleteProject", id: "p1" });
+    expect(local.effectsOf("workspace")).toEqual([]);
+    expect(local.state.document?.kind).toBe("local");
+
+    const shell = serverShell();
+    shell.ui({ type: "deleteProject", id: "__proto__" });
+    shell.ui({ type: "deleteProject", id: "" });
+    expect(shell.effectsOf("workspace")).toEqual([]);
+    expect(shell.state.workspace.loading).toBe(true); // unchanged from the initial state
+    expect(shell.view().toast).toBeNull();
+  });
+});
+
+describe("session: the open project is deleted (spec §7.2.1)", () => {
+  function expectBackOnList(r: FakeRemote): void {
+    expect(r.shell.state.document).toBeNull();
+    expect(r.shell.state.selection).toEqual([]);
+    expect(r.shell.state.presence).toEqual({});
+    expect(r.shell.state.undo).toEqual({ past: [], future: [], pending: null });
+    expect(r.shell.effectsOf("workspace").at(-1)?.op.type).toBe("list");
+    expect(r.shell.view().projectList?.loading).toBe(true);
+    expect(r.shell.view().toast).toBe(PROJECT_DELETED);
+  }
+
+  it("goes back to the list when projectDeleted matches the open project and generation", () => {
+    const r = FakeRemote.open(roomDoc());
+    r.shell.drag({ x: 6, y: 4 }, { x: 6, y: 4.6 });
+    r.accept();
+    r.shell.click({ x: 6, y: 2 });
+    r.event(presenceOf(r, "bob"));
+    expect(r.shell.state.selection).not.toEqual([]);
+    r.event({ type: "projectDeleted", projectId: "p1", generation: r.generation() });
+    expectBackOnList(r);
+  });
+
+  it("leaves even with an edit waiting for the server", () => {
+    const r = FakeRemote.open(roomDoc());
+    r.shell.drag({ x: 6, y: 4 }, { x: 6, y: 4.6 });
+    expect(r.shell.view().project?.status).toBe("waiting for server");
+    r.event({ type: "projectDeleted", projectId: "p1", generation: r.generation() });
+    expectBackOnList(r);
+    expect(r.shell.view().toast).not.toBe(LEAVE_BLOCKED);
+  });
+
+  it("ignores projectDeleted for another project or an old generation", () => {
+    const r = FakeRemote.open(roomDoc());
+    const old = r.generation();
+    r.disconnect();
+    r.reconnect();
+    const requests = r.shell.effectsOf("workspace").length;
+    r.event({ type: "projectDeleted", projectId: "p2", generation: r.generation() });
+    r.event({ type: "projectDeleted", projectId: "p1", generation: old });
+    expect(r.shell.state.document?.kind).toBe("shared");
+    expect(r.shell.effectsOf("workspace")).toHaveLength(requests);
+    expect(r.shell.view().toast).toBeNull();
+  });
+
+  it("goes back to the list when the reopen after a reconnect fails (deleted while offline)", () => {
+    const r = FakeRemote.open(roomDoc());
+    r.shell.drag({ x: 6, y: 4 }, { x: 6, y: 4.6 });
+    r.disconnect();
+    r.event({ type: "connection", state: "open" });
+    r.event(openFailedFor({ projectId: "p1", generation: r.generation() }));
+    expectBackOnList(r);
+  });
+
+  it("ignores an openFailed for an older generation of the open project", () => {
+    const r = FakeRemote.open(roomDoc());
+    const old = r.generation();
+    r.disconnect();
+    r.reconnect();
+    r.event(openFailedFor({ projectId: "p1", generation: old }));
+    expect(r.shell.state.document?.kind).toBe("shared");
+    expect(r.shell.view().toast).toBeNull();
   });
 });
 

@@ -73,6 +73,7 @@ function onUi(state: EditorState, action: UiAction, host: Host): Step {
     case "createProject":
     case "openProject":
     case "showProjectList":
+    case "deleteProject":
       return onWorkspaceUi(state, action, host);
     default:
       return assertNever(action);

@@ -7,6 +7,7 @@ import type { ViewModel } from "../view/view-model";
 export type WorkspaceOp =
   | { type: "list"; requestId: string }
   | { type: "create"; requestId: string; name: string }
+  | { type: "delete"; requestId: string; projectId: string }
   | { type: "open"; projectId: string; generation: string };
 
 export type Effect =

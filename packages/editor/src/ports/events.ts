@@ -7,6 +7,7 @@ export type UiAction =
   | { type: "createProject"; name: string }
   | { type: "openProject"; id: string }
   | { type: "showProjectList" }
+  | { type: "deleteProject"; id: string }
   | { type: "pickTool"; tool: ToolName }
   | { type: "setField"; fieldId: string; value: string }
   | { type: "undo" }
@@ -18,7 +19,7 @@ export type WorkspaceEvent =
   | { type: "failed"; requestId: string | null; message: string };
 
 export type ServerEvent =
-  | Extract<ServerMessage, { type: "welcome" | "snapshot" | "openFailed" | "changes" | "ack" | "rejected" | "presence" | "presenceLeft" }>
+  | Extract<ServerMessage, { type: "welcome" | "snapshot" | "openFailed" | "projectDeleted" | "changes" | "ack" | "rejected" | "presence" | "presenceLeft" }>
   | { type: "connection"; state: "open" | "closed" };
 
 export type Event =

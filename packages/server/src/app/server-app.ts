@@ -138,6 +138,26 @@ export function createServerApp(deps: ServerAppDeps): ServerApp {
     });
   }
 
+  /**
+   * In the project's queue: after a save in progress, before every later submit or open (spec §7.2.1).
+   * Later submits find no live project and are rejected as unknownProject; presence is ignored.
+   */
+  function remove(c: Client, requestId: string, projectId: string): void {
+    enqueue(projectId, async () => {
+      const project = await loadLive(projectId);
+      if (project === null) {
+        send(c, { type: "error", requestId, message: "Unknown project" });
+        return;
+      }
+      await deps.repository.remove(projectId);
+      live.delete(projectId);
+      for (const [subscriber, generation] of project.subscribers) {
+        send(subscriber, { type: "projectDeleted", projectId, generation });
+      }
+      send(c, { type: "projects", requestId, items: await deps.repository.list() });
+    });
+  }
+
   function presence(c: Client, identity: Identity, msg: Presence): void {
     const { projectId, generation, cursor, selection } = msg;
     const current = c.project;
@@ -171,6 +191,8 @@ export function createServerApp(deps: ServerAppDeps): ServerApp {
         });
         return;
       }
+      case "deleteProject":
+        return remove(c, msg.requestId, msg.projectId);
       case "openProject":
         return open(c, msg.projectId, msg.generation);
       case "submit":

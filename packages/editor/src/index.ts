@@ -31,4 +31,4 @@ export { hasPendingEdit, sessionOf, visibleDoc } from "./document/open-document"
 export { sharedFromSnapshot, type SnapshotEvent } from "./document/shared-document";
 export { REMOTE_REDO, REMOTE_UNDO } from "./history/history";
 export { CHAIN_ENDED, CONNECTION_LOST, GESTURE_CANCELLED } from "./gestures";
-export { LEAVE_BLOCKED, NAME_REQUIRED, OFFLINE_LIST } from "./session";
+export { LEAVE_BLOCKED, NAME_REQUIRED, OFFLINE_LIST, PROJECT_DELETED } from "./session";

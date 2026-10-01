@@ -41,6 +41,8 @@
 
 - [x] P1.1 done (seeding takes 0.2 s for 30×30, 1.1 s for 50×50: 5 100 walls, 800 KB)
 - [x] P1.2 done (946 tests; e2e 8 passed)
+- [x] P2 done and reviewed (no defects)
+- [x] P3 done and reviewed (no defects); published to `main` `b6390c5`
 - [x] First numbers recorded in `rendering.md` (Canvas2D vs WebGL on the grid, pan/zoom and one edit)
 
 ## Sprint log

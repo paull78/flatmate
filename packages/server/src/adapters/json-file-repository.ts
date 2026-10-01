@@ -13,6 +13,7 @@ const PROJECT_ID = /^[A-Za-z0-9_-]{1,128}$/;
 /**
  * One `<dir>/<id>.json` per project holding the whole ProjectState (spec §7.1).
  * Save = write tmp → sync → close → rename → sync directory where supported (spec §7.2).
+ * Remove = rename into `<dir>/deleted/`, restorable by moving the file back while the server is stopped (spec §7.2.1).
  * Completion means these calls returned; no power-loss guarantee is claimed beyond what the OS gives.
  */
 export function createJsonFileRepository(dir: string): ProjectRepository {
@@ -42,7 +43,13 @@ export function createJsonFileRepository(dir: string): ProjectRepository {
       await mkdir(dir, { recursive: true });
       const names = (await readdir(dir)).filter((name) => name.endsWith(".json"));
       const metas: ProjectMeta[] = [];
-      for (const name of names) metas.push((await read(join(dir, name))).meta);
+      for (const name of names) {
+        try {
+          metas.push((await read(join(dir, name))).meta);
+        } catch (error) {
+          if (!hasCode(error, "ENOENT")) throw error; // moved to deleted/ by a remove in another queue (spec §7.2.1)
+        }
+      }
       return metas.sort(byNameThenId);
     },
     async create(name: string): Promise<ProjectState> {
@@ -62,6 +69,13 @@ export function createJsonFileRepository(dir: string): ProjectRepository {
       }
     },
     save,
+    async remove(id: string): Promise<void> {
+      const trash = join(dir, "deleted");
+      await mkdir(trash, { recursive: true });
+      await rename(fileOf(id), join(trash, `${id}.json`));
+      await syncDirectory(trash);
+      await syncDirectory(dir);
+    },
   };
 }
 

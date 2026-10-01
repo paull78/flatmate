@@ -13,6 +13,15 @@ describe("in-memory repository", () => {
     expect(await repo.load("missing")).toBeNull();
   });
 
+  it("remove forgets the project", async () => {
+    const repo = createInMemoryRepository();
+    const a = await repo.create("A");
+    const b = await repo.create("B");
+    await repo.remove(a.meta.id);
+    expect(await repo.list()).toEqual([b.meta]);
+    expect(await repo.load(a.meta.id)).toBeNull();
+  });
+
   it("failNextSave before the write leaves the disk unchanged, once", async () => {
     const repo = createInMemoryRepository();
     const state = await repo.create("A");

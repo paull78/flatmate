@@ -266,9 +266,38 @@ body,
   list-style: none;
 }
 
-.project-list li button {
-  width: 100%;
+.project-list li {
+  display: flex;
+  gap: 6px;
+}
+
+.project-list li .project-open {
+  flex: 1;
   text-align: left;
+}
+
+.project-list li .project-delete {
+  color: var(--muted);
+}
+
+.project-list li.confirming {
+  flex-direction: column;
+}
+
+.project-list li.confirming p {
+  margin: 0;
+}
+
+.project-list .project-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.project-list button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--panel);
 }
 
 .project-list .error {

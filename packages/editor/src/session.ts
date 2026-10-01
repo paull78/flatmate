@@ -14,11 +14,12 @@ import { idleTool } from "./tools/types";
 // Project list, opening, connection, identity and presence (spec §7.2.1, §7.6).
 // Document rules stay in open-document; this module only routes events to it.
 
-export type WorkspaceUiAction = Extract<UiAction, { type: "createProject" | "openProject" | "showProjectList" }>;
+export type WorkspaceUiAction = Extract<UiAction, { type: "createProject" | "openProject" | "showProjectList" | "deleteProject" }>;
 
 export const OFFLINE_LIST = "Offline: reconnecting…";
 export const LEAVE_BLOCKED = "Waiting for server: try again when the edit is saved";
 export const NAME_REQUIRED = "Type a project name";
+export const PROJECT_DELETED = "This project was deleted";
 
 type PresenceEvent = Extract<ServerEvent, { type: "presence" }>;
 type OpenFailedEvent = Extract<ServerEvent, { type: "openFailed" }>;
@@ -60,7 +61,9 @@ export function onServerEvent(state: EditorState, event: ServerEvent, host: Host
     case "snapshot":
       return state.document ? documentEvent(state, event, host) : openFromSnapshot(state, event);
     case "openFailed":
-      return openFailed(state, event);
+      return openFailed(state, event, host);
+    case "projectDeleted":
+      return isCurrent(state, event) ? projectGone(state, host) : { state, effects: [] };
     case "changes":
     case "ack":
     case "rejected":
@@ -82,6 +85,14 @@ export function onWorkspaceUi(state: EditorState, action: WorkspaceUiAction, hos
       return leaveRefused(state, host) ?? openProject(state, action.id, host);
     case "showProjectList":
       return leaveRefused(state, host) ?? showList(state, host);
+    case "deleteProject": {
+      // Only from the list: no drawing open, no open in progress; the reply is the new list (§7.2.1).
+      if (state.document !== null || state.workspace.opening !== null || !isValidId(action.id)) return { state, effects: [] };
+      return {
+        state: { ...state, workspace: { ...state.workspace, loading: true, error: null } },
+        effects: [{ type: "workspace", op: { type: "delete", requestId: host.newId(), projectId: action.id } }],
+      };
+    }
     default:
       return assertNever(action);
   }
@@ -147,10 +158,19 @@ function openFromSnapshot(state: EditorState, e: SnapshotEvent): Step {
 /**
  * The server could not open the project this generation asked for; a reply to any other open is stale (§7.2.1).
  * No drawing is open while `opening` is set (opening closed it), so the message goes to the list, not a toast.
+ * Failing the open drawing's own reopen (after a reconnect or resync, §7.7) means it was deleted meanwhile.
  */
-function openFailed(state: EditorState, e: OpenFailedEvent): Step {
+function openFailed(state: EditorState, e: OpenFailedEvent, host: Host): Step {
+  if (isCurrent(state, e)) return projectGone(state, host);
   if (!answersOpening(state, e)) return { state, effects: [] };
   return { state: { ...state, workspace: { ...state.workspace, loading: false, error: e.message, opening: null } }, effects: [] };
+}
+
+/** The open project was deleted: back to the list without waiting for an outstanding edit, which is dropped (§7.2.1). */
+function projectGone(state: EditorState, host: Host): Step {
+  const listed = showList(state, host);
+  const toast = showToast(listed.state, PROJECT_DELETED, host);
+  return { state: toast.state, effects: [...listed.effects, ...toast.effects] };
 }
 
 /** Switching waits for the outstanding submission to settle (§7.2.1); it is refused, never queued. */

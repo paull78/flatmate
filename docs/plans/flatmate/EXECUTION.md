@@ -6,7 +6,7 @@
 
 Update this section at every stop.
 
-- **Branch:** `implementation` (`master` still ends at the plan commit `22f3cfe`). Never push.
+- **Branches:** `implementation` is where all work happens (`master` still ends at the plan commit `22f3cfe`). `main` is the public snapshot branch (see "Now"). Never push: the user pushes.
 - **Phase 2 (domain):** done; Gate 2 approved 2026-09-28 (report `docs/reports/gate-2-domain.md`, last code commit `aaf6e42`, domain 20 files, 186 tests).
 - **Phase 3 (headless editor):** done; Gate 3 approved 2026-09-29 (report `docs/reports/gate-3-editor.md`).
 - **Phase 4 (web shell):** done; Gate 4 approved 2026-09-29 (report `docs/reports/gate-4-web-shell.md`).
@@ -17,13 +17,29 @@ Update this section at every stop.
 - **After the plan (2026-09-29):** fixes `6732ebb` (labels follow their room), `1070eb9` (grid snap is the fallback, ignores the tolerance), `bd39a4e` (aligned snap: a point lines up with other joints' x/y, so walls can be made vertical at any zoom; lesson 31); spec §1.1 Crux sentence softened; §11 reordered (1 MCP server, 2 WebGL2 renderer).
 - **After the follow-ups (2026-09-30):** SDF debug view `?sdf=debug` (S1.6, `a83c9a6`); zone tags fit their room when zoomed out: both lines, name only, or hidden, checked against the clear floor outline (`8ea8a5d` + the floor-outline fix; spec §5.9). §11 item 4 (project delete) added. C1 CAD snaps (15° angle, perpendicular; wall tool only; spec §5.8, plan `docs/plans/flatmate-snaps/`) merged `d38e75c`, review approved.
 
-### Now (resume here after a context clear)
+### Now (resume here after a context clear) — 2026-10-01
+
+- **The project is Flatmate, published at github.com/paull78/flatmate.** It was renamed for public release (folder `~/code/personal/flatmate`, scope `@fm/*`, MCP server `flatmate`, file format `"flatmate"`). The repo must not mention the words the publish script refuses; design memory `scope.md` has the rule.
+- **Publishing:** commit on `implementation`, then run `~/code/personal/flatmate-publish.sh "message"` (outside the repo). It copies the committed tree of `implementation` as one new commit on `main` (no history), refuses forbidden words, and never pushes. The user runs `git push`, which sends only `main`. Never push yourself, never push tags (a local tag marks the pre-rename state). No license, by the user's choice: don't add one unless asked.
+- **Last published:** `main` `b6390c5` = `implementation` `485216c` (the user was about to push). After that, only plan bookkeeping.
+- **Done since the follow-ups (all on `main`):**
+  - U1 (drag from the first point draws one wall) and U2 (the length label looks like a text field while edited): plan `docs/plans/flatmate-ux/`.
+  - README: "Try it" walkthrough, two-window GIF, Claude penthouse GIF (`docs/images/`).
+  - Speed, plan `docs/plans/flatmate-perf/`, spec §6.3: P1 `pnpm demo:seed-grid [N]` + `?perf` readout; P2 cached tag layouts, label → room table, cached wall outlines; P3 unchanged layers keep their array and WebGL uploads only changed layers. 50×50 grid per pan step: editor 40 → 3 ms, WebGL draw 16 → 5 ms (Canvas2D 10.5 ms). Numbers in `rendering.md`; P2 and P3 reviewed, no defects.
+- **Tests:** `pnpm check` 982 tests; `pnpm e2e` 9 passed, 1 skipped (screenshots).
+- **D1 (project delete): done and reviewed, 2026-10-01** (spec §7.2.1, plan `docs/plans/flatmate-delete/`). Review found one defect (a list during a delete crashed the server), fixed. Not yet published: run `~/code/personal/flatmate-publish.sh` when the user asks.
+- **Next, the user picks:**
+  - Open question: should the 15° angle snap use an angle tolerance (e.g. 3°) instead of 10 px from the ray?
+  - Speed leftovers: skip off-screen text in the Canvas2D text overlay (most of WebGL's remaining 5 ms); editing big drawings is slow because finding rooms takes 865 ms at 2 500 rooms (`containingFace` tests every label against every face).
+- **Naming:** in messages to the user, always write the feature next to the ID, e.g. "P3 (WebGL reuses unchanged layers)", "S1 (WebGL renderer)".
+
+#### Earlier follow-ups (done)
+
 
 - **S1 (WebGL renderer): all code and docs merged; gate report `docs/reports/gate-s1-webgl.md` written; **Gate S1 approved 2026-09-29**.** Reviews found one real defect (helper line through its label under WebGL, fixed in the editor `b6c1d36`, lesson 32).
 - **M1 (MCP server): all code and docs merged** (M1.1–M1.10 plus M1.9b `add_walls` for a maze demo, and the Review B fix). Gate report `docs/reports/gate-m1-mcp.md`; **Gate M1 approved 2026-09-30** (the user drew a maze and an apartment with Claude Code, free-form).
 - **Both follow-ups are done.** Open for the user: a timed dry run of the rehearsal incl. rows 10a (scripted maze prompt) and 10b (WebGL toggle).
 - HEAD `7115a80`+; `pnpm check` 899 tests (protocol 94, domain 194, editor 381, web 108, server 53, sync-tests 14, scripts 3, mcp 52); `pnpm e2e` 7 passed, screenshots skipped.
-- **Naming:** in messages to the user, always write the feature next to the ID: "S1 (WebGL renderer)", "M1 (MCP server)".
 
 | | S1: WebGL2 SDF renderer + live toggle | M1: MCP server (Claude as a collaborator) |
 |---|---|---|
@@ -136,4 +152,5 @@ pnpm check totals; deviations from the plan text (short).
 - An agent's sandbox may refuse a compound Bash command (heredoc writes chained with `&&`) as hard to verify; single commands and the Write tool work (wave 3 of phase 3).
 - Port pre-flight: use `lsof -sTCP:LISTEN -i :5173 -i :8787 -i :8788`; plain `lsof -i` also lists an editor's CLOSED client sockets (S1 wave 1).
 - A doc-only agent may stall after committing (wave 1 of phase 3: the watchdog killed it after its report); check for its commit before re-running.
+- Since `main` exists as the public snapshot branch, `isolation: "worktree"` agents start from `main`, not `implementation` (D1, 2026-10-01). Check the base in the brief's step 1; resetting the worktree branch then tripped the auto-mode classifier. For small tasks, do them in the main tree instead.
 - If the auto-mode safety classifier returns no verdict, agents lose Bash and cannot commit (wave 4). Then the controller checks the worktree itself: diff the task files against the plan's code blocks, delete scratch files, run the test and `pnpm check`, commit there with the plan's message, then merge as usual.

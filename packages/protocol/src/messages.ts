@@ -18,6 +18,7 @@ export type ClientMessage =
   | { type: "hello"; clientId: string; name: string }
   | { type: "listProjects"; requestId: string }
   | { type: "createProject"; requestId: string; name: string }
+  | { type: "deleteProject"; requestId: string; projectId: string }
   | { type: "openProject"; projectId: string; generation: string }
   | { type: "submit"; projectId: string; generation: string; changeset: Changeset }
   | { type: "presence"; projectId: string; generation: string; cursor: Point | null; selection: EntityKey[] };
@@ -25,6 +26,7 @@ export type ClientMessage =
 // `error` answers a workspace request (its `requestId`) or a malformed message that cannot be answered
 // with `rejected` (`requestId: null`); it never ends an open. An unknown project on `openProject` is
 // answered with `openFailed`, which carries the `projectId` and `generation` of the open it answers.
+// `deleteProject` is answered with `projects` (the new list); `projectDeleted` goes to every session that has it open.
 export type ServerMessage =
   | { type: "welcome"; clientId: string; color: string }
   | { type: "projects"; requestId: string; items: ProjectMeta[] }
@@ -32,6 +34,7 @@ export type ServerMessage =
   | { type: "error"; requestId: string | null; message: string }
   | { type: "snapshot"; projectId: string; generation: string; meta: ProjectMeta; doc: StoredDocument; versions: VersionMap; seq: number }
   | { type: "openFailed"; projectId: string; generation: string; message: string }
+  | { type: "projectDeleted"; projectId: string; generation: string }
   | { type: "changes"; projectId: string; generation: string; seq: number; changeset: Changeset; clientId: string }
   | { type: "ack"; projectId: string; generation: string; changesetId: string; seq: number }
   | { type: "rejected"; projectId: string; generation: string; changesetId: string; reason: RejectReason }
@@ -242,6 +245,10 @@ function clientMessage(json: unknown): ClientMessage | string {
       const { requestId, name } = json;
       return isWireId(requestId) && isName(name) ? { type: "createProject", requestId, name } : "Invalid createProject";
     }
+    case "deleteProject": {
+      const { requestId, projectId } = json;
+      return isWireId(requestId) && isWireId(projectId) ? { type: "deleteProject", requestId, projectId } : "Invalid deleteProject";
+    }
     case "openProject": {
       const target = projectTarget(json);
       return target ? { type: "openProject", ...target } : "Invalid openProject";
@@ -394,6 +401,10 @@ function serverMessage(json: unknown): ServerMessage | string {
       const target = projectTarget(json);
       const { message } = json;
       return target && typeof message === "string" ? { type: "openFailed", ...target, message } : "Invalid openFailed";
+    }
+    case "projectDeleted": {
+      const target = projectTarget(json);
+      return target ? { type: "projectDeleted", ...target } : "Invalid projectDeleted";
     }
     case "changes": {
       const target = projectTarget(json);

@@ -36,6 +36,9 @@ export function createInMemoryRepository(): InMemoryRepository {
       return state ? structuredClone(state) : null;
     },
     save,
+    async remove(id: string): Promise<void> {
+      disk.delete(id);
+    },
     failNextSave(error: Error, opts: { afterWrite?: boolean } = {}): void {
       failure = { error, afterWrite: opts.afterWrite ?? false };
     },

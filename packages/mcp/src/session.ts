@@ -1,6 +1,6 @@
 import { execute, type Command, type Document } from "@fm/domain";
 import {
-  buildViewModel, clientMessageFor, hasPendingEdit, initialState, NO_MODS, serverMessageEvent, update, visibleDoc,
+  buildViewModel, clientMessageFor, hasPendingEdit, initialState, NO_MODS, PROJECT_DELETED, serverMessageEvent, update, visibleDoc,
   worldToScreen, type DocumentStatus, type EditorState, type Effect, type Event, type Host, type ServerEffect,
 } from "@fm/editor";
 import { err, ok, type ClientMessage, type Point, type ProjectMeta, type Result, type ServerMessage } from "@fm/protocol";
@@ -218,7 +218,8 @@ export class EditorSession {
     const id = submit.changeset.id;
     return this.waitFor<Result<null, string>>((msg) => {
       const d = this.state.document;
-      if (d !== null && hasPendingEdit(d)) return this.connected ? null : err(CONNECTION_DROPPED);
+      if (d === null) return err(PROJECT_DELETED); // only a delete closes a drawing with an edit outstanding (§7.2.1)
+      if (hasPendingEdit(d)) return this.connected ? null : err(CONNECTION_DROPPED);
       if (msg?.type === "rejected" && msg.changesetId === id) return err(this.state.toast?.text ?? "The server rejected the edit");
       return ok(null);
     }, err(NO_ANSWER));
