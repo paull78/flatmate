@@ -1,7 +1,7 @@
 import { err, ok } from "@fm/protocol";
 import type { EntityKey, Point, Result } from "@fm/protocol";
 import type { Violation } from "./errors";
-import { distance, distanceToSegment, segmentIntersection } from "./geometry";
+import { boxOf, distance, distanceToSegment, overlappingPairs, segmentIntersection } from "./geometry";
 import { EPS, MIN_EDGE, type Document, type Wall } from "./model";
 import { isFiniteNumber, isValidId, isValidName } from "./shape";
 
@@ -31,7 +31,12 @@ function shapeViolations(doc: Document): Violation[] {
 
 type Segment = { wall: Wall; a: Point; b: Point };
 
-/** Checks invariants I1–I8 (spec §3.3). O(n²) pair tests. */
+/**
+ * Checks invariants I1–I8 (spec §3.3). The pair tests (I4–I7) run only on pairs whose bounding boxes come within
+ * 2·EPS, found by a sweep (spec §6.3); every hit of those tests lies within EPS of both items, so no pair is missed.
+ * Within ±10 km of the origin this matches testing every pair; farther out, rounding made the all-pairs test report
+ * false crossings between nearly collinear walls a few millimetres apart, which the sweep never tests.
+ */
 export function validateDocument(doc: Document): Result<void, Violation[]> {
   const shape = shapeViolations(doc);
   if (shape.length > 0) return err(shape);
@@ -64,40 +69,53 @@ export function validateDocument(doc: Document): Result<void, Violation[]> {
   }
 
   const joints = jointIds.flatMap((id) => doc.joints[id] ?? []);
-  joints.forEach((p, i) => {
-    for (const q of joints.slice(i + 1)) {
-      if (distance(p, q) < EPS) {
-        out.push({ invariant: "I4", message: `Joints ${p.id} and ${q.id} coincide`, entities: [jointKey(p.id), jointKey(q.id)] });
+  // One sweep over joints (indices 0…J-1) and walls (J…), split into the three pair checks. Pairs come sorted, so
+  // each check reports in the order of a loop over all pairs.
+  const boxes = [...joints.map((j) => boxOf([j])), ...segments.map((s) => boxOf([s.a, s.b]))];
+  const jointPairs: [number, number][] = [];
+  const wallPairs: [number, number][] = [];
+  const jointOnWall: [number, number][] = [];
+  for (const [i, k] of overlappingPairs(boxes, 2 * EPS)) {
+    if (k < joints.length) jointPairs.push([i, k]);
+    else if (i >= joints.length) wallPairs.push([i - joints.length, k - joints.length]);
+    else jointOnWall.push([i, k - joints.length]);
+  }
+
+  for (const [i, k] of jointPairs) {
+    const p = joints[i];
+    const q = joints[k];
+    if (p && q && distance(p, q) < EPS) {
+      out.push({ invariant: "I4", message: `Joints ${p.id} and ${q.id} coincide`, entities: [jointKey(p.id), jointKey(q.id)] });
+    }
+  }
+
+  for (const [i, k] of wallPairs) {
+    const s = segments[i];
+    const t = segments[k];
+    if (!s || !t) continue;
+    const shared = [s.wall.a, s.wall.b].filter((j) => j === t.wall.a || j === t.wall.b);
+    const entities = [wallKey(s.wall.id), wallKey(t.wall.id)];
+    if (shared.length === 2) {
+      out.push({ invariant: "I7", message: `Walls ${s.wall.id} and ${t.wall.id} overlap`, entities });
+      continue;
+    }
+    const hit = segmentIntersection(s.a, s.b, t.a, t.b);
+    if (hit.kind === "overlap") {
+      out.push({ invariant: "I7", message: `Walls ${s.wall.id} and ${t.wall.id} overlap`, entities });
+    } else if (hit.kind === "point") {
+      const sharedJoint = shared[0] === undefined ? undefined : doc.joints[shared[0]];
+      if (!sharedJoint || distance(hit.point, sharedJoint) >= EPS) {
+        out.push({ invariant: "I5", message: `Walls ${s.wall.id} and ${t.wall.id} cross`, entities });
       }
     }
-  });
+  }
 
-  segments.forEach((s, i) => {
-    for (const t of segments.slice(i + 1)) {
-      const shared = [s.wall.a, s.wall.b].filter((j) => j === t.wall.a || j === t.wall.b);
-      const entities = [wallKey(s.wall.id), wallKey(t.wall.id)];
-      if (shared.length === 2) {
-        out.push({ invariant: "I7", message: `Walls ${s.wall.id} and ${t.wall.id} overlap`, entities });
-        continue;
-      }
-      const hit = segmentIntersection(s.a, s.b, t.a, t.b);
-      if (hit.kind === "overlap") {
-        out.push({ invariant: "I7", message: `Walls ${s.wall.id} and ${t.wall.id} overlap`, entities });
-      } else if (hit.kind === "point") {
-        const sharedJoint = shared[0] === undefined ? undefined : doc.joints[shared[0]];
-        if (!sharedJoint || distance(hit.point, sharedJoint) >= EPS) {
-          out.push({ invariant: "I5", message: `Walls ${s.wall.id} and ${t.wall.id} cross`, entities });
-        }
-      }
-    }
-  });
-
-  for (const j of joints) {
-    for (const s of segments) {
-      if (s.wall.a === j.id || s.wall.b === j.id) continue;
-      if (distanceToSegment(j, s.a, s.b) < EPS) {
-        out.push({ invariant: "I6", message: `Joint ${j.id} lies on wall ${s.wall.id}`, entities: [jointKey(j.id), wallKey(s.wall.id)] });
-      }
+  for (const [i, k] of jointOnWall) {
+    const j = joints[i];
+    const s = segments[k];
+    if (!j || !s || s.wall.a === j.id || s.wall.b === j.id) continue;
+    if (distanceToSegment(j, s.a, s.b) < EPS) {
+      out.push({ invariant: "I6", message: `Joint ${j.id} lies on wall ${s.wall.id}`, entities: [jointKey(j.id), wallKey(s.wall.id)] });
     }
   }
 

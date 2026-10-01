@@ -163,3 +163,45 @@ export function isSimplePolygon(ring: readonly Point[]): boolean {
   }
   return true;
 }
+
+export type Box = { minX: number; minY: number; maxX: number; maxY: number };
+
+export function boxOf(points: readonly Point[]): Box {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const p of points) {
+    minX = Math.min(minX, p.x);
+    minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x);
+    maxY = Math.max(maxY, p.y);
+  }
+  return { minX, minY, maxX, maxY };
+}
+
+/** Whether p lies in the box widened by margin on every side. */
+export function inBox(p: Point, box: Box, margin: number): boolean {
+  return p.x >= box.minX - margin && p.x <= box.maxX + margin && p.y >= box.minY - margin && p.y <= box.maxY + margin;
+}
+
+/**
+ * The index pairs [i, j], i < j, whose boxes overlap once each is widened by `margin`, sorted by i then j: the
+ * candidates for an exact pair test, in the order an all-pairs loop would visit them. A sweep over x, so the cost
+ * is about n log n plus the pairs that overlap in x.
+ */
+export function overlappingPairs(boxes: readonly Box[], margin: number): [number, number][] {
+  const gap = 2 * margin;
+  const order = boxes.map((box, i) => ({ box, i })).sort((p, q) => p.box.minX - q.box.minX);
+  const pairs: [number, number][] = [];
+  order.forEach(({ box: a, i }, k) => {
+    for (let l = k + 1; l < order.length; l++) {
+      const other = order[l];
+      if (!other || other.box.minX > a.maxX + gap) break;
+      const b = other.box;
+      if (b.minY > a.maxY + gap || a.minY > b.maxY + gap) continue;
+      pairs.push(i < other.i ? [i, other.i] : [other.i, i]);
+    }
+  });
+  return pairs.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+}

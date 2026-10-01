@@ -1,5 +1,5 @@
 import type { Point } from "@fm/protocol";
-import { signedArea } from "../geometry";
+import { boxOf, signedArea, type Box } from "../geometry";
 import { sortedIds } from "../graph";
 import { MIN_FACE_AREA, type Document } from "../model";
 
@@ -10,32 +10,58 @@ export type Face = {
   readonly wallIds: readonly string[];
   readonly ring: readonly Readonly<Point>[];
 };
-export type BoundedFace = Face & { readonly simple: boolean; readonly centreArea: number };
+export type BoundedFace = Face & { readonly simple: boolean; readonly centreArea: number; readonly box: Box };
 
-type Edge = { wallId: string; a: string; b: string };
+export type Edge = { wallId: string; a: string; b: string };
 
-/** Walls whose removal disconnects their endpoints: they belong to no cycle (spec §3.6 step 1). */
-function bridges(edges: Edge[]): Set<string> {
+/**
+ * Walls whose removal disconnects their endpoints: they belong to no cycle (spec §3.6 step 1). Tarjan's bridge
+ * search, iterative and linear in the walls: a wall is a bridge when nothing below it in the depth-first tree
+ * reaches back above it. Parallel walls are told apart by wall ID, so two walls between the same joints are no bridge.
+ */
+export function bridges(edges: readonly Edge[]): Set<string> {
   const adjacent = new Map<string, Edge[]>();
   for (const e of edges) {
-    adjacent.set(e.a, [...(adjacent.get(e.a) ?? []), e]);
-    adjacent.set(e.b, [...(adjacent.get(e.b) ?? []), e]);
-  }
-  const out = new Set<string>();
-  for (const e of edges) {
-    const seen = new Set<string>([e.a]);
-    const stack = [e.a];
-    for (let v = stack.pop(); v !== undefined && !seen.has(e.b); v = stack.pop()) {
-      for (const f of adjacent.get(v) ?? []) {
-        if (f.wallId === e.wallId) continue;
-        const w = f.a === v ? f.b : f.a;
-        if (!seen.has(w)) {
-          seen.add(w);
-          stack.push(w);
-        }
-      }
+    for (const v of [e.a, e.b]) {
+      const list = adjacent.get(v);
+      if (list) list.push(e);
+      else adjacent.set(v, [e]);
     }
-    if (!seen.has(e.b)) out.add(e.wallId);
+  }
+  const order = new Map<string, number>(); // discovery time
+  const low = new Map<string, number>(); // earliest discovery time reachable from the subtree
+  const out = new Set<string>();
+  let time = 0;
+  for (const root of adjacent.keys()) {
+    if (order.has(root)) continue;
+    order.set(root, time);
+    low.set(root, time);
+    time += 1;
+    const stack: { v: string; via: string | null; next: number }[] = [{ v: root, via: null, next: 0 }];
+    for (let top = stack[stack.length - 1]; top !== undefined; top = stack[stack.length - 1]) {
+      const e = adjacent.get(top.v)?.[top.next];
+      if (e) {
+        top.next += 1;
+        if (e.wallId === top.via) continue;
+        const w = e.a === top.v ? e.b : e.a;
+        const seen = order.get(w);
+        if (seen === undefined) {
+          order.set(w, time);
+          low.set(w, time);
+          time += 1;
+          stack.push({ v: w, via: e.wallId, next: 0 });
+        } else {
+          low.set(top.v, Math.min(low.get(top.v) ?? seen, seen));
+        }
+        continue;
+      }
+      stack.pop();
+      const parent = stack[stack.length - 1];
+      if (!parent || top.via === null) continue;
+      const childLow = low.get(top.v) ?? 0;
+      low.set(parent.v, Math.min(low.get(parent.v) ?? childLow, childLow));
+      if (childLow > (order.get(parent.v) ?? 0)) out.add(top.via);
+    }
   }
   return out;
 }
@@ -106,6 +132,7 @@ export function boundedFaces(doc: Document): BoundedFace[] {
         ring,
         simple: new Set(jointIds).size === jointIds.length,
         centreArea: area,
+        box: boxOf(ring),
       });
     }
   }

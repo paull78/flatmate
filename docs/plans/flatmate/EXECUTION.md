@@ -26,11 +26,12 @@ Update this section at every stop.
   - U1 (drag from the first point draws one wall) and U2 (the length label looks like a text field while edited): plan `docs/plans/flatmate-ux/`.
   - README: "Try it" walkthrough, two-window GIF, Claude penthouse GIF (`docs/images/`).
   - Speed, plan `docs/plans/flatmate-perf/`, spec §6.3: P1 `pnpm demo:seed-grid [N]` + `?perf` readout; P2 cached tag layouts, label → room table, cached wall outlines; P3 unchanged layers keep their array and WebGL uploads only changed layers. 50×50 grid per pan step: editor 40 → 3 ms, WebGL draw 16 → 5 ms (Canvas2D 10.5 ms). Numbers in `rendering.md`; P2 and P3 reviewed, no defects.
-- **Tests:** `pnpm check` 982 tests; `pnpm e2e` 9 passed, 1 skipped (screenshots).
-- **D1 (project delete): done and reviewed, 2026-10-01** (spec §7.2.1, plan `docs/plans/flatmate-delete/`). Review found one defect (a list during a delete crashed the server), fixed. Not yet published: run `~/code/personal/flatmate-publish.sh` when the user asks.
+- **Tests:** `pnpm check` 989 tests; `pnpm e2e` 9 passed, 1 skipped (screenshots).
+- **P4 (large-drawing edits), 2026-10-01:** user bug "moving a wall point in the 50×50 grid takes 3 seconds per frame": validation and room finding no longer test every pair; drag step 2.7 s → 65 ms in Node, about 53 ms per move in Chromium with `?perf` (update 24.5 ms, draw 8.5 ms); review found one defect (a room far from the origin hung `zones`), fixed (plan `docs/plans/flatmate-perf/`).
+- **D1 (project delete): done and reviewed, 2026-10-01** (spec §7.2.1, plan `docs/plans/flatmate-delete/`). Review found one defect (a list during a delete crashed the server), fixed. Published: `main` `9195789` = `implementation` `63915c1` (the user pushes).
 - **Next, the user picks:**
   - Open question: should the 15° angle snap use an angle tolerance (e.g. 3°) instead of 10 px from the ray?
-  - Speed leftovers: skip off-screen text in the Canvas2D text overlay (most of WebGL's remaining 5 ms); editing big drawings is slow because finding rooms takes 865 ms at 2 500 rooms (`containingFace` tests every label against every face).
+  - Speed leftover: skip off-screen text in the Canvas2D text overlay (most of WebGL's remaining 5 ms per pan step).
 - **Naming:** in messages to the user, always write the feature next to the ID, e.g. "P3 (WebGL reuses unchanged layers)", "S1 (WebGL renderer)".
 
 #### Earlier follow-ups (done)

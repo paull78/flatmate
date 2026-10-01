@@ -37,12 +37,22 @@
 - [x] **Step 3:** `pnpm check`, `pnpm e2e` (renderers spec: pixel probes, context loss), `?perf` before/after on the 50×50 grid.
 - [x] **Review** (editor core + WebGL, done: no defects; keys complete, no shared layer mutated, buffers freed on rebuild and dispose, paint order unchanged): memo keys complete (each builder reads only its arguments), no stale layer after edits, remote changes, undo, tool switches; GPU buffers freed on layer change and dispose, context loss still falls back.
 
+## Task P4: no all-pairs work when editing large drawings (domain) — size S, core
+
+**Why:** user bug (2026-10-01): dragging a joint in the 50×50 grid took about 3 s per pointer move. Profile (Node harness, `FakeShell` drag on `gridDocument(50)`): `validateDocument` (13 M wall pairs, 13 M joint-wall pairs, 3 M joint pairs) and `zones()` (`containingFace`: every label against every room; `bridges`: one search per wall), each run more than once per move. **Files:** `packages/domain/src/{geometry,validate}.ts`, `packages/domain/src/queries/{faces,zones}.ts`, `packages/domain/test/large-drawings.test.ts`.
+
+- [x] **Step 1: Tests first** (seen red: one move on a 40×40 grid 1 130 ms against a 250 ms bound): `overlappingPairs` equals the brute-force pair list; on 500 random drawings with near misses at 1 mm, `validateDocument` equals a copy of the all-pairs code (same violations, same order); `bridges` equals a per-wall search on 300 random graphs; `faceAt` equals testing every face, also with one large room among small ones.
+- [x] **Step 2: Implement:** bounding-box sweep (margin 2·EPS) for I4–I7 in the old pair order; Tarjan's bridges; face boxes and a coarse grid index for `containingFace`. Mutation checks: margin 0 and a shrunken face box both turn the equivalence tests red.
+- [x] **Step 3:** `pnpm check`; the drag harness and `zones()` timings below.
+- [x] **Review** (domain core): one defect (a room more than 2^53 grid cells out hung `zones`), fixed with a `Number.isSafeInteger` guard and a far-room test (seen hang without it); "identical" now stated for ±10 km; box margin 2·EPS against ulp-level rounding.
+
 ## Progress
 
 - [x] P1.1 done (seeding takes 0.2 s for 30×30, 1.1 s for 50×50: 5 100 walls, 800 KB)
 - [x] P1.2 done (946 tests; e2e 8 passed)
 - [x] P2 done and reviewed (no defects)
 - [x] P3 done and reviewed (no defects); published to `main` `b6390c5`
+- [x] P4 done (988 tests); drag step at 50×50 2.7 s → 65 ms
 - [x] First numbers recorded in `rendering.md` (Canvas2D vs WebGL on the grid, pan/zoom and one edit)
 
 ## Sprint log
@@ -55,3 +65,5 @@
 | 2026-09-30 | P2 | measure | Node, one update at 50×50: pan 49 → 12 ms with tags cached, → 3.3 ms with outlines cached too; browser `?perf`: pan update 40 → 3.5 ms, zoom 26 → 6.5 ms | draw now dominates (Canvas2D 11 ms, WebGL 16 ms); WebGL layer reuse noted as the next lever | `rendering.md`, `domain-geometry.md`, `editor-interaction.md` |
 | 2026-09-30 | P2 | finding | "Zoom is fast, pan is slow" (user): hover hit-testing stops at the first wall hit but otherwise lays out every tag; a zoom keeps the point under the cursor (often on a wall), a pan sweeps across room interiors | fixed by the tag cache | `editor-interaction.md` |
 | 2026-09-30 | P3 | measure | 50×50 WebGL draw per pan step 16 → 5.0 ms (Canvas2D 10.5 ms), per zoom 15.5 → 5.9 ms; editor update unchanged (about 3 ms pan, 6 ms zoom) | step 5 now takes 8 draw calls (tags layer); text overlay is what remains | `rendering.md` |
+| 2026-10-01 | P4 | measure | Node drag harness, one pointer move: 20×20 80 → 13 ms, 50×50 2 700 → 65 ms; one `zones()` at 2 500 rooms 865 → 28 ms, `validateDocument` 17 ms. What is left is spread over rebuilding rooms, outlines and the scene for the whole drawing | recorded; incremental geometry not planned | `domain-geometry.md` |
+| 2026-10-01 | P4 | defect (review) | `indexFaces` looped forever for a face beyond 2^53 cells (`x + 1 === x`), e.g. a room at 2^60 m, which I8 accepts; also equivalence holds only within ±10 km (old code's rounding) and `inBox` used EPS like `onBoundary` | safe-integer guard (else tested for every point), test seen hanging without it; docs say ±10 km; margin 2·EPS | `domain-geometry.md`, `process.md` lesson 35 |

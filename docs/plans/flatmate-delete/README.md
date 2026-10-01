@@ -57,7 +57,7 @@ Alice offline during the delete: reconnect ─► reopen ─► openFailed ─�
 - [x] D1.3 editor + MCP (agent; also `update.ts` routes the new ui action)
 - [x] Review (D1.2 + D1.3): one defect (list during a delete crashed the server), fixed
 - [x] D1.4 web, sync test (pending edit dropped; offline client), e2e (Cancel, then Delete) — e2e 9 passed
-- [ ] Published
+- [x] Published (`main` `9195789`)
 
 ## Sprint log
 

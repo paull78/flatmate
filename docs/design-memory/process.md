@@ -78,6 +78,8 @@
 
 34. **A new operation in a second queue breaks invariants the first queue gave for free:** the project list read every `*.json` it had just listed, safe only because no file ever disappeared (saves rename atomically; create and list share one queue). Project delete moves a file from the project's queue, so a list running at the same time read a missing file, and crash-only turned that into a server restart. The in-memory test repository could not show it; a real-file race test (20 overlapping list/remove pairs) did. When an operation runs in a new queue, list what the other queues assumed about the data it touches (2026-10-01, D1 review).
 
+35. **An index over floating-point coordinates needs a guard for the far range:** the room index looped `for (x = x0; x <= x1; x++)` over cell numbers, and beyond 2^53 cells `x + 1 === x`, so a room 2^60 m away (finite, so valid under I8) hung every client. Equivalence tests on drawings near the origin cannot see this; ask what the validator accepts, not what the demo draws, and check loops over derived integers with `Number.isSafeInteger` (2026-10-01, P4 review).
+
 ## Open options
 
 - Sender could receive only `changes` as acknowledgement, with bare `ack` reserved for duplicate resends (one less message on the common path). Not adopted yet.

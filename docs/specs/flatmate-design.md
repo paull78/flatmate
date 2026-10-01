@@ -261,7 +261,7 @@ A document is valid when all of these hold (ε = 1 mm):
 | I7 | No two walls overlap collinearly. |
 | I8 | All entity IDs, coordinates and label fields pass shape validation; numeric values are finite. IDs use `A–Z a–z 0–9 _ . : / -`, 1–128 characters, and never name an `Object.prototype` member (`constructor`, `__proto__`, …), because documents key entities by ID in plain objects. Label names are plain text of at most 200 UTF-16 code units; an empty name is allowed. |
 
-The check is O(n²) segment tests; fine for floor plans of a few hundred walls. The same function is used by `execute`, by the client's local pre-check (§7.4) and by the server validator (§7.3).
+The pair checks (I4–I7) test only pairs whose bounding boxes come within 2 mm, found by a sweep over x; every hit of those checks lies within 1 mm of both items, so within ±10 km of the origin the result is the same as testing every pair (farther out, rounding made the all-pairs test report false crossings between nearly collinear walls a few millimetres apart; §6.3). The same function is used by `execute`, by the client's local pre-check (§7.4) and by the server validator (§7.3).
 
 ### 3.4 Commands and the topology rule
 
@@ -883,7 +883,7 @@ Two tools, so speed claims come from numbers:
 
   It changes nothing without `?perf`; the editor and the Scene do not change.
 
-Rooms are cached per document (§3.6), so panning and zooming a drawing that does not change finds rooms once; an edit, and every drag preview, finds them again for the new document.
+Rooms are cached per document (§3.6), so panning and zooming a drawing that does not change finds rooms once; an edit, and every drag preview, finds them again for the new document. Validation and room finding therefore avoid all-pairs work: pair checks use a bounding-box sweep (§3.3), walls that close no room are found in one linear pass, and the room under a label is looked up in a coarse grid of room boxes. On the 50 × 50 grid one `zones()` takes about 28 ms and one `validateDocument` about 17 ms (Node), and a drag step about 65 ms; the rest is rebuilding rooms, outlines and the scene for the whole drawing on every step, which would need incremental geometry (not planned).
 
 ---
 
