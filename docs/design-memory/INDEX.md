@@ -16,7 +16,7 @@ Decisions, their reasons, and mistakes already made and corrected. **Consult bef
 
 | Area | File | One-line summary |
 |------|------|------------------|
-| Context & scope | [scope.md](scope.md) | Flatmate, a collaborative floor-plan editor; Canvas2D demo first, WebGL SDF next; defer complexity outside the script |
+| Context & scope | [scope.md](scope.md) | Flatmate, a collaborative floor-plan editor; Canvas2D demo first, WebGL SDF next; defer complexity outside the script; feature branches squash-merged into `main` |
 | Architecture | [architecture.md](architecture.md) | Three rings: pure domain → platform-neutral editor (events in / effects out, panels send `ui` events) → shells; packages meet only through their entry points; the editor's index exports no write paths (state changes only through `update`); lint-enforced; `@fm/mcp` is a shell like the web app |
 | Domain & geometry | [domain-geometry.md](domain-geometry.md) | Planar wall graph with endpoint/T joins only, 0.20 m thickness, 0.01 m min edge; simple zones and two-label slash merge; I1–I8; validation and room finding avoid all-pairs work (bounding-box sweep, grid of room boxes) |
 | Editor & interaction | [editor-interaction.md](editor-interaction.md) | Wall chain, one-entity selection (press selects and drags), endpoint/midpoint/on-wall/aligned/grid snaps, typed digits work with Shift held, cursor follows the camera, undo drops the gesture, preview/commit gestures with per-tool remote dependencies, zone floor selection |

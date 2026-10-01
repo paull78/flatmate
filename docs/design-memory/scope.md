@@ -21,7 +21,7 @@
 | Demo step 7: Bob's window is opened (or reloaded) at step 7, after Alice creates "Apartment": the project list is fetched on load and when leaving a drawing, not pushed to other clients (2026-09-29, rehearsal) | A pushed list needs a workspace subscription; the demo only needs the list once | §1.4, §7.2.1 |
 | Follow-up order (§11): S1 WebGL renderer, then more CAD snaps, then interior wall crossings (swapped 2026-09-29 after gate 8) | Snaps are cheap, editor-only and visible; crossings reopen the geometry that produced the most defects | §11 |
 | Follow-up M1 (MCP server: Claude as a collaborator through the headless editor and the real server) is §11 item 1, developed in parallel with S1 (WebGL renderer) (2026-09-29, user) | Cheaper than S1 and shows the portable core driven by an AI shell; touches different files (new package + one editor event) | §1.2, §11 |
-| Name **Flatmate**, scope `@fm/*`, file format `"flatmate"`; published as snapshot commits of the tree on a `main` branch with no history (2026-09-30, user) | The project stands on its own; older names live on only in the private history | — |
+| Name **Flatmate**, scope `@fm/*`, file format `"flatmate"`; developed on `main` with one local branch per feature, squash-merged; only `main` is pushed (2026-10-01, user) | One branch to keep in step; `git log main` reads as a changelog | — |
 
 ## Don't
 
@@ -30,4 +30,5 @@
 - Don't include illustrative ports (`fetch`, thumbnails/`exportImage`) in the MVP; they only explain the port pattern.
 - When in doubt, **cut functionality or add a hard constraint** rather than design a clever general solution (user preference).
 - Don't name other commercial editors, their links, code names, file extensions or staff in the repo, beyond generic comparisons such as "Figma for 2D CAD" (2026-09-30, user).
+- Don't develop on a long-lived private branch and copy its files onto `main` with a publish script. Superseded 2026-10-01: two branches to keep in step, agent worktrees started from the wrong one, and a squash merge per feature gives the same public history (user).
 - Don't treat the follow-up list as required scope for the demo; WebGL SDF is the first follow-up after the Canvas2D path (2026-09-27).

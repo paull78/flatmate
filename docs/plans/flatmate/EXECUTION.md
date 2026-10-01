@@ -6,7 +6,7 @@
 
 Update this section at every stop.
 
-- **Branches:** `implementation` is where all work happens (`master` still ends at the plan commit `22f3cfe`). `main` is the public snapshot branch (see "Now"). Never push: the user pushes.
+- **Branches (from 2026-10-01):** work happens on `main`, one local branch per feature, squash-merged into `main` (see "Workflow" under "Now"). Older local branches and tags are an archive: never push them, never delete them; commit IDs quoted in older docs resolve there. Never push: the user pushes.
 - **Phase 2 (domain):** done; Gate 2 approved 2026-09-28 (report `docs/reports/gate-2-domain.md`, last code commit `aaf6e42`, domain 20 files, 186 tests).
 - **Phase 3 (headless editor):** done; Gate 3 approved 2026-09-29 (report `docs/reports/gate-3-editor.md`).
 - **Phase 4 (web shell):** done; Gate 4 approved 2026-09-29 (report `docs/reports/gate-4-web-shell.md`).
@@ -19,9 +19,13 @@ Update this section at every stop.
 
 ### Now (resume here after a context clear) — 2026-10-01
 
-- **The project is Flatmate, published at github.com/paull78/flatmate.** It was renamed for public release (folder `~/code/personal/flatmate`, scope `@fm/*`, MCP server `flatmate`, file format `"flatmate"`). The repo must not mention the words the publish script refuses; design memory `scope.md` has the rule.
-- **Publishing:** commit on `implementation`, then run `~/code/personal/flatmate-publish.sh "message"` (outside the repo). It copies the committed tree of `implementation` as one new commit on `main` (no history), refuses forbidden words, and never pushes. The user runs `git push`, which sends only `main`. Never push yourself, never push tags (a local tag marks the pre-rename state). No license, by the user's choice: don't add one unless asked.
-- **Last published:** `main` `b6390c5` = `implementation` `485216c` (the user was about to push). After that, only plan bookkeeping.
+- **The project is Flatmate, published at github.com/paull78/flatmate** (folder `~/code/personal/flatmate`, scope `@fm/*`, MCP server `flatmate`, file format `"flatmate"`).
+- **Workflow (from 2026-10-01, user):**
+  1. `git switch main && git switch -c <feature>` (e.g. `offline-queue`); everything goes through a branch, even a one-line doc fix, so `main` only gets squash commits.
+  2. Work on the branch as before: spec and plan first, tasks tests first, one commit per task, review, bookkeeping. Sprint logs name tasks, not commit IDs (branch commits disappear with the branch).
+  3. `pnpm check` (and `pnpm e2e` if the web side changed) on the branch, then `git switch main && git merge --squash <feature> && git commit -m "<feature summary>"`; then `git branch -D <feature>`.
+  4. The user runs `git push` (the git config sends only `main`). Never push yourself, never push tags. No license, by the user's choice: don't add one unless asked.
+- **Switched to `main` + feature branches on 2026-10-01** at `main` `8d5fd55`.
 - **Done since the follow-ups (all on `main`):**
   - U1 (drag from the first point draws one wall) and U2 (the length label looks like a text field while edited): plan `docs/plans/flatmate-ux/`.
   - README: "Try it" walkthrough, two-window GIF, Claude penthouse GIF (`docs/images/`).
@@ -96,7 +100,7 @@ The user asked to relax tests and steps after Gate 3 ("keep in mind this is a de
 
 1. **Group tasks** by import dependencies (each task's `**Files:**` line and imports). Tasks in a wave must touch disjoint files.
 2. **Dispatch one implementer per task** with the template below.
-3. **Merge:** for each report, check `git show --stat <sha>` (only the task's files, no scratch tests), then `git cherry-pick <sha…>` → for each worktree: `git worktree remove --force <path>` and `git branch -D <branch>` → `pnpm check`.
+3. **Merge:** for each report, check `git show --stat <sha>` (only the task's files, no scratch tests), then `git cherry-pick <sha…>` onto the feature branch → for each worktree: `git worktree remove --force <path>` and `git branch -D <branch>` → `pnpm check`.
 4. **Core waves only: one review** (Opus, read-only) over the wave's diff: plan compliance and code quality, reporting only demo-breaking, invalid-drawing or divergence defects (plus rule breaks: `as`, `!`, DOM in cores). Then one fix agent if needed, merged the same way.
 5. **Bookkeeping, one docs commit per wave:** tick steps, one sprint-log row per real finding or deviation, design memory only when a decision changes, spec if behaviour changed. Update "Where we are". Commit `plan: phase M wave N (…)`, then start the next wave.
 
@@ -153,5 +157,5 @@ pnpm check totals; deviations from the plan text (short).
 - An agent's sandbox may refuse a compound Bash command (heredoc writes chained with `&&`) as hard to verify; single commands and the Write tool work (wave 3 of phase 3).
 - Port pre-flight: use `lsof -sTCP:LISTEN -i :5173 -i :8787 -i :8788`; plain `lsof -i` also lists an editor's CLOSED client sockets (S1 wave 1).
 - A doc-only agent may stall after committing (wave 1 of phase 3: the watchdog killed it after its report); check for its commit before re-running.
-- Since `main` exists as the public snapshot branch, `isolation: "worktree"` agents start from `main`, not `implementation` (D1, 2026-10-01). Check the base in the brief's step 1; resetting the worktree branch then tripped the auto-mode classifier. For small tasks, do them in the main tree instead.
+- `isolation: "worktree"` agents start from `main`, not from the feature branch you are on (D1, 2026-10-01). A wave that needs the branch's earlier commits must say so in the brief: step 1 runs `git merge --ff-only <feature>` in the worktree (resetting the worktree branch instead tripped the auto-mode classifier). For small tasks, work in the main folder instead.
 - If the auto-mode safety classifier returns no verdict, agents lose Bash and cannot commit (wave 4). Then the controller checks the worktree itself: diff the task files against the plan's code blocks, delete scratch files, run the test and `pnpm check`, commit there with the plan's message, then merge as usual.
