@@ -1457,7 +1457,7 @@ The editor gains `{ type: "command"; command: Command }` (§5.2). It runs the sa
 | `list_projects` | — | goes to the project list and returns it; this closes the open drawing (the editor lists projects only from the list, §7.2.1) |
 | `create_project` | name | creates and opens it |
 | `open_project` | project id | opens it |
-| `get_drawing` | — | the drawing summary (§12.4) |
+| `get_drawing` | optional region `{ min, max }` | the drawing summary (§12.4); with a region, only what touches that box |
 | `draw_room` | x, y, width, height | a rectangle of four walls (`rectangleRoom`), see §12.5 |
 | `add_wall` | a, b | `addWall` from a to b (T-junction rules of §3.4 apply) |
 | `add_walls` | walls: 1–50 of `{a, b}` | several `addWall`s in one call, in order, for bigger layouts such as a maze; see §12.5 |
@@ -1488,7 +1488,14 @@ Every wait ends. Replies are matched by changeset ID and generation, like every 
 
 ### 12.4 Drawing summary
 
-Compact JSON in metres (coordinates rounded to millimetres, areas to hundredths of m²): the project (id, name, save status), walls (id, joint ids, endpoints, length), joints (id, position), rooms (outline, clear floor area from `zones` or the reason it is unavailable, the labels inside) and labels that are in no room. `get_drawing` and every accepted edit return it.
+Compact JSON in metres (coordinates rounded to millimetres, areas to hundredths of m²): the project (id, name, save status), walls (id, joint ids, endpoints, length), joints (id, position), rooms (outline, clear floor area from `zones` or the reason it is unavailable, the labels inside) and labels that are in no room. `get_drawing`, `open_project`, `create_project` and every accepted edit return it.
+
+**Large drawings are summarized, not listed** (M2, 2026-10-01). The full listing of the 50 × 50 seed grid is about 760 KB (some 200 000 tokens), too much for one reply, let alone one per edit. So a reply lists the drawing only when it has at most 300 walls; otherwise it returns an **overview**: the project, the counts (walls, joints, rooms, labels, unplaced labels), the drawing's bounds and a hint to pass a region. `get_drawing({ region: { min, max } })` lists only the walls whose extent touches the box, the joints inside it, the rooms whose extent touches it and the unplaced labels inside it, with the counts of the whole drawing; a region holding more than 300 walls gets the overview and a hint to narrow it. A region's corners are points like any other (§12.2 bounds); `min` must not exceed `max`.
+
+```
+reply ── ≤ 300 walls (whole drawing, or inside the region) ──► full listing, as before
+      └─ more ───────────────────────────────────────────────► overview: counts, bounds, hint
+```
 
 ### 12.5 Constraints
 

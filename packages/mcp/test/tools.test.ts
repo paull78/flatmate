@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { MESSAGES } from "@fm/domain";
-import type { DrawingSummary } from "../src/drawing";
+import type { DrawingOverview, DrawingSummary } from "../src/drawing";
 import { NO_DRAWING, type EditorSession } from "../src/session";
 import { createTools, type DrawingTools, type Reply } from "../src/tools";
 import { TestServer } from "./harness";
@@ -142,6 +142,26 @@ const MAZE = [
   { a: { x: 1, y: 0 }, b: { x: 1, y: 2 } },
   { a: { x: 2, y: 3 }, b: { x: 2, y: 1 } },
 ];
+
+describe("large drawings (spec §12.4)", () => {
+  it("over 300 walls, an edit replies with the overview; get_drawing lists a region", async () => {
+    const { tools } = await setup();
+    for (let batch = 0; batch < 7; batch++) {
+      const walls = Array.from({ length: 50 }, (_, i) => ({ a: { x: batch * 50 + i, y: 0 }, b: { x: batch * 50 + i, y: 0.5 } }));
+      expect((await tools.addWalls({ walls })).isError).toBe(false);
+    }
+    const whole: DrawingOverview = JSON.parse((await tools.getDrawing({})).text);
+    expect(whole.counts.walls).toBe(350);
+    expect(whole).not.toHaveProperty("walls");
+    const near = summary(await tools.getDrawing({ region: { min: { x: -0.5, y: -1 }, max: { x: 1.5, y: 1 } } }));
+    expect(near.walls).toHaveLength(2); // the walls at x = 0 and x = 1
+    const first = near.walls[0]?.id ?? "";
+    const after = await tools.delete({ ids: [first] });
+    expect(after.isError).toBe(false);
+    expect(after.text.length).toBeLessThan(2_000);
+    expect(JSON.parse(after.text)).toMatchObject({ counts: { walls: 349 } });
+  });
+});
 
 describe("add_walls (spec §12.5)", () => {
   it("draws a maze in one call; walls sharing an end connect; another client sees every wall", async () => {

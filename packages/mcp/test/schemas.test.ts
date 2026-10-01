@@ -13,6 +13,8 @@ describe("tool input schemas (the MCP trust boundary, process lesson 29)", () =>
     expect(parse("add_walls", { walls, extra: true }).data).toEqual({
       walls: [{ a: { x: 0, y: 0 }, b: { x: 3, y: 0 } }, { a: { x: 3, y: 0 }, b: { x: 3, y: 3 } }],
     });
+    expect(parse("get_drawing", {}).success).toBe(true);
+    expect(parse("get_drawing", { region: { min: { x: 0, y: 0 }, max: { x: 5, y: 5 } } }).success).toBe(true);
     const most = Array.from({ length: MAX_WALLS }, (_, i) => ({ a: { x: i, y: 0 }, b: { x: i, y: 1 } }));
     expect(parse("add_walls", { walls: most }).success).toBe(true);
   });
@@ -26,6 +28,8 @@ describe("tool input schemas (the MCP trust boundary, process lesson 29)", () =>
     ["a number as a string", "set_wall_length", { wall: "w", length: "3" }],
     ["an id with a space", "set_wall_length", { wall: "has space", length: 3 }],
     ["an Object.prototype name", "rename_room", { label: "__proto__", name: "Kitchen" }],
+    ["a region with min above max", "get_drawing", { region: { min: { x: 5, y: 0 }, max: { x: 0, y: 5 } } }],
+    ["a region corner out of range", "get_drawing", { region: { min: { x: 0, y: 0 }, max: { x: MAX_COORD + 1, y: 1 } } }],
     ["an empty name", "label_room", { point: { x: 0, y: 0 }, name: "   " }],
     ["a 201-character name", "create_project", { name: "x".repeat(201) }],
     ["no ids", "delete", { ids: [] }],

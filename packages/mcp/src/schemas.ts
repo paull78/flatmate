@@ -18,6 +18,13 @@ const id = z.string().refine(isWireId, { message: "Not an id: use the ids get_dr
 export const SCHEMAS = {
   create_project: { name: z.string().trim().min(1).max(MAX_NAME_CHARS) },
   open_project: { id: id.describe("A project id from list_projects") },
+  get_drawing: {
+    region: z
+      .object({ min: point, max: point })
+      .refine((r) => r.min.x <= r.max.x && r.min.y <= r.max.y, { message: "min must not exceed max" })
+      .optional()
+      .describe("List only what touches this box; needed for drawings of more than 300 walls"),
+  },
   draw_room: { x: coord, y: coord, width: size, height: size },
   add_wall: { a: point, b: point },
   add_walls: { walls: z.array(z.object({ a: point, b: point })).min(1).max(MAX_WALLS).describe("Walls from a to b, drawn in this order") },

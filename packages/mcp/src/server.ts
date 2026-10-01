@@ -12,7 +12,8 @@ export const TOOL_NAMES = [
 
 const INSTRUCTIONS =
   "Flatmate is a collaborative 2D floor-plan editor. Coordinates are metres with y pointing up; walls are 0.20 m " +
-  "thick and joined at shared joints. Open or create a project first, then read it with get_drawing. Each edit is " +
+  "thick and joined at shared joints. Open or create a project first, then read it with get_drawing (large drawings: " +
+  "pass a region). Each edit is " +
   "checked like a person's edit: walls can't cross or overlap, and one edit is saved at a time. A failed edit returns " +
   "the reason; nothing changes.";
 
@@ -39,8 +40,14 @@ export function createMcpServer(tools: DrawingTools): McpServer {
   );
   server.registerTool(
     "get_drawing",
-    { description: "The open drawing: walls (ids, joint ids, endpoints, lengths), joints, rooms (labels, clear areas in m², outlines) and unplaced labels." },
-    async () => result(await tools.getDrawing()),
+    {
+      description:
+        "The open drawing: walls (ids, joint ids, endpoints, lengths), joints, rooms (labels, clear areas in m², outlines) " +
+        "and unplaced labels, with counts. A drawing of more than 300 walls comes back as an overview (counts, bounds); " +
+        "pass a region { min, max } to list only what touches that box.",
+      inputSchema: SCHEMAS.get_drawing,
+    },
+    async (args) => result(await tools.getDrawing(args)),
   );
   server.registerTool(
     "draw_room",

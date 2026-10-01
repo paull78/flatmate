@@ -26,6 +26,7 @@ Claude ──MCP stdio──► @fm/mcp: tools → EditorSession ──update─
 | `delete` looks each id up in the drawing to build the command's entity refs; an id that is no wall, joint or label is refused before anything is sent (2026-09-29, M1.6; spec §12.2 aligned in M1.10) | `deleteEntities` takes `{ table, id }` refs; Claude has only ids | §12.2 |
 | Rehearsal step 10a is a maze drawn with `add_walls` at exact coordinates, right of the apartment (x 9–13 m), ending with a question; the bathroom prompt is its fallback (2026-09-29, user) | The user wants the demo to show Claude generating a maze; exact coordinates keep the step predictable; the geometry was checked through the tools against the step-5 apartment | §1.4 step 10 |
 | No tool deletes a project. If a person deletes the open project, a waiting edit ends with the editor's toast "This project was deleted" (the session checks for a closed drawing before treating "not pending" as success) (2026-10-01) | Without that check, an edit dropped by the delete would read as accepted | §12.3, §12.5 |
+| Replies list the drawing only up to 300 walls; above that they return an overview (counts, bounds, hint), and `get_drawing` takes an optional region that lists only what touches it (M2, 2026-10-01) | The 50 × 50 seed grid lists to 764 KB (about 200k tokens) per reply, and every edit returned it; a count limit is easy to state and to test | §12.2, §12.4 |
 
 ## Don't
 

@@ -1,6 +1,6 @@
 import { rectangleRoom, type Command, type Document, type EntityRef } from "@fm/domain";
 import type { Point, Result } from "@fm/protocol";
-import { summarize } from "./drawing";
+import { summarize, type Region } from "./drawing";
 import { NO_DRAWING, type EditorSession, type OpenProject } from "./session";
 
 // Tool handlers: validated inputs in (schemas.ts), a short text out. Every editing tool is one domain command through
@@ -14,7 +14,7 @@ export type DrawingTools = {
   listProjects(): Promise<Reply>;
   createProject(args: { name: string }): Promise<Reply>;
   openProject(args: { id: string }): Promise<Reply>;
-  getDrawing(): Promise<Reply>;
+  getDrawing(args?: { region?: Region | undefined }): Promise<Reply>;
   drawRoom(args: { x: number; y: number; width: number; height: number }): Promise<Reply>;
   addWall(args: { a: Point; b: Point }): Promise<Reply>;
   addWalls(args: { walls: { a: Point; b: Point }[] }): Promise<Reply>;
@@ -36,11 +36,11 @@ function tableOf(doc: Document, id: string): EntityRef["table"] | null {
 }
 
 export function createTools(session: EditorSession): DrawingTools {
-  function drawingReply(): Reply {
+  function drawingReply(region?: Region): Reply {
     const project = session.project();
     const doc = session.drawing();
     if (project === null || doc === null) return fail(NO_DRAWING);
-    return { text: JSON.stringify(summarize(project, doc)), isError: false };
+    return { text: JSON.stringify(summarize(project, doc, region)), isError: false };
   }
 
   function opened(r: Result<OpenProject, string>): Reply {
@@ -72,8 +72,8 @@ export function createTools(session: EditorSession): DrawingTools {
     async openProject({ id }) {
       return opened(await session.openProject(id));
     },
-    async getDrawing() {
-      return drawingReply();
+    async getDrawing(args = {}) {
+      return drawingReply(args.region);
     },
     async drawRoom({ x, y, width, height }) {
       const r = await session.editAll(rectangleRoom({ x, y }, width, height, session.newId()));

@@ -10,7 +10,7 @@ Flatmate: a small collaborative 2D CAD editor for floor plans. TypeScript monore
 - **Design memory (the *why* and the mistakes not to repeat):** `docs/design-memory/INDEX.md`
 - **Implementation plan:** `docs/plans/flatmate/README.md` (phases, shared contracts, gate protocol); gate reports in `docs/reports/`
 - **Resuming implementation:** `docs/plans/flatmate/EXECUTION.md` (where we are, how waves of agents run, prompt template)
-- **Follow-up plans (after the main plan):** `docs/plans/flatmate-s1/` (WebGL2 renderer, spec §6.2), `docs/plans/flatmate-mcp/` (MCP server, spec §12), `docs/plans/flatmate-snaps/` (CAD snaps), `docs/plans/flatmate-ux/` (UX fixes), `docs/plans/flatmate-perf/` (speed, spec §6.3), `docs/plans/flatmate-delete/` (project delete, spec §7.2.1); their status is in EXECUTION.md → "Now"
+- **Follow-up plans (after the main plan):** `docs/plans/flatmate-s1/` (WebGL2 renderer, spec §6.2), `docs/plans/flatmate-mcp/` (MCP server, spec §12), `docs/plans/flatmate-snaps/` (CAD snaps), `docs/plans/flatmate-ux/` (UX fixes), `docs/plans/flatmate-perf/` (speed, spec §6.3), `docs/plans/flatmate-delete/` (project delete, spec §7.2.1), `docs/plans/flatmate-mcp-large/` (MCP on large drawings, spec §12.4); their status is in EXECUTION.md → "Now"
 
 ## Design memory: rules
 
