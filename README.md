@@ -2,7 +2,7 @@
 
 Draw a home as a 2D plan and see it in 3D. A home planner for tiny houses, flats and small homes, in the browser.
 
-The website, with the sample houses, videos and PDFs: [flatmate-site.vercel.app](https://flatmate-site.vercel.app).
+The website, with the sample houses, videos and PDFs: [flatmate.ottana.net](https://flatmate.ottana.net).
 
 ![Flatmate with the 20 ft studio open: the plan above, the same house in 3D below](docs/images/app.webp)
 
@@ -74,7 +74,7 @@ shells      web (React, Canvas2D, WebGL2, WebGPU) Â· server (Node, JSON files) Â
 - **The editor** receives events and returns effects as plain data, so the same code runs in the browser, in tests and inside the MCP server.
 - **The server** is the source of truth for collaboration. It accepts one edit at a time per project, the first writer wins, and nothing is merged.
 
-[How it works](https://flatmate-site.vercel.app/geometry.html) explains the geometric core with drawings: plan shapes, height ranges and how the 3D view is built from them. [docs/architecture.md](docs/architecture.md) has the packages, how collaboration works and how it is tested. What each feature does is in [docs/specs/](docs/specs/README.md), one short document per topic, and [AGENTS.md](AGENTS.md) holds the rules every coding agent follows here.
+[How it works](https://flatmate.ottana.net/geometry.html) explains the geometric core with drawings: plan shapes, height ranges and how the 3D view is built from them. [docs/architecture.md](docs/architecture.md) has the packages, how collaboration works and how it is tested. What each feature does is in [docs/specs/](docs/specs/README.md), one short document per topic, and [AGENTS.md](AGENTS.md) holds the rules every coding agent follows here.
 
 To run the checks:
 
