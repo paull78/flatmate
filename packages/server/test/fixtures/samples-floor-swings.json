@@ -1,0 +1,206 @@
+{
+ "20 ft studio": {
+  "zones": {
+   "barn/d0": null,
+   "entry/d0": [
+    [
+     3.01,
+     0
+    ],
+    [
+     2.21,
+     0
+    ],
+    [
+     2.21,
+     -0.8
+    ],
+    [
+     3.01,
+     -0.8
+    ]
+   ],
+   "w-bath-west/d0": null,
+   "w-bath/d0": null,
+   "w-east/d0": null,
+   "w-loft/d0": null,
+   "w-north/d0": null,
+   "w-south/d0": null
+  },
+  "blocked": {
+   "s0": [],
+   "n/s0": []
+  }
+ },
+ "28 ft two lofts": {
+  "zones": {
+   "bath/d0": null,
+   "entry/d0": [
+    [
+     3.15,
+     0
+    ],
+    [
+     2.35,
+     0
+    ],
+    [
+     2.35,
+     -0.8
+    ],
+    [
+     3.15,
+     -0.8
+    ]
+   ],
+   "w-bar/d0": null,
+   "w-bath/d0": null,
+   "w-east-loft/d0": null,
+   "w-sink/d0": null,
+   "w-sofa/d0": null,
+   "w-west-loft/d0": null
+  },
+  "blocked": {
+   "s0": []
+  }
+ },
+ "30 ft gooseneck": {
+  "zones": {
+   "bath/d0": null,
+   "entry/d0": [
+    [
+     3.85,
+     2.55
+    ],
+    [
+     4.65,
+     2.55
+    ],
+    [
+     4.65,
+     3.35
+    ],
+    [
+     3.85,
+     3.35
+    ]
+   ],
+   "w-bar/d0": null,
+   "w-bath/d0": null,
+   "w-bed/d0": null,
+   "w-living/d0": null,
+   "w-sink/d0": null,
+   "w-west/d0": null
+  },
+  "blocked": {
+   "s0": []
+  }
+ },
+ "Notched cottage": {
+  "zones": {
+   "bed-door/d0": [
+    [
+     2.9,
+     3.1
+    ],
+    [
+     2.2,
+     3.1
+    ],
+    [
+     2.2,
+     2.4
+    ],
+    [
+     2.9,
+     2.4
+    ]
+   ],
+   "entry/d0": [
+    [
+     1.75,
+     1.475
+    ],
+    [
+     1.75,
+     0.275
+    ],
+    [
+     2.35,
+     0.275
+    ],
+    [
+     2.35,
+     1.475
+    ]
+   ],
+   "garden-over/d0": null,
+   "garden/d0": null,
+   "hall/d0": null,
+   "shower-door/d0": null,
+   "w-bed/d0": null,
+   "w-entry/d0": null,
+   "w-living/d0": null,
+   "w-shower/d0": null,
+   "w-sink/d0": null
+  },
+  "blocked": {
+   "s0": []
+  }
+ },
+ "Tokyo loft": {
+  "zones": {
+   "bath-door/d0": [
+    [
+     9.7,
+     2.5
+    ],
+    [
+     10.4,
+     2.5
+    ],
+    [
+     10.4,
+     2.65
+    ],
+    [
+     9.7,
+     2.65
+    ]
+   ],
+   "entry/d0": [
+    [
+     8.925,
+     3.8
+    ],
+    [
+     8.075,
+     3.8
+    ],
+    [
+     8.075,
+     2.95
+    ],
+    [
+     8.925,
+     2.95
+    ]
+   ],
+   "garden-over/d0": null,
+   "garden/d0": null,
+   "laundry-door/d0": null,
+   "w-bath/d0": null,
+   "w-bed/d0": null,
+   "w-bed2/d0": null,
+   "w-closet/d0": null,
+   "w-kitchen/d0": null,
+   "w-slot/d0": null,
+   "w-study/d0": null,
+   "w-wc/d0": null,
+   "wc-door/d0": null
+  },
+  "blocked": {
+   "s0": []
+  }
+ }
+}

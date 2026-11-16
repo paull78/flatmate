@@ -1,0 +1,95 @@
+// Re-exported so scripts need only @fm/domain.
+export { ok, err, unwrap, assertNever } from "@fm/protocol";
+export type { Point, Result } from "@fm/protocol";
+export * from "./model";
+export { guardPosts, guardRuns, missingGuards, type GuardRun, type MissingGuard } from "./queries/guards";
+export { PLAN_SIDES, isPlanSide, sideAt, sideName, type PlanSide } from "./queries/deck-sides";
+export { flightHandrails, type Handrail, type RailKnot } from "./queries/handrails";
+export { spiralRails, type LandingRail, type SpiralRails } from "./queries/spiral-rails";
+export * from "./kinds";
+export { OBJECT_OPTIONS, OPTION_REFUSALS, hasOption, isObjectOption, type ObjectOption, type ObjectOptions } from "./options";
+export { MIN_SET_TABLE, SEATED_REACH, CHAIR_SIZE, CHAIR_W, deskSetDepth, diningChairsPerSide, diningEnds, diningSeats, diningTable, roundChairs, roundSetDiameter, roundSetTable, type Aggregate } from "./sets";
+export * from "./stairs";
+export { recommendedRun, spiralLanding, spiralTreads, squareSize, stairBase, stairGeometry, stairTurn, type SpiralTread, type StairGeometry } from "./queries/stairs";
+export { SIDE_BOARD, UNDERSIDE_DEPTH, type StairPose } from "./queries/underside";
+export { stairChecks, stairRuleChecks, type StairCheck, type StairCheckId } from "./queries/stair-checks";
+export * from "./use-zone";
+export * from "./project-fields";
+export * from "./trailer";
+export * from "./finishes";
+export * from "./errors";
+export * from "./geometry";
+export * from "./shape";
+export * from "./shape-tables";
+export * from "./shapes";
+export * from "./arms";
+export * from "./validate";
+export { columnOf, columnTakes, columnViolations, type ColumnView } from "./column-checks";
+export { deckRefs, wallRangeViolations } from "./wall-ranges";
+export * from "./patch";
+export * from "./graph";
+export * from "./commands/types";
+export { execute } from "./commands/execute";
+export { stairFits, stairZonesFree } from "./commands/place-stair";
+export { stairShortfall, type StairShortfall } from "./commands/stair-shortfall";
+export { EDGE_TOLERANCE, STAIR_LANDING, spiralEntrySide, stairEdges, stairOnEdge, type StairEdge, type StairEdgeShape, type StairFlight, type StairLanding, type StairParts, type StairRequest } from "./queries/stair-edge";
+export { metres, shown, shownCm, toMm } from "./format";
+export { newOpeningId, newWallId } from "./commands/created-ids";
+export { resizedAnchor } from "./commands/resize-placement";
+export { flushEnd } from "./commands/wall-ends";
+export { jointOrder, wallCorners, wallOutlines, type WallEnd } from "./queries/outlines";
+export { anchorAt, anchorAtMm, anchorFor, deckRing, depthOf, fitParts, fitShapes, floorWallBodies, footprintOf, footprintQuad, footprints, placementCentre, placementRoom, placementRug, quadCentre, roundMm, useZones, wallBodies, zoneExtent, zoneRings, type SideZone, type ZoneRing } from "./queries/footprints";
+export { ellZoneLines, type Span, type StripLines } from "./ell-zone";
+export { candidateShape, fitViolations, footprintFit, placementFit, sizePlaceable, type CandidateShape, type PlacementCandidate, type PlacementFit } from "./queries/fit";
+export { OVERHANG, PLATFORM_TOP, deckStanding, type DeckStanding } from "./queries/stands-on";
+export { winderTreads } from "./queries/winders";
+export { placementTuck, seatStrip, tuckRole, tucks, type Tuck, type TuckPose, type TuckRole } from "./queries/tucks";
+export { nearestObstacles, type ObstacleGap, type QuadSide, type SideGaps } from "./queries/nearest";
+export { FOLD_DEPTH, clearanceWarnings, foldedLength, swingZone, zoneBlocks, type Blocker, type ClearanceWarning, type ZoneBlock, type ZoneRef } from "./queries/clearance";
+export { freeFloor, furnishedRooms } from "./queries/free-floor";
+export { DOOR_FROM_FLOOR, geometryOf, openingDefaults, openingGeometry, openingHeightsFor, suggestOpening, wallReach, type OpeningGeometry, type Reach, type SuggestedOpening } from "./queries/openings";
+export { dimensionLength, dimensionPoints, faceCorners, type FaceCorner } from "./queries/dimensions";
+export type { Face, Hole } from "./queries/faces";
+export { zones, zoneOfLabel, orphanLabelIds, faceAt, type Zone, type ZoneHole } from "./queries/zones";
+export { centroid, floorRings, interiorPoint, onFloor } from "./queries/floor";
+export { faceExtent, wallChain, wallFace, wallHelperDimension, wallRoomSides, wallSideRooms, type ChainPiece, type SideFacing, type ChainSide, type WallChain, type WallFace } from "./queries/helpers";
+export { hitCandidates } from "./queries/hit";
+export { inLine, isStraightJoint, kinkAngle, offAxisAngle, wallRunOf } from "./queries/runs";
+export { nearSide, straightenPlans } from "./commands/straighten-walls";
+export { underlayRect } from "./underlay";
+export { logoOf } from "./logo";
+export { MAX_CEILING, MIN_CEILING, MIN_WALL_TOP, ceilingViolations } from "./ceiling";
+export {
+  DEFAULT_OVERHANG, DEFAULT_PITCH, FALLS, MAX_HIGH_SIDE, MAX_OVERHANG, MAX_PITCH, MIN_PITCH, ROOF_SHAPES, ceilingAlongSegment, ceilingAtPoint,
+  ceilingOverSpan, FALLS_LABELS, highSide, highestCeilingAlong, highestCeilingOver, planesOf, ROOF_PRESETS, roofBox, roofCovering, roofOf, roofPlanes, roofPresetOf, solveRoof,
+  type Falls, type Plane, type Roof, type RoofEdit, type RoofPreset, type RoofShape,
+} from "./roof";
+export { DECK_PRESETS, DECK_THICKNESS, DEFAULT_DECK_SIZE, MAX_DECK_TOP, MIN_DECK_SIZE, MIN_DECK_TOP, isDeckPreset, type DeckPreset } from "./presets";
+export { deckViolations } from "./decks";
+export { LOWEST_SHARE, lowerable, lowestHeight } from "./lowering";
+export { roomOver, type RoomOver } from "./queries/room-over";
+export { landing, type LandingCandidate, type Landed } from "./queries/landing";
+export { clearStretch, doorSpans, SPAN_OVERHANG_M, type DoorSpan } from "./queries/door-spans";
+export { deckRelationAt, hiddenAt, isFloor, reachesLevel, levelDeckAt, levelHeight, levelOf, levels, ownsDeck, placementLevel, relationAt, openingShown, wallOpenableAt, shownAt, type Level } from "./queries/levels";
+export { orderedStates } from "./queries/states";
+export { automaticSheets, drawingTitle, sheetListIsAutomatic, sheetsOf } from "./queries/sheets";
+export { nextSectionLetter, sectionLabel, sectionSheetTitle, sectionsOf } from "./queries/sections";
+export { areaM2, areaRing, areaRoom } from "./queries/areas";
+export { areaName, areasOverlap } from "./validate-areas";
+export { nextAreaName } from "./commands/areas";
+export { carriedBy, deckFrame, deckLabel, deckUnder, deckView, deckViews, holeView, insideDeck, onSlab, overHole, overSlab, slabArea, type DeckFrame, type DeckView, type HoleView, type SlabEdge, type EdgeOwner } from "./queries/decks";
+export {
+  HEAD_CLEAR, MIN_OPENING_HEIGHT, defaultOpeningHeights, PLAN_CUT, ZONE_CLEAR_ABOVE, ceilingAlong, ceilingHeight, ceilingOver, wallTopAt, clearAbove, cutAt, cutHeight, deckRange, elevationOf, halfWallTop, heightsOf, openingRange, placementRange, rangeOf,
+  rangesOverlap, relationToCut, pickOrder, solids, stackOrder, surfaceTop, wallRange, type CutRelation, type Heights, type Range, type Solid, type Stacked,
+} from "./queries/vertical";
+export * from "./serialize";
+export { rectangleRoom } from "./scripts";
+export { clipHalfPlane } from "./geometry";
+export { openBelow, type OpenBelow } from "./queries/open-below";
+export { outsideDoors, type OutsideDoor } from "./queries/outside-doors";
+export { dressingOf, dressings, roomSideOf, type Dressing, type DressingBox, type DressingCurtain } from "./queries/dressing";
+export { coveredWell, placementWellPart } from "./queries/wells";
+export { LOWER_HEIGHT, WALL_SIDES, hasSides, lowerHeightProblem, sameSide, sameSides, sidesOf, sidesProblem, swapSides, withSides } from "./wall-sides";
+export { PLAIN_WHITE, defaultProblem, outsideOf, roomWallsOf, withOutside, withRoomWalls } from "./wall-defaults";
+export { sideFinishes, type FinishSource, type ShownSide, type ShownSides } from "./queries/side-finishes";
+export { roomWallSides } from "./queries/room-walls";

@@ -1,0 +1,230 @@
+/* The object palette (library.02, .04, .08): the quick add field over a rail of groups (64 px) beside two columns of
+   cards, filling the palette column under the project head (styles.css, .side-column). Rail and cards scroll apart. */
+.side-column > .palette {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fm-s2);
+  padding-top: var(--fm-s1);
+  overflow: hidden;
+}
+
+.palette > .quick-add {
+  margin: 0 var(--fm-s3);
+}
+
+.palette-body {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 64px minmax(0, 1fr);
+  min-height: 0;
+  border-top: 1px solid var(--fm-line);
+}
+
+.palette-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fm-s1);
+  min-height: 0;
+  padding: var(--fm-s2) 6px;
+  border-right: 1px solid var(--fm-line);
+  overflow-y: auto;
+}
+
+.palette-rail-button {
+  display: grid;
+  flex: none;
+  justify-items: center;
+  gap: 3px;
+  padding: 7px 2px 6px;
+  border: 0;
+  border-radius: var(--fm-radius-tile);
+  background: none;
+  color: var(--fm-text);
+  font: inherit;
+  font-size: 10.5px;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+}
+
+.palette-rail-button:hover {
+  background: var(--fm-field-hover);
+}
+
+.palette-rail-button[aria-pressed="true"] {
+  background: var(--fm-text); /* the dark pill */
+  color: var(--fm-panel);
+}
+
+.palette-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fm-s2);
+  align-content: start;
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.palette-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 7px var(--fm-s2);
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius-tile);
+  background: var(--fm-panel);
+  color: var(--fm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.palette-card:hover {
+  border-color: var(--fm-accent);
+}
+
+.palette-card[aria-pressed="true"] {
+  border-color: var(--fm-accent);
+  background: var(--fm-accent-soft);
+}
+
+.palette-card svg {
+  flex: none;
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--fm-s1);
+  border-radius: 6px;
+  background: #fafaf9; /* a shade off the card, as in the mockup */
+}
+
+.palette-card-name {
+  font-size: var(--fm-small);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.palette-card-size {
+  color: var(--fm-muted);
+  font-size: var(--fm-tiny);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quick add (quick-add): the field above the rail and its result rows. */
+.quick-add {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fm-s1);
+}
+
+.quick-add-input {
+  width: 100%;
+  padding: 6px 28px 6px 8px;
+  border: 1px solid var(--fm-border, transparent);
+  border-radius: var(--fm-radius-tile);
+  background: var(--fm-field);
+  color: var(--fm-text);
+  font: inherit;
+  font-size: var(--fm-small);
+}
+
+.quick-add-input:focus {
+  outline: 2px solid var(--fm-accent);
+  outline-offset: -1px;
+}
+
+.quick-add-key {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 0 5px;
+  border: 1px solid var(--fm-muted);
+  border-radius: 3px;
+  color: var(--fm-muted);
+  font: inherit;
+  font-size: var(--fm-tiny);
+  pointer-events: none;
+}
+
+.quick-add-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quick-add-row {
+  display: flex;
+  align-items: center;
+  gap: var(--fm-s2);
+  min-height: 28px;
+  padding: 2px 6px;
+  border: 1px solid transparent; /* reserved, so the selected outline doesn't shift the row */
+  border-radius: var(--fm-radius-tile);
+  font-size: var(--fm-small);
+  cursor: pointer;
+}
+
+.quick-add-row[aria-selected="true"] {
+  border-color: var(--fm-accent); /* as an armed palette card */
+  background: var(--fm-accent-soft);
+}
+
+.quick-add-symbol {
+  flex: none;
+  width: 32px;
+}
+
+.quick-add-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.quick-add-label b {
+  font-weight: 700;
+}
+
+.quick-add-detail,
+.quick-add-group,
+.quick-add-more {
+  color: var(--fm-muted);
+  font-size: var(--fm-tiny);
+}
+
+.quick-add-group {
+  flex: none;
+}
+
+.quick-add-more {
+  padding: 4px 6px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.quick-add-input:focus + .quick-add-key,
+.quick-add-input:not(:placeholder-shown) + .quick-add-key {
+  display: none; /* the "/" hint only while the field waits */
+}
+
+/* The Floors group's Finishes switch (finishes.09): across both card columns, its name at the left, the switch
+   (properties.css) at the right. */
+.palette-switch-row {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--fm-s1);
+  font-size: var(--fm-small);
+}

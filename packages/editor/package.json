@@ -1,0 +1,17 @@
+{
+  "name": "@fm/editor",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./test/testing.ts",
+    "./fonts/Inter-Regular.ttf": "./fonts/Inter-Regular.ttf"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json"
+  },
+  "dependencies": { "@fm/domain": "workspace:*", "@fm/protocol": "workspace:*" }
+}

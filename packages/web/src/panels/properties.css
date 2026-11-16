@@ -1,0 +1,613 @@
+/* The Properties panel (ux-polish items 6 and 8): fills the Properties column under the presence head (styles.css,
+   .side-column). Sections open with a chevron and a bold title, separated by hairlines; rows are the 84 px label
+   column and a 32 px control. Filled controls and segmented tracks are shared (styles.css, .fm-control, .fm-seg). */
+.properties {
+  padding: 0 var(--fm-s4) var(--fm-s4);
+}
+
+.prop-section {
+  padding: var(--fm-s3) 0 var(--fm-s1);
+  border-top: 1px solid var(--fm-line);
+}
+
+.prop-section:first-child {
+  border-top: 0;
+}
+
+.prop-section summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--fm-s2);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.prop-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.prop-section summary svg {
+  flex: none;
+  color: var(--fm-muted);
+  transition: transform 120ms ease;
+}
+
+.prop-section:not([open]) summary {
+  margin-bottom: var(--fm-s1);
+}
+
+.prop-section:not([open]) summary svg {
+  transform: rotate(-90deg);
+}
+
+.prop-row {
+  display: grid;
+  grid-template-columns: var(--fm-label) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--fm-s2);
+  min-height: var(--fm-row);
+  margin-bottom: var(--fm-s2);
+}
+
+.prop-label {
+  overflow: hidden;
+  color: var(--fm-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Segments that show an icon (the opening kinds) centre it. */
+.properties .fm-seg button svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* The filled control loses its padding on the right when it carries steppers. */
+.fm-control:has(.prop-steppers) {
+  padding-right: var(--fm-s1);
+}
+
+.prop-steppers {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prop-steppers button {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 11px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--fm-muted);
+  cursor: pointer;
+}
+
+.prop-steppers button:hover:not(:disabled) {
+  background: var(--fm-panel);
+  color: var(--fm-text);
+}
+
+.prop-steppers button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.prop-steppers svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fm-control input:disabled {
+  color: var(--fm-muted);
+}
+
+/* Dims only if the wait lasts: every edit's answer would otherwise flash the whole panel (sheetset.35). */
+.fm-control input:read-only,
+.fm-control textarea:read-only {
+  color: var(--fm-muted);
+  transition: color 0s linear 400ms;
+}
+
+/* A drop-down (the size presets): the native select fills the filled control; its arrow is a small muted chevron. */
+.fm-control:has(select) {
+  position: relative;
+  padding: 0;
+}
+
+.fm-control select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 28px 0 10px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  appearance: none;
+  cursor: pointer;
+}
+
+.fm-control:has(select)::after {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--fm-muted);
+  border-bottom: 1.5px solid var(--fm-muted);
+  content: "";
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.fm-control select:disabled {
+  color: var(--fm-muted);
+  cursor: default;
+}
+
+/* Read-only values: plain text on the row, aligned with the text inside filled controls. */
+.prop-readonly {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.prop-readonly input {
+  field-sizing: content;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--fm-text);
+  font: inherit;
+  text-overflow: ellipsis;
+  user-select: text;
+}
+
+.prop-report {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.prop-report .prop-readonly {
+  flex: 1;
+  padding-right: 0;
+}
+
+.prop-report .prop-readonly input {
+  width: 100%;
+  field-sizing: fixed;
+}
+
+.prop-report .prop-action {
+  width: auto;
+  flex: none;
+}
+
+.prop-readonly-unit {
+  color: var(--fm-muted);
+}
+
+/* A switch: a 34 × 20 track, the knob at the right and the track in the accent when on. */
+.prop-switch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--fm-disabled);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.prop-switch::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fm-panel);
+  box-shadow: 0 1px 2px #00000033;
+  content: "";
+  transition: transform 120ms ease;
+}
+
+.prop-switch[aria-checked="true"] {
+  background: var(--fm-accent);
+}
+
+.prop-switch[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+
+.prop-switch:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Nothing selected: the active tool, its key, the hint, and the shortcuts in two columns. */
+.prop-empty {
+  padding-top: var(--fm-s3);
+  color: var(--fm-muted);
+}
+
+.prop-empty-tool {
+  display: flex;
+  align-items: center;
+  gap: var(--fm-s2);
+  color: var(--fm-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.prop-empty-tool svg {
+  color: var(--fm-muted);
+}
+
+.prop-empty-hint {
+  margin: var(--fm-s1) 0 0;
+}
+
+.prop-keys {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--fm-s2) var(--fm-s3);
+  margin: var(--fm-s4) 0 0;
+}
+
+.prop-keys dt {
+  color: var(--fm-text);
+}
+
+.prop-keys dd {
+  margin: 0;
+  justify-self: end;
+}
+
+.prop-kbd {
+  padding: 0 5px;
+  border: 1px solid var(--fm-line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--fm-panel);
+  color: var(--fm-text);
+  font: 500 var(--fm-tiny) / 16px var(--fm-font);
+}
+
+/* The rooms table under the shortcuts (export.10): the name with its size under it, then Area and Free. */
+.prop-rooms {
+  padding: var(--fm-s3);
+  border-top: 1px solid var(--fm-line);
+}
+
+.prop-rooms-title {
+  margin: 0 0 var(--fm-s2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.prop-rooms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.prop-rooms-table th,
+.prop-rooms-table td {
+  padding: 4px 0;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.prop-rooms-table thead th {
+  color: var(--fm-muted);
+  font-size: 12px;
+}
+
+.prop-rooms-table th:nth-child(n + 2),
+.prop-rooms-table td {
+  padding-left: var(--fm-s2);
+  text-align: right;
+}
+
+.prop-room-name,
+.prop-room-size {
+  display: block;
+}
+
+.prop-room-name {
+  white-space: normal;
+}
+
+.prop-room-size {
+  color: var(--fm-muted);
+  font-size: 12px;
+}
+
+/* A named area's row, indented under its room (areas.12). */
+.prop-room-part th {
+  padding-left: 14px;
+}
+
+.prop-rooms-table tfoot th,
+.prop-rooms-table tfoot td {
+  border-top: 1px solid var(--fm-line);
+  font-weight: 600;
+}
+
+/* The Project section (sheet.04): a wider label column for "Project number" and "Revision date"; the notes take the
+   full width under their label. */
+.prop-project {
+  border-top: 1px solid var(--fm-line);
+}
+
+.prop-project .prop-row {
+  grid-template-columns: 104px minmax(0, 1fr);
+}
+
+.prop-project .prop-row-wide {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--fm-s1);
+}
+
+.fm-control.fm-control-area {
+  height: auto;
+  padding: 6px 10px;
+}
+
+.fm-control.fm-control-area textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+  user-select: text;
+}
+
+/* Furniture actions (direct.08, direct.11): a row of filled buttons that act on the selected pieces, under a group's
+   count or under one piece's sections. */
+.prop-group-actions {
+  display: flex;
+  gap: var(--fm-s2);
+  padding: var(--fm-s3) 0;
+}
+
+.prop-group-actions button {
+  flex: 1;
+  height: var(--fm-row);
+  padding: 0 var(--fm-s3);
+  border: 0;
+  border-radius: var(--fm-radius-control);
+  background: var(--fm-field);
+  color: var(--fm-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.prop-group-actions button:hover:not(:disabled) {
+  background: var(--fm-line);
+}
+
+.prop-group-actions button:disabled,
+.prop-group-actions button[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* The Underlay section (import.06): the three shared buttons, then the fade slider with show/hide beside it, then the
+   muted notes. */
+.prop-underlay .prop-group-actions {
+  padding-top: 0;
+}
+
+/* Three buttons in the 288 px panel: each as wide as its label, on one line. */
+.prop-underlay .prop-group-actions button {
+  flex: 1 1 auto;
+  padding: 0 var(--fm-s2);
+  white-space: nowrap;
+}
+
+/* The logo in Project (sheetset.21): whether there is one, then its buttons, on one line each. */
+.prop-logo .prop-group-actions {
+  padding-top: 0;
+}
+
+.prop-logo .prop-group-actions button {
+  white-space: nowrap;
+}
+
+.prop-underlay-fade {
+  grid-template-columns: var(--fm-label) minmax(0, 1fr) auto;
+}
+
+.prop-underlay-fade input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--fm-accent);
+}
+
+.prop-underlay-fade input[type="range"]:disabled {
+  opacity: 0.5;
+}
+
+.prop-underlay-fade button {
+  min-width: 56px;
+  height: var(--fm-row);
+  padding: 0 var(--fm-s3);
+  border: 0;
+  border-radius: var(--fm-radius-control);
+  background: var(--fm-field);
+  color: var(--fm-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.prop-underlay-fade button:hover:not(:disabled) {
+  background: var(--fm-line);
+}
+
+.prop-underlay-fade button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.prop-underlay-note {
+  margin: 0 0 var(--fm-s2);
+  color: var(--fm-muted);
+  font-size: var(--fm-small);
+}
+
+/* A stair's Fit run (stairs.15): a filled button in the control column, showing the run it sets. */
+.prop-action {
+  height: var(--fm-row);
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--fm-radius-control);
+  background: var(--fm-field);
+  color: var(--fm-text);
+  font: inherit;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* A field's action, in a row of inputs: outlined and centred, so it reads as a button (riser.18). */
+.prop-action-do {
+  border: 1px solid var(--fm-line);
+  background: transparent;
+  text-align: center;
+}
+
+.prop-action-do:disabled {
+  color: var(--fm-muted);
+  cursor: default;
+}
+
+.prop-action-link {
+  text-align: left;
+}
+
+.prop-action:hover:not(:disabled) {
+  background: var(--fm-line);
+}
+
+.prop-action:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* How to fill the field above (a section's Depth): the full width, muted. */
+.prop-hint {
+  margin: 0 0 var(--fm-s1);
+  color: var(--fm-muted);
+  font-size: var(--fm-small);
+}
+
+/* A stair's checks (stairs.15): the full width, a muted tick when it holds, the danger colour when it warns. */
+.prop-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 var(--fm-s1);
+  color: var(--fm-muted);
+  font-size: var(--fm-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.prop-check svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.prop-check[data-check="warning"] {
+  color: var(--fm-danger);
+}
+
+/* A finish's summary row (inherit step 04): a swatch and the summary, a click opens its fields, indented under it. */
+.prop-finish {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: var(--fm-field);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.prop-finish[aria-expanded="true"] { box-shadow: inset 0 0 0 1.5px var(--fm-accent); }
+.prop-finish:focus-visible { outline: 2px solid var(--fm-accent); outline-offset: 1px; }
+.prop-swatch { flex: none; width: 18px; height: 18px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+.prop-finish-text { flex: 1; min-width: 0; overflow-wrap: anywhere; } /* wraps: the colour's name stays readable (M2 hands-on) */
+.prop-finish-chevron { color: var(--fm-muted); font-size: 11px; }
+.prop-row-under { padding-left: 12px; }
+.prop-finish-fixed { cursor: default; background: transparent; padding-left: 0; }
+
+/* A colour field (picker): the browser's colour picker as a small square swatch, then the typed hex. */
+.fm-colour {
+  padding-left: 6px;
+}
+
+.fm-control input.fm-colour-swatch {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.fm-colour-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.fm-colour-swatch::-webkit-color-swatch {
+  border: 0;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.fm-colour-swatch::-moz-color-swatch {
+  border: 0;
+  border-radius: 4px;
+}
+
+.fm-colour-swatch:focus-visible {
+  outline: 2px solid var(--fm-accent);
+  outline-offset: 2px;
+}

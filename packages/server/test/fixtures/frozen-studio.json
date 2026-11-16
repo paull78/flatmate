@@ -1,0 +1,1974 @@
+{
+ "meta": {
+  "id": "frozen",
+  "name": "Studio"
+ },
+ "seq": 57,
+ "doc": {
+  "joints": {
+   "studio-1/j0": {
+    "id": "studio-1/j0",
+    "x": 0,
+    "y": 0
+   },
+   "studio-1/j1": {
+    "id": "studio-1/j1",
+    "x": 7,
+    "y": 0
+   },
+   "studio-2/j0": {
+    "id": "studio-2/j0",
+    "x": 7,
+    "y": 2.5
+   },
+   "studio-3/j0": {
+    "id": "studio-3/j0",
+    "x": 0,
+    "y": 2.5
+   },
+   "part/j0": {
+    "id": "part/j0",
+    "x": 1.5,
+    "y": 0
+   },
+   "part/j1": {
+    "id": "part/j1",
+    "x": 1.5,
+    "y": 2.5
+   }
+  },
+  "walls": {
+   "studio-1/w0": {
+    "id": "studio-1/w0",
+    "a": "studio-1/j0",
+    "b": "part/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "studio-2/w0": {
+    "id": "studio-2/w0",
+    "a": "studio-1/j1",
+    "b": "studio-2/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "studio-3/w0": {
+    "id": "studio-3/w0",
+    "a": "studio-2/j0",
+    "b": "part/j1",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "studio-4/w0": {
+    "id": "studio-4/w0",
+    "a": "studio-3/j0",
+    "b": "studio-1/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "part/w0": {
+    "id": "part/w0",
+    "a": "part/j0",
+    "b": "part/j1",
+    "thickness": 0.2,
+    "top": 2.03,
+    "base": "floor",
+    "column": false
+   },
+   "part/w1": {
+    "id": "part/w1",
+    "a": "part/j0",
+    "b": "studio-1/j1",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "part/w2": {
+    "id": "part/w2",
+    "a": "part/j1",
+    "b": "studio-3/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   }
+  },
+  "zoneLabels": {
+   "studio-bath": {
+    "id": "studio-bath",
+    "at": {
+     "x": 0.75,
+     "y": 1.25
+    },
+    "name": "Bathroom",
+    "finish": {
+     "motif": "mosaic",
+     "colour": "#a9c9d6",
+     "strength": 50,
+     "size": 0.025,
+     "angle": 0
+    }
+   },
+   "studio-main": {
+    "id": "studio-main",
+    "at": {
+     "x": 2.2,
+     "y": 1.1
+    },
+    "name": "Main room",
+    "finish": {
+     "motif": "planks",
+     "colour": "#d8bc94",
+     "strength": 45,
+     "size": 0.2,
+     "angle": 0
+    }
+   }
+  },
+  "decks": {
+   "loft/k0": {
+    "id": "loft/k0",
+    "name": "Loft",
+    "at": {
+     "x": 1.3,
+     "y": 1.25
+    },
+    "w": 2.4,
+    "d": 2.3,
+    "rotation": 0,
+    "top": 2.15,
+    "solid": false,
+    "finish": {
+     "motif": "widePlanks",
+     "colour": "#a99c8a",
+     "strength": 40,
+     "size": 0.3,
+     "angle": 0
+    },
+    "guardFront": {
+     "kind": "railing",
+     "height": 1
+    },
+    "guardRight": {
+     "kind": "railing",
+     "height": 1
+    },
+    "guardBack": {
+     "kind": "railing",
+     "height": 1
+    },
+    "guardLeft": {
+     "kind": "railing",
+     "height": 1
+    }
+   },
+   "plat/k0": {
+    "id": "plat/k0",
+    "name": "Platform",
+    "at": {
+     "x": 3.6,
+     "y": 1.85
+    },
+    "w": 2,
+    "d": 1.1,
+    "rotation": 0,
+    "top": 0.45,
+    "solid": false,
+    "finish": null,
+    "guardFront": {
+     "kind": "none",
+     "height": 1
+    },
+    "guardRight": {
+     "kind": "none",
+     "height": 1
+    },
+    "guardBack": {
+     "kind": "none",
+     "height": 1
+    },
+    "guardLeft": {
+     "kind": "none",
+     "height": 1
+    }
+   }
+  },
+  "deckHoles": {},
+  "states": {
+   "s0": {
+    "id": "s0",
+    "name": "Day",
+    "order": 0
+   },
+   "n/s0": {
+    "id": "n/s0",
+    "name": "Night",
+    "order": 1
+   }
+  },
+  "objects": {
+   "mat/o0": {
+    "id": "mat/o0",
+    "kind": "mattress",
+    "name": "Mattress",
+    "w": {
+     "standard": 1.6
+    },
+    "d": {
+     "standard": 2
+    },
+    "h": {
+     "standard": 0.25
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "roll/o0": {
+    "id": "roll/o0",
+    "kind": "bed",
+    "name": "Bed",
+    "w": {
+     "standard": 0.85
+    },
+    "d": {
+     "standard": 1.95
+    },
+    "h": {
+     "standard": 0.3
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "sh/o0": {
+    "id": "sh/o0",
+    "kind": "showerTray",
+    "name": "Shower tray",
+    "w": {
+     "standard": 0.8
+    },
+    "d": {
+     "standard": 0.8
+    },
+    "h": {
+     "standard": 2
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "wm/o0": {
+    "id": "wm/o0",
+    "kind": "washingMachine",
+    "name": "Washing machine",
+    "w": {
+     "standard": 0.6
+    },
+    "d": {
+     "standard": 0.6
+    },
+    "h": {
+     "standard": 0.85
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "wc/o0": {
+    "id": "wc/o0",
+    "kind": "toilet",
+    "name": "Toilet",
+    "w": {
+     "standard": 0.4
+    },
+    "d": {
+     "standard": 0.65
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "shelf/o0": {
+    "id": "shelf/o0",
+    "kind": "shelf",
+    "name": "Shelf",
+    "w": {
+     "standard": 0.8
+    },
+    "d": {
+     "standard": 0.4
+    },
+    "h": {
+     "standard": 1.5
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "fr/o0": {
+    "id": "fr/o0",
+    "kind": "fridge",
+    "name": "Fridge",
+    "w": {
+     "standard": 0.6
+    },
+    "d": {
+     "standard": 0.65
+    },
+    "h": {
+     "standard": 1.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "sofa/o0": {
+    "id": "sofa/o0",
+    "kind": "sofa",
+    "name": "Sofa",
+    "w": {
+     "standard": 1.5
+    },
+    "d": {
+     "standard": 0.9
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "tv/o0": {
+    "id": "tv/o0",
+    "kind": "tvUnit",
+    "name": "TV unit",
+    "w": {
+     "standard": 1.2
+    },
+    "d": {
+     "standard": 0.1
+    },
+    "h": {
+     "standard": 0.6
+    },
+    "z": {
+     "standard": 1.2
+    }
+   },
+   "sink/o0": {
+    "id": "sink/o0",
+    "kind": "sinkUnit",
+    "name": "Sink unit",
+    "w": {
+     "standard": 0.8
+    },
+    "d": {
+     "standard": 0.6
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "hob/o0": {
+    "id": "hob/o0",
+    "kind": "hobUnit",
+    "name": "Hob unit",
+    "w": {
+     "standard": 0.6
+    },
+    "d": {
+     "standard": 0.6
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "ctr/o0": {
+    "id": "ctr/o0",
+    "kind": "counter",
+    "name": "Counter",
+    "w": {
+     "standard": 0.6
+    },
+    "d": {
+     "standard": 0.6
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "wcab/o0": {
+    "id": "wcab/o0",
+    "kind": "wallCabinet",
+    "name": "Wall cabinet",
+    "w": {
+     "standard": 0.6
+    },
+    "d": {
+     "standard": 0.35
+    },
+    "h": {
+     "standard": 0.75
+    },
+    "z": {
+     "standard": 1.4
+    }
+   },
+   "lift/o0": {
+    "id": "lift/o0",
+    "kind": "liftBed",
+    "name": "Lift bed",
+    "w": {
+     "up": 1.7,
+     "down": 1.7
+    },
+    "d": {
+     "up": 2.1,
+     "down": 2.1
+    },
+    "h": {
+     "up": 0.35,
+     "down": 0.35
+    },
+    "z": {
+     "up": "ceiling",
+     "down": 0.2
+    }
+   },
+   "tab/o0": {
+    "id": "tab/o0",
+    "kind": "extendingTable",
+    "name": "Extending table",
+    "w": {
+     "closed": 0.8,
+     "extended": 0.8
+    },
+    "d": {
+     "closed": 1.2,
+     "extended": 1.66
+    },
+    "h": {
+     "closed": 0.75,
+     "extended": 0.75
+    },
+    "z": {
+     "closed": 0,
+     "extended": 0
+    }
+   },
+   "ch1/o0": {
+    "id": "ch1/o0",
+    "kind": "chair",
+    "name": "Chair",
+    "w": {
+     "standard": 0.45
+    },
+    "d": {
+     "standard": 0.45
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "ch2/o0": {
+    "id": "ch2/o0",
+    "kind": "chair",
+    "name": "Chair",
+    "w": {
+     "standard": 0.45
+    },
+    "d": {
+     "standard": 0.45
+    },
+    "h": {
+     "standard": 0.9
+    },
+    "z": {
+     "standard": 0
+    }
+   },
+   "step/o0": {
+    "id": "step/o0",
+    "kind": "block",
+    "name": "Step",
+    "w": {
+     "standard": 0.5
+    },
+    "d": {
+     "standard": 0.3
+    },
+    "h": {
+     "standard": 0.225
+    },
+    "z": {
+     "standard": 0
+    }
+   }
+  },
+  "placements": {
+   "mat/p0": {
+    "id": "mat/p0",
+    "object": "mat/o0",
+    "state": "s0",
+    "at": {
+     "x": 0.10000000000000009,
+     "y": 1.25
+    },
+    "rotation": 90,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": "loft/k0"
+   },
+   "roll/p0": {
+    "id": "roll/p0",
+    "object": "roll/o0",
+    "state": "s0",
+    "at": {
+     "x": 2.625,
+     "y": 1.8
+    },
+    "rotation": 90,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "sh/p0": {
+    "id": "sh/p0",
+    "object": "sh/o0",
+    "state": "s0",
+    "at": {
+     "x": 0.5,
+     "y": 2.4
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "wm/p0": {
+    "id": "wm/p0",
+    "object": "wm/o0",
+    "state": "s0",
+    "at": {
+     "x": 0.4,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "wc/p0": {
+    "id": "wc/p0",
+    "object": "wc/o0",
+    "state": "s0",
+    "at": {
+     "x": 1,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "shelf/p0": {
+    "id": "shelf/p0",
+    "object": "shelf/o0",
+    "state": "s0",
+    "at": {
+     "x": 2,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "fr/p0": {
+    "id": "fr/p0",
+    "object": "fr/o0",
+    "state": "s0",
+    "at": {
+     "x": 1.9,
+     "y": 2.4000000000000004
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "sofa/p0": {
+    "id": "sofa/p0",
+    "object": "sofa/o0",
+    "state": "s0",
+    "at": {
+     "x": 3.85,
+     "y": 2.4
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": "plat/k0"
+   },
+   "tv/p0": {
+    "id": "tv/p0",
+    "object": "tv/o0",
+    "state": "s0",
+    "at": {
+     "x": 3.6,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "sink/p0": {
+    "id": "sink/p0",
+    "object": "sink/o0",
+    "state": "s0",
+    "at": {
+     "x": 5.2,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": 0.9,
+     "frontStart": 0,
+     "frontEnd": 0,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "hob/p0": {
+    "id": "hob/p0",
+    "object": "hob/o0",
+    "state": "s0",
+    "at": {
+     "x": 5.9,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": 0.9,
+     "frontStart": 0,
+     "frontEnd": 0,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "ctr/p0": {
+    "id": "ctr/p0",
+    "object": "ctr/o0",
+    "state": "s0",
+    "at": {
+     "x": 6.5,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": 0.9,
+     "frontStart": 0,
+     "frontEnd": 0,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "wcab/p0": {
+    "id": "wcab/p0",
+    "object": "wcab/o0",
+    "state": "s0",
+    "at": {
+     "x": 6.5,
+     "y": 0.10000000000000003
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "lift/p0": {
+    "id": "lift/p0",
+    "object": "lift/o0",
+    "state": "s0",
+    "at": {
+     "x": 4.7,
+     "y": 1.55
+    },
+    "rotation": 90,
+    "config": "up",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": true,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p0": {
+    "id": "n/p0",
+    "object": "ctr/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 6.5,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p1": {
+    "id": "n/p1",
+    "object": "fr/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 1.9,
+     "y": 2.4000000000000004
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p10": {
+    "id": "n/p10",
+    "object": "tv/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 3.6,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p11": {
+    "id": "n/p11",
+    "object": "wc/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 1,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p12": {
+    "id": "n/p12",
+    "object": "wcab/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 6.5,
+     "y": 0.10000000000000003
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p13": {
+    "id": "n/p13",
+    "object": "wm/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 0.4,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p2": {
+    "id": "n/p2",
+    "object": "hob/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 5.9,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p3": {
+    "id": "n/p3",
+    "object": "lift/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 4.7,
+     "y": 1.55
+    },
+    "rotation": 90,
+    "config": "down",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p4": {
+    "id": "n/p4",
+    "object": "mat/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 0.10000000000000009,
+     "y": 1.25
+    },
+    "rotation": 90,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": "loft/k0"
+   },
+   "n/p5": {
+    "id": "n/p5",
+    "object": "roll/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 2.625,
+     "y": 0.875
+    },
+    "rotation": 90,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": true,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": 0.35,
+     "leftStart": 0,
+     "leftEnd": 0,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p6": {
+    "id": "n/p6",
+    "object": "sh/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 0.5,
+     "y": 2.4
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p7": {
+    "id": "n/p7",
+    "object": "shelf/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 2,
+     "y": 0.09999999999999998
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p8": {
+    "id": "n/p8",
+    "object": "sink/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 5.2,
+     "y": 0.10000000000000009
+    },
+    "rotation": 180,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "n/p9": {
+    "id": "n/p9",
+    "object": "sofa/o0",
+    "state": "n/s0",
+    "at": {
+     "x": 3.85,
+     "y": 2.4
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": true,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": "plat/k0"
+   },
+   "tab/p0": {
+    "id": "tab/p0",
+    "object": "tab/o0",
+    "state": "s0",
+    "at": {
+     "x": 5.15,
+     "y": 2
+    },
+    "rotation": 90,
+    "config": "closed",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": true,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "ch1/p0": {
+    "id": "ch1/p0",
+    "object": "ch1/o0",
+    "state": "s0",
+    "at": {
+     "x": 5.050000000000001,
+     "y": 2
+    },
+    "rotation": 90,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "ch2/p0": {
+    "id": "ch2/p0",
+    "object": "ch2/o0",
+    "state": "s0",
+    "at": {
+     "x": 6.449999999999999,
+     "y": 2
+    },
+    "rotation": 270,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   },
+   "step/p0": {
+    "id": "step/p0",
+    "object": "step/o0",
+    "state": "s0",
+    "at": {
+     "x": 2.85,
+     "y": 1.2999999999999998
+    },
+    "rotation": 0,
+    "config": "standard",
+    "sides": {
+     "front": false,
+     "back": false,
+     "left": false,
+     "right": false
+    },
+    "zones": {
+     "frontDepth": null,
+     "frontStart": null,
+     "frontEnd": null,
+     "backDepth": null,
+     "backStart": null,
+     "backEnd": null,
+     "leftDepth": null,
+     "leftStart": null,
+     "leftEnd": null,
+     "rightDepth": null,
+     "rightStart": null,
+     "rightEnd": null
+    },
+    "deck": null
+   }
+  },
+  "openings": {
+   "door/d0": {
+    "id": "door/d0",
+    "wall": "part/w0",
+    "kind": "swing",
+    "offset": 0.7999999999999999,
+    "width": 0.8,
+    "side": "left",
+    "hinge": "a",
+    "glazed": false,
+    "sill": 0,
+    "head": 1.93
+   },
+   "win-s/d0": {
+    "id": "win-s/d0",
+    "wall": "part/w1",
+    "kind": "window",
+    "offset": 3.2,
+    "width": 1,
+    "side": "left",
+    "hinge": "a",
+    "glazed": false,
+    "sill": 0.9,
+    "head": 2.1
+   },
+   "win-n/d0": {
+    "id": "win-n/d0",
+    "wall": "studio-3/w0",
+    "kind": "window",
+    "offset": 0.7000000000000002,
+    "width": 1,
+    "side": "left",
+    "hinge": "a",
+    "glazed": false,
+    "sill": 0.9,
+    "head": 2.1
+   }
+  },
+  "dimensions": {},
+  "projectFields": {
+   "surroundings": {
+    "id": "surroundings",
+    "value": "wheels"
+   }
+  },
+  "underlays": {},
+  "logos": {},
+  "ceilings": {
+   "ceiling": {
+    "id": "ceiling",
+    "height": 3.05
+   }
+  },
+  "sheets": {},
+  "sections": {},
+  "areas": {
+   "studio-kitchen/a0": {
+    "id": "studio-kitchen/a0",
+    "name": "Kitchen",
+    "at": {
+     "x": 5.75,
+     "y": 0.775
+    },
+    "w": 2.3,
+    "d": 1.35
+   },
+   "studio-living/a0": {
+    "id": "studio-living/a0",
+    "name": "Living",
+    "at": {
+     "x": 3.1,
+     "y": 1.25
+    },
+    "w": 3,
+    "d": 2.3
+   }
+  }
+ },
+ "versions": {
+  "joints": {
+   "studio-1/j0": "studio-0",
+   "studio-1/j1": "studio-0",
+   "studio-2/j0": "studio-1",
+   "studio-3/j0": "studio-2",
+   "part/j0": "studio-5",
+   "part/j1": "studio-5"
+  },
+  "walls": {
+   "studio-1/w0": "studio-5",
+   "studio-2/w0": "studio-1",
+   "studio-3/w0": "studio-5",
+   "studio-4/w0": "studio-3",
+   "part/w0": "studio-6",
+   "part/w1": "studio-5",
+   "part/w2": "studio-5"
+  },
+  "zoneLabels": {
+   "studio-bath": "studio-52",
+   "studio-main": "studio-53"
+  },
+  "decks": {
+   "loft/k0": "studio-11",
+   "plat/k0": "studio-12"
+  },
+  "deckHoles": {},
+  "states": {
+   "s0": "studio-13",
+   "n/s0": "studio-31"
+  },
+  "objects": {
+   "mat/o0": "studio-14",
+   "roll/o0": "studio-16",
+   "sh/o0": "studio-18",
+   "wm/o0": "studio-19",
+   "wc/o0": "studio-20",
+   "shelf/o0": "studio-21",
+   "fr/o0": "studio-22",
+   "sofa/o0": "studio-23",
+   "tv/o0": "studio-25",
+   "sink/o0": "studio-26",
+   "hob/o0": "studio-27",
+   "ctr/o0": "studio-28",
+   "wcab/o0": "studio-29",
+   "lift/o0": "studio-30",
+   "tab/o0": "studio-32",
+   "ch1/o0": "studio-33",
+   "ch2/o0": "studio-34",
+   "step/o0": "studio-37"
+  },
+  "placements": {
+   "mat/p0": "studio-14",
+   "roll/p0": "studio-40",
+   "sh/p0": "studio-18",
+   "wm/p0": "studio-19",
+   "wc/p0": "studio-20",
+   "shelf/p0": "studio-21",
+   "fr/p0": "studio-22",
+   "sofa/p0": "studio-23",
+   "tv/p0": "studio-24",
+   "sink/p0": "studio-46",
+   "hob/p0": "studio-48",
+   "ctr/p0": "studio-50",
+   "wcab/p0": "studio-29",
+   "lift/p0": "studio-43",
+   "n/p0": "studio-51",
+   "n/p1": "studio-31",
+   "n/p10": "studio-31",
+   "n/p11": "studio-31",
+   "n/p12": "studio-31",
+   "n/p13": "studio-31",
+   "n/p2": "studio-49",
+   "n/p3": "studio-44",
+   "n/p4": "studio-31",
+   "n/p5": "studio-42",
+   "n/p6": "studio-31",
+   "n/p7": "studio-31",
+   "n/p8": "studio-47",
+   "n/p9": "studio-31",
+   "tab/p0": "studio-45",
+   "ch1/p0": "studio-33",
+   "ch2/p0": "studio-34",
+   "step/p0": "studio-35"
+  },
+  "openings": {
+   "door/d0": "studio-7",
+   "win-s/d0": "studio-8",
+   "win-n/d0": "studio-9"
+  },
+  "dimensions": {},
+  "projectFields": {
+   "surroundings": "studio-54"
+  },
+  "underlays": {},
+  "logos": {},
+  "ceilings": {
+   "ceiling": "studio-4"
+  },
+  "sheets": {},
+  "sections": {},
+  "areas": {
+   "studio-kitchen/a0": "studio-55",
+   "studio-living/a0": "studio-56"
+  }
+ },
+ "receipts": {
+  "studio-0": {
+   "seq": 1,
+   "fingerprint": "bcf9a2039ebafe24626dda0d944a72fb4b62deb4469c2e1cdb39e433af87f73b"
+  },
+  "studio-1": {
+   "seq": 2,
+   "fingerprint": "47ef099340094797b368f89c5b1707549089553f6f14144a58b91d4a18220310"
+  },
+  "studio-2": {
+   "seq": 3,
+   "fingerprint": "b1e54189fe2b468ff6c38714704a28cfb96cb12a86f8a88e7653405896ab3a1c"
+  },
+  "studio-3": {
+   "seq": 4,
+   "fingerprint": "84d93640d0744fc75bf9f21d245b40187f48b2b28dee3a47a7925fab080bd9c9"
+  },
+  "studio-4": {
+   "seq": 5,
+   "fingerprint": "7ee305b068e7603cabb44134a82000c59f55fa82ccee436cc9e3b6b0a9768b56"
+  },
+  "studio-5": {
+   "seq": 6,
+   "fingerprint": "62e307d83dcd895731fd48818cc9c263b04af5591479ed2182a322ac6cff83ff"
+  },
+  "studio-6": {
+   "seq": 7,
+   "fingerprint": "209963bca59d76be9c2f95cf208bffadd128c6edd6c6bb33a897f9c799efbc57"
+  },
+  "studio-7": {
+   "seq": 8,
+   "fingerprint": "0ed6773cf7d4d944fb59e47a5a0cd8d1195d0685fbaf883057d54d18d600f954"
+  },
+  "studio-8": {
+   "seq": 9,
+   "fingerprint": "51b05c38465bb9d6922cf68c333997cd659d5ad0b8041af10156b038d25c1136"
+  },
+  "studio-9": {
+   "seq": 10,
+   "fingerprint": "8c1e7e4cdb0104071bb8316f9556f20a99b05139e169d2474def5f8f16060c1b"
+  },
+  "studio-10": {
+   "seq": 11,
+   "fingerprint": "68434123ce40c8d3c0cede1190bd978226af4d9b71d07c23dc03810e1bf6509f"
+  },
+  "studio-11": {
+   "seq": 12,
+   "fingerprint": "4343c2d8d563cd6ba7599df820860ce2a890054666cc82d51ea90bf174213d4a"
+  },
+  "studio-12": {
+   "seq": 13,
+   "fingerprint": "372a08b084f0c264c1c9ddc66764410644f39ecadb5437467dab2164c761290a"
+  },
+  "studio-13": {
+   "seq": 14,
+   "fingerprint": "a51de1689a2b00ccc12469815fccca25dc3abd2b8da63ec7d3cd654edd15a410"
+  },
+  "studio-14": {
+   "seq": 15,
+   "fingerprint": "f50db0f7263026c60fbb4079df30985fd8032070d53e3c67b6128e58cfd8bb08"
+  },
+  "studio-15": {
+   "seq": 16,
+   "fingerprint": "f2bfe87b0d2ffd88e2111deb2dd98d283ad9129840c22c133ceecc42ccab433c"
+  },
+  "studio-16": {
+   "seq": 17,
+   "fingerprint": "0e755b87e834606be6adda5807df74d1b44aafd9e17a203eaed1705a27d2430c"
+  },
+  "studio-17": {
+   "seq": 18,
+   "fingerprint": "cdf49c382aabe9d93e19494f11e387431305c0cc46e83863f4b6741d4f4d4b28"
+  },
+  "studio-18": {
+   "seq": 19,
+   "fingerprint": "6fb51e52038dfd1ab4a22ae3e04eb2b9ca0641d6856a648abdc414e639d87a3e"
+  },
+  "studio-19": {
+   "seq": 20,
+   "fingerprint": "6ec465bdf7230354d792d0311a2bc8e3bccf8f2392081c1556fcbf9ff617abdd"
+  },
+  "studio-20": {
+   "seq": 21,
+   "fingerprint": "d4717f24e84d7e688808cce5bb458bda90b79d5ec5e590bd5390dcfbc6d37f89"
+  },
+  "studio-21": {
+   "seq": 22,
+   "fingerprint": "debf5dad4f4a1d1929eca5fa89187ba746b199d11ee2eacd6e43428a753fe548"
+  },
+  "studio-22": {
+   "seq": 23,
+   "fingerprint": "1f385f66095796f4b16529b77719aa5523f75dbda080da2ed832f39cde895742"
+  },
+  "studio-23": {
+   "seq": 24,
+   "fingerprint": "e0ee0989630cdd779b378010db358f6f2fa0a76815676131ce6ac9d55af2b7a9"
+  },
+  "studio-24": {
+   "seq": 25,
+   "fingerprint": "4578acb80ec39a078b9b43cb5a8b96c5a0d1f46710b8ce7aceb20be652083634"
+  },
+  "studio-25": {
+   "seq": 26,
+   "fingerprint": "fcbf549f321d4f8a48442f6ab3188cce7f74dbe4c56e5ec5dcfa1d41ac881f36"
+  },
+  "studio-26": {
+   "seq": 27,
+   "fingerprint": "cca6a42da9430b60ba90447261df5eb26c5fbe42436dafeac1d8c435d422756a"
+  },
+  "studio-27": {
+   "seq": 28,
+   "fingerprint": "494a4e20ff99a63b3b98819ff9c5b80bcd6ddd9e2b1edc798fb41847d8a1b7e4"
+  },
+  "studio-28": {
+   "seq": 29,
+   "fingerprint": "c01a38f50b5cc037a9a50a16e177a0d88c7b3fec6bf9561c5791cee8c238b7d2"
+  },
+  "studio-29": {
+   "seq": 30,
+   "fingerprint": "edd39017f54a086efa73f8681427bbabbdfae77a35fc7b4fc7ed88543f0ae8cf"
+  },
+  "studio-30": {
+   "seq": 31,
+   "fingerprint": "f07f2a63b0580607d54d90a2f11ec3d1fe3de199a1308ee0d6ec65e470ed27c9"
+  },
+  "studio-31": {
+   "seq": 32,
+   "fingerprint": "0047f03d7892603d9b959069efbd0b66f103d30f14d616fa18bca751b57c5748"
+  },
+  "studio-32": {
+   "seq": 33,
+   "fingerprint": "92f86c3719021f468e787c7fcbd04f054e42947f7b2d41596d27ed07ec159445"
+  },
+  "studio-33": {
+   "seq": 34,
+   "fingerprint": "26af09071d5efe5517beac3380cf6fcd76738fdd91ae4bc0c4b2f97f0ef2b6f3"
+  },
+  "studio-34": {
+   "seq": 35,
+   "fingerprint": "3c0c44706a2d78dfec3733facfe31ff11ac0ee76f6768d8a124b323b4c46ec8a"
+  },
+  "studio-35": {
+   "seq": 36,
+   "fingerprint": "72390e8a3112caae277bdebb03f72c8b29f81ce1d99ad99962d5c04c28d5d504"
+  },
+  "studio-36": {
+   "seq": 37,
+   "fingerprint": "331c7cb7de627b1ab8909fd0aef07674fa948336f05b386e4171dfb79defd965"
+  },
+  "studio-37": {
+   "seq": 38,
+   "fingerprint": "2054ab70342e57796872df285237fc478e1cbc887ecd4f603ebd3453f923dd8c"
+  },
+  "studio-38": {
+   "seq": 39,
+   "fingerprint": "64e7a05c117a4d4a7cbf759cf7362da33c570377c511f6110238ccafa5566354"
+  },
+  "studio-39": {
+   "seq": 40,
+   "fingerprint": "3d4e65c6aa054be2d33d6039b8a36166c075adc528072fe6790ed707eea8eaf4"
+  },
+  "studio-40": {
+   "seq": 41,
+   "fingerprint": "35ee76e86f88b84b9647a4fc84a3e833b8a3846d6937bf35d0addeb9369c5ac9"
+  },
+  "studio-41": {
+   "seq": 42,
+   "fingerprint": "7e4ecbefdbaadf9dbc3ac20b86e2418513b7f636dfd2956321ee293e9921d5bb"
+  },
+  "studio-42": {
+   "seq": 43,
+   "fingerprint": "7f6ee7720e6c9aa1d88aff5cc63818ea978cd4a4016554e9379fe5d598aef733"
+  },
+  "studio-43": {
+   "seq": 44,
+   "fingerprint": "f5691ecbb02bca7e9749ccdaaa640c8a2fe619b256a5a51eea07eea11eef0d2c"
+  },
+  "studio-44": {
+   "seq": 45,
+   "fingerprint": "ac2c4342460fe39f8fa132ef091a3e0cc5434331c5bde57abb6a3d3a90b259c9"
+  },
+  "studio-45": {
+   "seq": 46,
+   "fingerprint": "470477f18592eb98159f37362ebae5a9493c8e2b0cae3f67e5d4068c4b2593ee"
+  },
+  "studio-46": {
+   "seq": 47,
+   "fingerprint": "7e9ed94f3cbbb95d66dc67e2e64b36a46966a37181420895fa89dbeaf099549a"
+  },
+  "studio-47": {
+   "seq": 48,
+   "fingerprint": "f9010228c7180a18d1f636592bf19f5f04fae5c1e2470ce986cfa1ad1c59e697"
+  },
+  "studio-48": {
+   "seq": 49,
+   "fingerprint": "349d3d5345c6bb12822f6c220a6264e149500ae380d60035dabe708eeb390ebd"
+  },
+  "studio-49": {
+   "seq": 50,
+   "fingerprint": "0d6922b2a526b685d1f239d6a72dd937373e8d0defb267fa716f85e23fc4ed73"
+  },
+  "studio-50": {
+   "seq": 51,
+   "fingerprint": "ad0ff51fe2a34e19a7fc5ba52de9715859c7887c7c172f8cbd8e3327d9882d19"
+  },
+  "studio-51": {
+   "seq": 52,
+   "fingerprint": "540be96f2d894ed2a41e98b064c15f41c8d75c1fb188ef0628ba347d82cb5659"
+  },
+  "studio-52": {
+   "seq": 53,
+   "fingerprint": "dc3c1a1f7352f79c5b4d41fa00347b96127a309698f7b20d78108a2b7b4ae135"
+  },
+  "studio-53": {
+   "seq": 54,
+   "fingerprint": "ec654ae24c7322c33fab37902fdac039f05d06dacb55534066c0945f8a8cce6d"
+  },
+  "studio-54": {
+   "seq": 55,
+   "fingerprint": "d8de1fcde33162b8aab1347d51a02ab1ea7b099c5343fa6c4707cdcafb2ddace"
+  },
+  "studio-55": {
+   "seq": 56,
+   "fingerprint": "2c304253b9d58fe0889928633d5db39f58f86ab3897e7de77613fa10a3985304"
+  },
+  "studio-56": {
+   "seq": 57,
+   "fingerprint": "30a738ec866d47cbaa654a7d735725f291e10398656a736453c79a06251cbf0a"
+  }
+ }
+}

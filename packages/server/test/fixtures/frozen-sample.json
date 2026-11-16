@@ -1,0 +1,213 @@
+{
+ "meta": {
+  "id": "frozen",
+  "name": "Sample apartment"
+ },
+ "seq": 7,
+ "doc": {
+  "joints": {
+   "sample-1/j0": {
+    "id": "sample-1/j0",
+    "x": 0,
+    "y": 0
+   },
+   "sample-1/j1": {
+    "id": "sample-1/j1",
+    "x": 6,
+    "y": 0
+   },
+   "sample-2/j0": {
+    "id": "sample-2/j0",
+    "x": 6,
+    "y": 4
+   },
+   "sample-3/j0": {
+    "id": "sample-3/j0",
+    "x": 0,
+    "y": 4
+   },
+   "sample-divider/j0": {
+    "id": "sample-divider/j0",
+    "x": 3,
+    "y": 0
+   },
+   "sample-divider/j1": {
+    "id": "sample-divider/j1",
+    "x": 3,
+    "y": 4
+   }
+  },
+  "walls": {
+   "sample-1/w0": {
+    "id": "sample-1/w0",
+    "a": "sample-1/j0",
+    "b": "sample-divider/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-2/w0": {
+    "id": "sample-2/w0",
+    "a": "sample-1/j1",
+    "b": "sample-2/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-3/w0": {
+    "id": "sample-3/w0",
+    "a": "sample-2/j0",
+    "b": "sample-divider/j1",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-4/w0": {
+    "id": "sample-4/w0",
+    "a": "sample-3/j0",
+    "b": "sample-1/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-divider/w0": {
+    "id": "sample-divider/w0",
+    "a": "sample-divider/j0",
+    "b": "sample-divider/j1",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-divider/w1": {
+    "id": "sample-divider/w1",
+    "a": "sample-divider/j0",
+    "b": "sample-1/j1",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   },
+   "sample-divider/w2": {
+    "id": "sample-divider/w2",
+    "a": "sample-divider/j1",
+    "b": "sample-3/j0",
+    "thickness": 0.2,
+    "top": "ceiling",
+    "base": "floor",
+    "column": false
+   }
+  },
+  "zoneLabels": {
+   "sample-kitchen": {
+    "id": "sample-kitchen",
+    "at": {
+     "x": 1.5,
+     "y": 2
+    },
+    "name": "Kitchen",
+    "finish": null
+   },
+   "sample-living": {
+    "id": "sample-living",
+    "at": {
+     "x": 4.5,
+     "y": 2
+    },
+    "name": "Living",
+    "finish": null
+   }
+  },
+  "decks": {},
+  "deckHoles": {},
+  "states": {
+   "s0": {
+    "id": "s0",
+    "name": "Layout",
+    "order": 0
+   }
+  },
+  "objects": {},
+  "placements": {},
+  "openings": {},
+  "dimensions": {},
+  "projectFields": {},
+  "underlays": {},
+  "logos": {},
+  "ceilings": {},
+  "sheets": {},
+  "sections": {},
+  "areas": {}
+ },
+ "versions": {
+  "joints": {
+   "sample-1/j0": "seed-0",
+   "sample-1/j1": "seed-0",
+   "sample-2/j0": "seed-1",
+   "sample-3/j0": "seed-2",
+   "sample-divider/j0": "seed-4",
+   "sample-divider/j1": "seed-4"
+  },
+  "walls": {
+   "sample-1/w0": "seed-4",
+   "sample-2/w0": "seed-1",
+   "sample-3/w0": "seed-4",
+   "sample-4/w0": "seed-3",
+   "sample-divider/w0": "seed-4",
+   "sample-divider/w1": "seed-4",
+   "sample-divider/w2": "seed-4"
+  },
+  "zoneLabels": {
+   "sample-kitchen": "seed-5",
+   "sample-living": "seed-6"
+  },
+  "decks": {},
+  "deckHoles": {},
+  "states": {},
+  "objects": {},
+  "placements": {},
+  "openings": {},
+  "dimensions": {},
+  "projectFields": {},
+  "underlays": {},
+  "logos": {},
+  "ceilings": {},
+  "sheets": {},
+  "sections": {},
+  "areas": {}
+ },
+ "receipts": {
+  "seed-0": {
+   "seq": 1,
+   "fingerprint": "78f86c3c3dfff635c3c80187a2f6c2ffc7a7db8043e0ec652083f0c5e8cd29d5"
+  },
+  "seed-1": {
+   "seq": 2,
+   "fingerprint": "ede8aab01f9edf386d68ff3e3b75edc8f708cd41192629aa9702890c61af25a9"
+  },
+  "seed-2": {
+   "seq": 3,
+   "fingerprint": "cb66dcac5646696362c8ee4d54a312d50cbdf0897b4aee3a2e11f1f80549fa16"
+  },
+  "seed-3": {
+   "seq": 4,
+   "fingerprint": "20f1b9d7bdd9cf1304595a89367cdc72c1e1065dfaf316a8e5be8def0c60f66b"
+  },
+  "seed-4": {
+   "seq": 5,
+   "fingerprint": "3d0fd26375f4cc021802148ff630ed4ddd32905be8b5f2cdab7246cb70a4ceaa"
+  },
+  "seed-5": {
+   "seq": 6,
+   "fingerprint": "b10e604246db8ae5f4ff2d66767886d00f07a3431108f6d1aac3f6976aa25afd"
+  },
+  "seed-6": {
+   "seq": 7,
+   "fingerprint": "2c2d2972b3131811e7eb719c4b5e1349768a48626fc20da81ef6e7c2b3f17308"
+  }
+ }
+}

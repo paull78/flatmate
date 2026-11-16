@@ -1,0 +1,40 @@
+{
+  "meta": {"id": "pre-furnish", "name": "Pre-furnish bedroom"},
+  "seq": 0,
+  "doc": {
+    "joints": {
+      "room-1/j0": {"id": "room-1/j0", "x": 0, "y": 0},
+      "room-1/j1": {"id": "room-1/j1", "x": 6, "y": 0},
+      "room-2/j0": {"id": "room-2/j0", "x": 6, "y": 4},
+      "room-3/j0": {"id": "room-3/j0", "x": 0, "y": 4}
+    },
+    "walls": {
+      "room-1/w0": {"id": "room-1/w0", "a": "room-1/j0", "b": "room-1/j1", "thickness": 0.2},
+      "room-2/w0": {"id": "room-2/w0", "a": "room-1/j1", "b": "room-2/j0", "thickness": 0.2},
+      "room-3/w0": {"id": "room-3/w0", "a": "room-2/j0", "b": "room-3/j0", "thickness": 0.2},
+      "room-4/w0": {"id": "room-4/w0", "a": "room-3/j0", "b": "room-1/j0", "thickness": 0.2}
+    },
+    "zoneLabels": {
+      "bedroom": {"id": "bedroom", "at": {"x": 0.6, "y": 0.6}, "name": "Bedroom"}
+    },
+    "states": {
+      "s0": {"id": "s0", "name": "Layout", "order": 0}
+    },
+    "objects": {
+      "bed/o0": {"id": "bed/o0", "kind": "bed", "name": "Bed", "w": {"standard": 1.7}, "d": {"standard": 2.1}},
+      "desk/o0": {"id": "desk/o0", "kind": "desk", "name": "Desk", "w": {"standard": 1.2}, "d": {"standard": 0.6}},
+      "ns/o0": {"id": "ns/o0", "kind": "block", "name": "Nightstand", "w": {"standard": 0.45}, "d": {"standard": 0.4}}
+    },
+    "placements": {
+      "bed/p0": {"id": "bed/p0", "object": "bed/o0", "state": "s0", "at": {"x": 3, "y": 3.9}, "rotation": 0, "config": "standard", "sides": {"front": false, "back": false, "left": true, "right": true}},
+      "desk/p0": {"id": "desk/p0", "object": "desk/o0", "state": "s0", "at": {"x": 4.8, "y": 0.1}, "rotation": 180, "config": "standard", "sides": {"front": true, "back": false, "left": false, "right": false}},
+      "ns/p0": {"id": "ns/p0", "object": "ns/o0", "state": "s0", "at": {"x": 1.875, "y": 3.9}, "rotation": 0, "config": "standard", "sides": {"front": false, "back": false, "left": false, "right": false}}
+    },
+    "openings": {},
+    "dimensions": {},
+    "projectFields": {},
+    "underlays": {}
+  },
+  "versions": {},
+  "receipts": {}
+}

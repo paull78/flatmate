@@ -1,0 +1,38 @@
+{
+  "name": "flatmate",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "pnpm -r --if-present --no-bail test",
+    "typecheck": "pnpm -r --parallel --if-present typecheck",
+    "lint": "eslint .",
+    "depcruise": "depcruise packages scripts --config .dependency-cruiser.cjs --ignore-known",
+    "depcruise:baseline": "depcruise packages scripts --config .dependency-cruiser.cjs --baseline",
+    "check": "pnpm typecheck && pnpm lint && pnpm depcruise && pnpm test",
+    "dev": "pnpm --filter @fm/web dev",
+    "dev:server": "pnpm --filter @fm/server dev",
+    "start": "bash scripts/start.sh",
+    "seed": "pnpm --filter @fm/server exec tsx scripts/run-seed-sample.ts",
+    "seed:grid": "pnpm --filter @fm/server exec tsx scripts/run-seed-grid.ts",
+    "seed:samples": "pnpm --filter @fm/server exec tsx scripts/run-seed-samples.ts",
+    "try-it": "pnpm --filter @fm/editor exec vitest run test/scenarios/try-it-narrated.test.ts --reporter=verbose",
+    "build-room": "tsx scripts/build-room.ts",
+    "e2e": "pnpm --filter @fm/web e2e",
+    "mcp": "pnpm --silent --filter @fm/mcp start",
+    "screenshots": "FM_SCREENSHOTS=1 pnpm --filter @fm/web exec playwright test e2e/screenshots.spec.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "dependency-cruiser": "^18.4.0",
+    "eslint": "^10.11.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.2"
+  }
+}

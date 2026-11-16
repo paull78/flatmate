@@ -1,0 +1,33 @@
+{
+  "name": "@fm/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "start": "tsx src/main.ts",
+    "ground-truth": "tsx scripts/ground-truth.ts",
+    "palette-sheet": "tsx scripts/palette-sheet.ts",
+    "refreeze-look3d": "tsx scripts/refreeze-look3d.ts"
+  },
+  "dependencies": {
+    "@fm/domain": "workspace:*",
+    "@fm/editor": "workspace:*",
+    "@fm/export": "workspace:*",
+    "@fm/protocol": "workspace:*",
+    "@fm/render": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "@resvg/resvg-js": "2.6.2",
+    "ws": "^8.22.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@fm/server": "workspace:*",
+    "@types/node": "^26.6.3",
+    "@types/ws": "^8.18.2",
+    "jpeg-js": "0.4.4",
+    "tsx": "^4.23.15"
+  }
+}

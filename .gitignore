@@ -1,0 +1,17 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+data/
+*.tmp
+.claude/worktrees/
+packages/web/dist/
+packages/web/test-results/
+packages/web/playwright-report/
+
+# recordings of sample builds (samples.06): large, published by hand
+recordings/videos/
+
+# what is left of the site here after its move to its own repo (old working pictures), and the design skill's scratch files
+pages/
+.taste-skill/

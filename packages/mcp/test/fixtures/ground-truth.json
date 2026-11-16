@@ -1,0 +1,301 @@
+{
+  "format": "flatmate",
+  "version": 4,
+  "joints": {
+    "gt-across/j0": {
+      "id": "gt-across/j0",
+      "x": 0,
+      "y": 4.4
+    },
+    "gt-across/j1": {
+      "id": "gt-across/j1",
+      "x": 6.85,
+      "y": 4.4
+    },
+    "gt-bath/j0": {
+      "id": "gt-bath/j0",
+      "x": 2.6000000000000005,
+      "y": 4.4
+    },
+    "gt-bath/j1": {
+      "id": "gt-bath/j1",
+      "x": 2.6,
+      "y": 9.25
+    },
+    "gt-kitchen/j0": {
+      "id": "gt-kitchen/j0",
+      "x": 3.95,
+      "y": 0
+    },
+    "gt-kitchen/j1": {
+      "id": "gt-kitchen/j1",
+      "x": 3.95,
+      "y": 4.4
+    },
+    "gt-shell-1/j0": {
+      "id": "gt-shell-1/j0",
+      "x": 0,
+      "y": 0
+    },
+    "gt-shell-1/j1": {
+      "id": "gt-shell-1/j1",
+      "x": 6.85,
+      "y": 0
+    },
+    "gt-shell-2/j0": {
+      "id": "gt-shell-2/j0",
+      "x": 6.85,
+      "y": 6.95
+    },
+    "gt-shell-3/j0": {
+      "id": "gt-shell-3/j0",
+      "x": 5.1,
+      "y": 9.25
+    },
+    "gt-shell-4/j0": {
+      "id": "gt-shell-4/j0",
+      "x": 0,
+      "y": 9.25
+    }
+  },
+  "walls": {
+    "gt-across/w0": {
+      "id": "gt-across/w0",
+      "a": "gt-across/j0",
+      "b": "gt-bath/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-across/w1": {
+      "id": "gt-across/w1",
+      "a": "gt-across/j0",
+      "b": "gt-shell-1/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-across/w2": {
+      "id": "gt-across/w2",
+      "a": "gt-across/j1",
+      "b": "gt-shell-2/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-bath/w0": {
+      "id": "gt-bath/w0",
+      "a": "gt-bath/j0",
+      "b": "gt-bath/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-bath/w1": {
+      "id": "gt-bath/w1",
+      "a": "gt-bath/j0",
+      "b": "gt-kitchen/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-bath/w2": {
+      "id": "gt-bath/w2",
+      "a": "gt-bath/j1",
+      "b": "gt-shell-4/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-kitchen/w0": {
+      "id": "gt-kitchen/w0",
+      "a": "gt-kitchen/j0",
+      "b": "gt-kitchen/j1",
+      "thickness": 0.1,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-kitchen/w1": {
+      "id": "gt-kitchen/w1",
+      "a": "gt-kitchen/j0",
+      "b": "gt-shell-1/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-kitchen/w2": {
+      "id": "gt-kitchen/w2",
+      "a": "gt-kitchen/j1",
+      "b": "gt-across/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-shell-1/w0": {
+      "id": "gt-shell-1/w0",
+      "a": "gt-shell-1/j0",
+      "b": "gt-kitchen/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-shell-2/w0": {
+      "id": "gt-shell-2/w0",
+      "a": "gt-shell-1/j1",
+      "b": "gt-across/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-shell-3/w0": {
+      "id": "gt-shell-3/w0",
+      "a": "gt-shell-2/j0",
+      "b": "gt-shell-3/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-shell-4/w0": {
+      "id": "gt-shell-4/w0",
+      "a": "gt-shell-3/j0",
+      "b": "gt-bath/j1",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    },
+    "gt-shell-5/w0": {
+      "id": "gt-shell-5/w0",
+      "a": "gt-shell-4/j0",
+      "b": "gt-across/j0",
+      "thickness": 0.2,
+      "top": "ceiling",
+      "base": "floor",
+      "column": false
+    }
+  },
+  "zoneLabels": {
+    "gt-bath-room": {
+      "id": "gt-bath-room",
+      "at": {
+        "x": 1.3,
+        "y": 6.8
+      },
+      "name": "Bath",
+      "finish": null
+    },
+    "gt-bedroom": {
+      "id": "gt-bedroom",
+      "at": {
+        "x": 4.6,
+        "y": 6.8
+      },
+      "name": "Bedroom",
+      "finish": null
+    },
+    "gt-kitchen-room": {
+      "id": "gt-kitchen-room",
+      "at": {
+        "x": 5.4,
+        "y": 2.2
+      },
+      "name": "Kitchen",
+      "finish": null
+    },
+    "gt-living": {
+      "id": "gt-living",
+      "at": {
+        "x": 1.9,
+        "y": 2.2
+      },
+      "name": "Living",
+      "finish": null
+    }
+  },
+  "decks": {},
+  "deckHoles": {},
+  "states": {
+    "s0": {
+      "id": "s0",
+      "name": "Layout",
+      "order": 0
+    }
+  },
+  "objects": {},
+  "placements": {},
+  "openings": {
+    "gt-door/d0": {
+      "id": "gt-door/d0",
+      "wall": "gt-kitchen/w2",
+      "kind": "swing",
+      "offset": 1.05,
+      "width": 0.8,
+      "side": "left",
+      "hinge": "a",
+      "glazed": false,
+      "sill": 0,
+      "head": 2.1
+    },
+    "gt-window/d0": {
+      "id": "gt-window/d0",
+      "wall": "gt-shell-2/w0",
+      "kind": "window",
+      "offset": 1.5,
+      "width": 1.4,
+      "side": "left",
+      "hinge": "a",
+      "glazed": false,
+      "sill": 0.9,
+      "head": 2.1
+    }
+  },
+  "dimensions": {
+    "gt-dim-bottom/m0": {
+      "id": "gt-dim-bottom/m0",
+      "a": {
+        "joint": "gt-shell-1/j0",
+        "tx": -0.7071067811865475,
+        "ty": -0.7071067811865475
+      },
+      "b": {
+        "joint": "gt-shell-1/j1",
+        "tx": 0.7071067811865462,
+        "ty": -0.7071067811865488
+      },
+      "offset": -0.6
+    },
+    "gt-dim-left/m0": {
+      "id": "gt-dim-left/m0",
+      "a": {
+        "joint": "gt-shell-1/j0",
+        "tx": -0.7071067811865475,
+        "ty": -0.7071067811865475
+      },
+      "b": {
+        "joint": "gt-shell-4/j0",
+        "tx": -0.7071067811865488,
+        "ty": 0.7071067811865462
+      },
+      "offset": 0.6
+    }
+  },
+  "projectFields": {},
+  "underlays": {},
+  "logos": {},
+  "ceilings": {},
+  "sheets": {},
+  "sections": {},
+  "areas": {}
+}
