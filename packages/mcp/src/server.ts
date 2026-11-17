@@ -482,7 +482,7 @@ export function createMcpServer(tools: DrawingTools): McpServer {
       description:
         "Place a new object of a kind in a layout, centred at `centre`, in its first configuration, at the kind's " +
         "default size or a preset of the kind, its height `height` if given. It must fit: inside one room, off the walls, clear of the layout's other " +
-        "objects (a rug overlaps any object, blocks no use zone or door swing and takes no free floor; a wheelWell may run under walls; a beam's ends may run into walls, its centre in a room, it may pass over a platform, and it stands in every layout). A piece whose elevation is \"ceiling\" (a beam, a cooker hood) hangs from what is over it: the ceiling, or a loft's underside. It stands on `on` (\"floor\" or a deck id), or without it where it lands at the floor level: the " +
+        "objects (a rug overlaps any object, blocks no use zone or door swing and takes no free floor; a wheelWell may run under walls and stands on the floor only, never on a deck; a beam's ends may run into walls, its centre in a room, it may pass over a platform, and it stands in every layout). A piece whose elevation is \"ceiling\" (a beam, a cooker hood) hangs from what is over it: the ceiling, or a loft's underside. It stands on `on` (\"floor\" or a deck id), or without it where it lands at the floor level: the " +
         "floor if it fits there, else a deck below the floor's cut (a platform) under its centre; putting it on a loft needs `on`. " +
         "A piece too tall for what's over it is refused with the ranges: it never lowers by itself, so pass a lower `height`. " +
         "A stair stands in every layout and links to a deck only when `reaches` names it (touching a deck's edge " +

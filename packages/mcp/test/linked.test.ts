@@ -98,6 +98,46 @@ describe("move_object's everyLayout", () => {
   });
 });
 
+describe("move_object's everyLayout with a move is checked as a whole (knownbugs AC-12)", () => {
+  it("false with a move the rules refuse changes nothing: the piece stays linked and in place", async () => {
+    const { tools, night } = await twoLayouts();
+    const chair = reply(await tools.placeObject({ layout: "s0", kind: "chair", centre: { x: 1, y: 1 } })).result.object ?? "";
+    const r = await tools.moveObject({ layout: night, object: chair, centre: { x: 0, y: 2 }, everyLayout: false }); // onto the left wall
+    expect(r.isError).toBe(true);
+    expect(r.text).toMatch(/wall/i);
+    const s = reply(await tools.getDrawing({}));
+    expect(objectIn(s, chair)).not.toHaveProperty("linked"); // an exception is marked `linked: false`
+    expect(objectIn(s, chair)?.placements[night]).toMatchObject({ centre: [1, 1] });
+  });
+
+  it("true with a link the rules refuse changes nothing: the piece stays where it was, an exception", async () => {
+    const { tools, night } = await twoLayouts();
+    const chair = reply(await tools.placeObject({ layout: "s0", kind: "chair", centre: { x: 1, y: 1 } })).result.object ?? "";
+    reply(await tools.moveObject({ layout: night, object: chair, centre: { x: 3, y: 3 }, everyLayout: false }));
+    // A table in Layout only, where Night's chair would be moved to: the move fits in Night, the link can't copy it to Layout.
+    const table = reply(await tools.placeObject({ layout: "s0", kind: "coffeeTable", centre: { x: 2, y: 4 }, everyLayout: false })).result.object ?? "";
+    expect(table).not.toBe("");
+    const r = await tools.moveObject({ layout: night, object: chair, centre: { x: 2, y: 4 }, everyLayout: true });
+    expect(r.isError, r.text).toBe(true);
+    const s = reply(await tools.getDrawing({}));
+    expect(objectIn(s, chair)?.placements[night]).toMatchObject({ centre: [3, 3] }); // the move was not sent
+    expect(objectIn(s, chair)?.placements["s0"]).toMatchObject({ centre: [1, 1] });
+  });
+
+  it("an accepted one replies with the rows of both edits", async () => {
+    const { tools, night } = await twoLayouts();
+    const raw = createTools(sessions[0] ?? fail("no session"));
+    const chair = reply(await tools.placeObject({ layout: "s0", kind: "chair", centre: { x: 1, y: 1 } })).result.object ?? "";
+    const r = await raw.moveObject({ layout: night, object: chair, centre: { x: 3, y: 3 }, everyLayout: false });
+    expect(r.isError, r.text).toBe(false);
+    const updated: Record<string, string[]> = JSON.parse(r.text).changed.updated;
+    expect(updated.objects).toEqual([chair]); // the unlink writes the object's row
+    expect(updated.placements).toHaveLength(1); // the move writes Night's copy
+  });
+});
+
+function fail(message: string): never { throw new Error(message); }
+
 describe("get_drawing", () => {
   it("marks no exception with one layout", async () => {
     const server = new TestServer();

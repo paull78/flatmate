@@ -115,7 +115,9 @@ People and Claude name a side by where it faces on the plan at the deck's curren
 2. else Glass when the side or hole its top arrives on is Glass (`guardAt`, read at the placement's `at`);
 3. else Railing, also where that side is None, where the stair reaches nothing, and where its `at` lies on no edge of the deck.
 
+- A stair placed with `placeObject` and `reaches` (only Claude's `place_object` sends it) is linked first, so the rule reads the rise to the deck: a Stair up to a 0.45 m platform gets None, Storage steps up to a loft get Railing.
 - `placeStair` reads the rise from the stair's surface to the deck, and gives every part of an L the rail the upper flight arrives on, or its `handrail` when given.
+- A stair loaded without rails gets them by the same rule (`withLoadRails`), an L's two flights as `placeStair` gives them: the deck the upper flight reaches, where its top arrives, and the rise from the surface the lower flight stands on.
 - The rails are chosen once. They stay when the deck's guard, the link or the rise changes.
 - A duplicate keeps them.
 - A kind switch keeps them: a spiral's one goes to both sides of a flight, a flight's two go to a spiral when they agree (else Railing). A switch to a Rung ladder drops them; a switch from one picks them again.
@@ -163,8 +165,6 @@ The tool list and replies are in [mcp.md](mcp.md), the stair tools' other values
 - Glass is opaque in 3D.
 - No check of a piece against a guard or a rail, and no warning for a stair with no handrail.
 - Claude sees no missing guard: `get_drawing` lists no "No guard" warning and `look` draws no warning marks.
-- A stair placed with `placeObject` and `reaches` (only Claude's `place_object` sends it) takes its rails from its height before the link, so a Stair up to a 0.45 m platform gets Railing and Storage steps up to a loft get None.
-- A stair loaded without rails gets them from the reached deck's front guard (Glass or else Railing), whatever side it arrives on and skipping the 0.76 m rule.
 
 ## At levels
 

@@ -10,6 +10,7 @@ export type WorkspaceOp =
   | { type: "create"; requestId: string; name: string }
   | { type: "delete"; requestId: string; projectId: string }
   | { type: "open"; projectId: string; generation: string }
+  | { type: "close"; projectId: string; generation: string } // leaving a drawing for the list
   | { type: "read"; requestId: string; projectId: string };
 
 /**

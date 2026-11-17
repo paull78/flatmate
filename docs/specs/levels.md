@@ -132,7 +132,7 @@ The landing rule, `landing(doc, candidate, level)` in `packages/domain/src/queri
 
 Snaps use `wallSeenAt` (`packages/editor/src/snapping/near-walls.ts`): at the floor every floor wall and no wall on a deck; at an upper level every wall not under the level, so the shell and the walls on the level's decks. Guides and live distances use only the pieces the level shows. A group move carries no surface (`Places`), so each piece keeps its own.
 
-Claude works at the floor level: `place_object` and `move_object` without `on` follow the floor level's landing rule, and `on` picks any deck ([mcp.md](mcp.md)). They pass no stair, wheel well or beam to it, so for those pieces Claude's answer can differ from a click's ([heights-decks.md](heights-decks.md)).
+Claude works at the floor level: `place_object` and `move_object` without `on` follow the floor level's landing rule, and `on` picks any deck ([mcp.md](mcp.md)). They ask the same function as the Object tool's ghost (`landsOn` in `packages/editor/src/snapping/piece.ts`, exported as `pieceLandsOn`), with the piece's role: a stair's pose, a wheel well, a beam. So a piece lands for Claude where it lands for a click.
 
 ## The level strip and presence
 

@@ -107,6 +107,7 @@ describe("parseClientMessage", () => {
     { type: "createProject", requestId: "r2", name: "Apartment" },
     { type: "deleteProject", requestId: "r3", projectId: "p1" },
     { type: "openProject", projectId: "p1", generation: "g1" },
+    { type: "closeProject", projectId: "p1", generation: "g1" },
     { type: "readProject", requestId: "r4", projectId: "p1" },
     { type: "submit", projectId: "p1", generation: "g1", changeset: base },
     { type: "presence", projectId: "p1", generation: "g1", cursor: { x: 1.5, y: -2 }, selection: [{ table: "walls", id: "w1" }], state: "op1/s0", level: "loft/k0" },

@@ -134,6 +134,7 @@ describe("a spiral's rails on the plan", () => {
       emptyDocument(), ...rectangleRoom({ x: 0, y: 0 }, 7, 3, "st"),
       { type: "addDeck", opId: "p", preset: "platform", at: { x: 1.1, y: 1.5 }, w: 2, d: 2 },
       { type: "placeObject", opId: "s", state: "s0", object: { kind: "spiralStair" }, at: { x: 2.1, y: 1.5 }, rotation: 90, deck: null, reaches: "p/k0" },
+      { type: "setStair", objectId: "s/o0", handrail: "railing" }, // up to a platform it starts with none (guards.md)
     );
     const ps = atFloor(doc);
     expect(railSegments(ps).map(key).sort()).toEqual(["2.12,2.28 2.88,2.28", "2.88,1.52 2.88,2.28"]);

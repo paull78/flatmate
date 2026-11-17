@@ -76,7 +76,7 @@ Typed values arrive as text (`setField`, `setWallThickness`, `setArmedSize`, `se
 | Effect | Asks the shell to | Answer |
 |---|---|---|
 | `render` | draw `scene` with `camera`, show `view`, draw `view3d` (null while the 3D panel is closed) | none |
-| `workspace` | run a `WorkspaceOp`: `list`, `create`, `delete`, `open`, `read` | `workspaceEvent`, `serverEvent` |
+| `workspace` | run a `WorkspaceOp`: `list`, `create`, `delete`, `open`, `close`, `read` | `workspaceEvent`, `serverEvent` |
 | `submit` | send a shared document's changeset | `serverEvent` |
 | `presence` | send this user's cursor, selection, layout and level | none |
 | `startTimer`, `cancelTimer` | start or cancel a timer by ID | `timerFired` |

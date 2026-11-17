@@ -368,6 +368,57 @@ describe("server app: presence", () => {
     expect(bob.conn.take()).toEqual([]);
   });
 
+  // Leaving a drawing for the project list (knownbugs AC-10): the connection stays, the subscription goes.
+  it("closeProject drops the subscription: the others see presenceLeft, and the leaver gets no more changes or presence", async () => {
+    const ctx = setup();
+    const { alice, bob, projectId } = await room(ctx);
+    alice.send({ type: "closeProject", projectId, generation: "ga" });
+    await ctx.app.idle();
+    expect(bob.conn.take()).toEqual([{ type: "presenceLeft", projectId, generation: "gb", clientId: "alice" }]);
+    bob.send({ type: "submit", projectId, generation: "gb", changeset: putJoint("c1", "j1", 1) });
+    bob.send({ type: "presence", projectId, generation: "gb", cursor: null, selection: [], state: null, level: null });
+    await ctx.app.idle();
+    expect(alice.conn.take()).toEqual([]);
+    expect(bob.conn.take().map((m) => m.type)).toEqual(["changes", "ack"]); // the submitter's own, as ever
+  });
+
+  it("after closeProject the leaver's presence for it is ignored, and its connection still lists projects", async () => {
+    const ctx = setup();
+    const { alice, bob, projectId } = await room(ctx);
+    alice.send({ type: "closeProject", projectId, generation: "ga" });
+    await ctx.app.idle();
+    bob.conn.take();
+    alice.send({ type: "presence", projectId, generation: "ga", cursor: null, selection: [], state: null, level: null });
+    alice.send({ type: "listProjects", requestId: "r9" });
+    await ctx.app.idle();
+    expect(bob.conn.take()).toEqual([]);
+    expect(alice.conn.take().map((m) => m.type)).toEqual(["projects"]);
+  });
+
+  it("after closeProject the leaver's submit for it is rejected as for a project it never opened, and changes nothing", async () => {
+    const ctx = setup();
+    const { alice, bob, projectId } = await room(ctx);
+    alice.send({ type: "closeProject", projectId, generation: "ga" });
+    await ctx.app.idle();
+    bob.conn.take();
+    alice.send({ type: "submit", projectId, generation: "ga", changeset: putJoint("c1", "j1", 1) });
+    await ctx.app.idle();
+    expect(alice.conn.take()).toEqual([{ type: "rejected", projectId, generation: "ga", changesetId: "c1", reason: { kind: "unknownProject" } }]);
+    expect(bob.conn.take()).toEqual([]);
+  });
+
+  it("a closeProject for another generation or project changes nothing", async () => {
+    const ctx = setup();
+    const { alice, bob, projectId } = await room(ctx);
+    alice.send({ type: "closeProject", projectId, generation: "stale" });
+    alice.send({ type: "closeProject", projectId: "nope", generation: "ga" });
+    await ctx.app.idle();
+    expect(bob.conn.take()).toEqual([]);
+    bob.send({ type: "submit", projectId, generation: "gb", changeset: putJoint("c1", "j1", 1) });
+    await ctx.app.idle();
+    expect(alice.conn.take().map((m) => m.type)).toEqual(["changes"]);
+  });
+
   it("announces presenceLeft when a client disconnects", async () => {
     const ctx = setup();
     const { alice, bob, projectId } = await room(ctx);

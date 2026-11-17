@@ -239,10 +239,15 @@ function openProject(state: EditorState, projectId: string, host: Host): Step {
 }
 
 function showList(state: EditorState, host: Host): Step {
+  // The drawing left behind, open or still opening, is closed on the server first, so it stops sending this client
+  // changes and the others stop seeing its cursor.
+  const open = state.document ? sessionOf(state.document) : null;
+  const left = open ?? state.workspace.opening;
+  const close: Effect[] = left ? [{ type: "workspace", op: { type: "close", projectId: left.projectId, generation: left.generation } }] : [];
   const closed = closeDocument(state);
   return {
     state: { ...closed, workspace: { ...closed.workspace, loading: true, error: null, opening: null, ...NO_CARD_VIEWS } },
-    effects: [{ type: "workspace", op: { type: "list", requestId: host.newId() } }],
+    effects: [...close, { type: "workspace", op: { type: "list", requestId: host.newId() } }],
   };
 }
 

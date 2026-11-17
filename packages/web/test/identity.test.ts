@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_NAME_CHARS, parseClientMessage } from "@fm/protocol";
 import { displayNameFrom, serverUrlFrom, serverUrlProblem } from "../src/identity";
 
 describe("displayNameFrom", () => {
@@ -10,6 +11,21 @@ describe("displayNameFrom", () => {
     expect(displayNameFrom("?name=%20Bob%20")).toBe("Bob");
     expect(displayNameFrom("?name=%20%20")).toBe("Guest");
     expect(displayNameFrom("")).toBe("Guest");
+  });
+});
+
+describe("displayNameFrom with a long name (knownbugs AC-11)", () => {
+  it("cuts it to the protocol's limit, so the hello parses and the client connects", () => {
+    const name = displayNameFrom(`?name=${"a".repeat(300)}`);
+    expect(name).toBe("a".repeat(MAX_NAME_CHARS));
+    expect(parseClientMessage(JSON.stringify({ type: "hello", clientId: "tab-1", name })).ok).toBe(true);
+    expect(parseClientMessage(JSON.stringify({ type: "hello", clientId: "tab-1", name: "a".repeat(300) })).ok).toBe(false); // the limit is real
+  });
+
+  it("never cuts through a pair of surrogates, and never ends on a space", () => {
+    const pairs = displayNameFrom(`?name=${encodeURIComponent("a" + "😀".repeat(150))}`); // the limit falls inside the 100th emoji
+    expect(pairs).toBe("a" + "😀".repeat(99));
+    expect(displayNameFrom(`?name=${encodeURIComponent("b".repeat(199) + " c")}`)).toBe("b".repeat(199));
   });
 });
 

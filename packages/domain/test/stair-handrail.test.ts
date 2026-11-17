@@ -73,6 +73,20 @@ describe("chosen once when it's placed", () => {
     expect(handrailOf(room(guard("glass"), free), "f/o0")).toBe("railing");
   });
 
+  it("placed as an object with reaches, it goes by its height after the link, not before (knownbugs AC-04)", () => {
+    const platform: Command = { type: "addDeck", opId: "p", preset: "platform", at: { x: 6, y: 1.5 }, w: 2, d: 2 };
+    // A Stair's own height is a loft's: linked to a 0.45 m platform it rises 0.45, so it starts with none.
+    const low: Command = { type: "placeObject", opId: "o", state: "s0", object: { kind: "stair", size: { w: 0.9, d: 0.6 } }, at: { x: 5, y: 1.5 }, rotation: 270, deck: null, reaches: "p/k0" };
+    const lowDoc = room(platform, low);
+    expect(lowDoc.objects["o/o0"]?.h.standard).toBe(0.45);
+    expect(handrailOf(lowDoc, "o/o0")).toBe("none");
+    // Storage steps' own height is a platform's: linked to the 2.15 m loft they rise 2.15, so they start with Railing.
+    const high: Command = { type: "placeObject", opId: "o", state: "s0", object: { kind: "storageStair", size: { w: 0.9, d: 2.988 } }, at: { x: 2.1, y: 3 }, rotation: 90, deck: null, reaches: LOFT };
+    const highDoc = room(high);
+    expect(highDoc.objects["o/o0"]?.h.standard).toBe(2.15);
+    expect(handrailOf(highDoc, "o/o0")).toBe("railing");
+  });
+
   it("given one, placeStair takes it over the loft's, and refuses a bad one with its reason", () => {
     expect(handrailOf(room(guard("glass"), { ...place(), handrail: "railing" } as Command))).toBe("railing");
     expect(handrailOf(room({ ...place(), handrail: "glass" } as Command))).toBe("glass");
@@ -159,6 +173,31 @@ describe("an older stored stair, with no field", () => {
     expect(l.decks["ps/k0"]?.guardFront.kind).not.toBe("glass");
     expect(handrailOf(l, "ps/s0/o0")).toBe("glass");
     expect(handrailOf(l, "ps/s1/o0")).toBe("glass");
+  });
+
+  // The rule a new stair follows, with fixtures that tell it from the old fill, which read the front guard and
+  // skipped the 0.76 m rule (knownbugs AC-03).
+  const platform: Command = { type: "addDeck", opId: "p", preset: "platform", at: { x: 6, y: 1.5 }, w: 2, d: 2 };
+  const toPlatform: Command = { type: "placeStair", opId: "lp", state: "s0", kind: "stair", surface: null, deck: "p/k0", at: { x: 5, y: 1.5 }, shape: "straight" };
+
+  it.each([["a file", loaded], ["the server's", fromServer]] as const)("%s gives a stair up to a 0.45 m platform none, as a new one", (_, load) => {
+    const doc = room(platform, toPlatform);
+    expect(handrailOf(doc, "lp/s0/o0")).toBe("none");
+    expect(handrailOf(load(without(doc)), "lp/s0/o0")).toBe("none");
+  });
+
+  it.each([["a file", loaded], ["the server's", fromServer]] as const)("%s reads the guard where the stair's top arrives, not the front's", (_, load) => {
+    const sides = ["guardFront", "guardRight", "guardBack", "guardLeft"] as const;
+    const mixed = sides.map((arrives): Document => room(guard("railing"), { type: "setDeck", deckId: LOFT, [arrives]: { kind: "glass" } } as Command, place()));
+    const told = mixed.filter((doc) => handrailOf(doc) === "glass");
+    expect(told).toHaveLength(1); // one side is the stair's
+    for (const doc of mixed) expect(handrailOf(load(without(doc)))).toBe(handrailOf(doc));
+    expect(mixed.some((doc) => doc.decks[LOFT]?.guardFront.kind === "glass" && handrailOf(doc) === "railing")).toBe(true); // the front is not it
+  });
+
+  it.each([["a file", loaded], ["the server's", fromServer]] as const)("%s changes nothing when loaded twice", (_, load) => {
+    const once = load(without(room(platform, toPlatform, guard("glass"), place())));
+    expect(load({ ...serialize(once) })).toEqual(once);
   });
 
   it("a rung ladder gets none", () => {

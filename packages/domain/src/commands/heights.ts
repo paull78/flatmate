@@ -53,8 +53,9 @@ export function setCeiling(doc: Document, cmd: CommandOf<"setCeiling">): Command
     ...Object.keys(doc.walls).map((id): EntityKey => ({ table: "walls", id })),
     ...Object.keys(doc.placements).map((id): EntityKey => ({ table: "placements", id })),
   ];
-  const before = doc.ceilings[CEILING_ID];
-  if (before && sameCeiling(before, next.value)) return ok({ doc, patch: diffPatch(doc, doc, deps) });
+  // A drawing with no row yet is flat at the default height: setting that changes nothing (knownbugs AC-05).
+  const before: Ceiling = doc.ceilings[CEILING_ID] ?? { id: CEILING_ID, height: roofOf(doc).height };
+  if (sameCeiling(before, next.value)) return ok({ doc, patch: diffPatch(doc, doc, deps) });
   return finish(doc, { ...doc, ceilings: { [CEILING_ID]: next.value } }, deps);
 }
 
@@ -89,7 +90,7 @@ function nextCeiling(doc: Document, cmd: CommandOf<"setCeiling">): Result<Ceilin
     solved = r;
   }
   const row: Ceiling = { id: CEILING_ID, height: roundMm(solved.height), ...(was?.covering ? { covering: was.covering } : {}), ...outsideFields(was) }; // kept while flat (surfaces step 11, inherit.07)
-  if (newShape === "flat" && was?.shape === undefined && shape === undefined) return ok(row); // a flat drawing stores what it did
+  if (newShape === "flat" && was?.shape === undefined) return ok(row); // a never-shaped ceiling stores no slope, Flat given or not (knownbugs AC-05)
   return ok({ ...row, shape: newShape, pitch: solved.pitch, falls: base.falls, overhang: overhang === undefined ? base.overhang : roundMm(overhang) });
 }
 

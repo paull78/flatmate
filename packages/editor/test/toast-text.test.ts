@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { levelOf, type Document } from "@fm/domain";
-import { noFloorAt, refusalText } from "../src/toast-text";
+import { levelOf, motifDefaults, type Command, type Document, type Finish } from "@fm/domain";
+import { noFloorAt, reasonOf, refusalText } from "../src/toast-text";
 import { roomDoc, wallBetween, withCommands } from "./builders";
 import { FakeShell } from "./fake-shell";
 
@@ -113,5 +113,36 @@ describe("the no-floor toast (spec \"Placing at a level\", levels.16)", () => {
     expect(noFloorAt(levelOf(doc, "loft/k0"))).toBe("No floor at +2.15 here");
     const higher = withCommands(doc, { type: "setCeiling", height: 3.2 }, { type: "setDeck", deckId: "loft/k0", top: 2.3 });
     expect(noFloorAt(levelOf(higher, "loft/k0"))).toBe("No floor at +2.30 here");
+  });
+});
+
+// Every command that carries a finish reads its refusal as a field's name (finishes.48; knownbugs AC-06): the domain
+// names the field by its path for Claude ("finish.size must be 0.10–0.40").
+describe("a finish refused by any command toasts the field's name", () => {
+  const planks = motifDefaults("planks");
+  const small: Finish = { ...planks, size: 0.05 };
+  const doc = withCommands(roomDoc(),
+    { type: "labelZone", id: "main", at: { x: 3, y: 2 }, name: "Main", finish: null },
+    { type: "setCeiling", shape: "shed" });
+  const wall = bottom(doc);
+  const roofSmall: Finish = { ...motifDefaults("roofTiles"), size: 0.05 };
+
+  it.each<[string, Command, string]>([
+    ["setRoomWallFinishes, finish", { type: "setRoomWallFinishes", labelId: "main", part: "finish", finish: small }, "Size must be 0.10–0.40"],
+    ["setRoomWallFinishes, lower", { type: "setRoomWallFinishes", labelId: "main", part: "lower", finish: small, height: 1.2 }, "Size must be 0.10–0.40"],
+    ["setRoomWallFinishes, height", { type: "setRoomWallFinishes", labelId: "main", part: "lower", finish: planks, height: 5 }, "Height must be 0.10–3.00"],
+    ["setOutsideFinish, finish", { type: "setOutsideFinish", part: "finish", finish: small }, "Size must be 0.10–0.40"],
+    ["setOutsideFinish, height", { type: "setOutsideFinish", part: "lower", finish: planks, height: 5 }, "Height must be 0.10–3.00"],
+    ["setRoofCovering", { type: "setRoofCovering", finish: roofSmall }, "Size must be 0.15–0.40"],
+    ["setWallSide, finish", { type: "setWallSide", wallId: wall, side: "left", finish: small, lower: null }, "Size must be 0.10–0.40"],
+    ["setWallSide, lower", { type: "setWallSide", wallId: wall, side: "left", finish: planks, lower: small, height: 1.2 }, "Size must be 0.10–0.40"],
+    ["setWallSide, height", { type: "setWallSide", wallId: wall, side: "left", finish: planks, lower: planks, height: 5 }, "Height must be 0.10–3.00"],
+    ["setWallFinish, height (as before)", { type: "setWallFinish", wallId: wall, side: "left", part: "lower", finish: planks, height: 5 }, "Height must be 0.10–3.00"],
+  ])("%s", (_, cmd, toast) => {
+    expect(reasonOf(doc, cmd)).toBe(toast);
+  });
+
+  it("a finish that is fine toasts nothing", () => {
+    expect(reasonOf(doc, { type: "setOutsideFinish", part: "finish", finish: planks })).toBeNull();
   });
 });

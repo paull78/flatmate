@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { clearanceWarnings, footprints, type Document } from "@fm/domain";
-import { FURNITURE_SETS, setBox } from "../src/furniture-sets";
+import { FURNITURE_SETS, furnitureSet, setBox, setHeight } from "../src/furniture-sets";
 import { FakeShell } from "./fake-shell";
 import { roomDoc, withCommands } from "./builders";
 
@@ -164,5 +164,13 @@ describe("placing a set", () => {
     const near = { x: 3, y: 3.9 - 1.05 - 0.05 };
     shell.moveTo(near, { ctrl: true });
     expect(tool(shell).ghost?.at.y).toBeCloseTo(3.85, 2);
+  });
+});
+
+describe("a set's height (knownbugs AC-02)", () => {
+  it("is its tallest piece's: 0.90 for the sofa and rug, not a bed's 1.00", () => {
+    const sofa = furnitureSet(SOFA);
+    if (!sofa) throw new Error("no sofa set");
+    expect(setHeight(sofa)).toBe(0.9);
   });
 });

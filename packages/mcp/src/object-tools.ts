@@ -1,8 +1,8 @@
 import {
-  anchorAtMm, armsOf, assertNever, candidateShape, configsOf, deckView, defaultSize, depthOf, familyKinds, heightsOf, inEveryLayout, kindConfigs, kindOf, landing, levelOf,
-  MESSAGES, SIDE_IDS, presetSize, sortedIds, tuckRole, withSide, zoneExtent, type Arms, type Command, type Document, type Heights, type LayoutObject, type ObjectKind, type ObjectOption, type Preset, type Side,
+  anchorAtMm, armsOf, assertNever, configsOf, deckView, defaultSize, depthOf, familyKinds, heightsOf, inEveryLayout, kindConfigs, kindOf, levelOf,
+  MESSAGES, SIDE_IDS, presetSize, sortedIds, withSide, zoneExtent, type Arms, type Command, type Document, type Heights, type LayoutObject, type ObjectKind, type ObjectOption, type Preset, type Side,
 } from "@fm/domain";
-import { brokenApart, furnitureSet, groupCentre, placeNote, setBox, setPieces, turnedPlaces } from "@fm/editor";
+import { brokenApart, furnitureSet, groupCentre, pieceLandsOn, placeNote, setBox, setHeight, setPieces, turnedPlaces } from "@fm/editor";
 import { err, ok, type Point, type Result } from "@fm/protocol";
 import { NO_DRAWING } from "./session";
 import { presetNamed, presetNamesOf } from "./preset-names";
@@ -42,19 +42,18 @@ function surfaceOf(doc: Document, on: string): Result<string | null, string> {
 }
 
 /**
- * Where a single piece put somewhere new by position lands (decks.11): its fit shape anchored at `at`, its heights, its
- * footprint centre and its role in the tuck rule, as the editor's Object tool and a drag ask, at the floor level
- * (levels.08), where landing always answers a surface.
+ * Where a single piece put somewhere new by position lands (decks.11): the editor's own question (`pieceLandsOn`, what
+ * the Object tool's ghost and a drag ask), so the piece's role goes with it: a stair's pose, a wheel well, a beam, a
+ * seat's tuck, a rug. At the floor level (levels.08), where landing always answers a surface.
  */
 function landsOn(
   doc: Document,
-  piece: { state: string; kind: string; config: string; w: number; d: number; arms?: Arms; heights: Heights; current: string | null | undefined; ignore: readonly string[] },
+  piece: { state: string; kind: string; config: string; w: number; d: number; arms?: Arms; riser?: number | null; heights: Heights; current: string | null | undefined; ignore: readonly string[] },
   at: Point,
   rotation: number,
 ): string | null {
-  const { ring, parts, centre, rug } = candidateShape(piece.kind, at, piece.w, piece.d, rotation, piece.arms);
-  const tuck = tuckRole({ kind: piece.kind, config: piece.config, at, rotation, w: piece.w, d: piece.d }); // a seat lands tucked (seating.27)
-  const landed = landing(doc, { state: piece.state, ring, parts, heights: piece.heights, current: piece.current, ignore: piece.ignore, centre, tuck, rug }, levelOf(doc, null));
+  const asked = { kind: piece.kind, config: piece.config, ...(piece.arms === undefined ? {} : { arms: piece.arms }), riser: piece.riser ?? null, heights: piece.heights, ignore: piece.ignore, level: levelOf(doc, null), land: true as const, current: piece.current };
+  const landed = pieceLandsOn(doc, piece.state, asked, { w: piece.w, d: piece.d }, at, rotation);
   switch (landed.kind) {
     case "surface":
       return landed.deck;
@@ -182,14 +181,11 @@ export function objectTools({ session, editReply, edit }: ToolKit): ObjectTools 
       if (!found.ok) return fail(found.error);
       const { placement: p, state: ref } = found.value;
       // The link (review.07), as the Properties switch sets it: alone, or with a move as two edits, unlinked before
-      // the move and linked after it, so the move is this layout's and a link copies where it ended up.
-      const setLink = (linked: boolean): Promise<Reply> => edit({ type: "setLinked", placementId: p.id, on: linked }, () => centreOf(doc, p.id), () => ({ object, layout: ref }));
+      // the move and linked after it, so the move is this layout's and a link copies where it ended up. The two are
+      // checked together on the current drawing before either is sent (`editAll`): a refused one leaves nothing done.
+      const link = (linked: boolean): Command => ({ type: "setLinked", placementId: p.id, on: linked });
       const moving = at !== undefined || rotation !== undefined || on !== undefined || reaches !== undefined;
-      if (everyLayout !== undefined && !moving) return setLink(everyLayout);
-      if (everyLayout === false) {
-        const off = await setLink(false); // the placements stay as they were, so the move below still holds
-        if (off.isError === true) return off;
-      }
+      if (everyLayout !== undefined && !moving) return edit(link(everyLayout), () => centreOf(doc, p.id), () => ({ object, layout: ref }));
       const o = objectOf(doc, object);
       const centre = at ?? centreOf(doc, p.id);
       const depth = depthOf(doc, p);
@@ -203,13 +199,21 @@ export function objectTools({ session, editReply, edit }: ToolKit): ObjectTools 
       const unchanged = at === undefined && ((turn % 360) + 360) % 360 === p.rotation;
       const anchor = unchanged ? p.at : anchorAtMm(centre, depth, turn);
       // A piece put somewhere new by position lands (decks.11); one left in place keeps its surface unless `on` names one.
-      const piece = { state, kind: o.kind, config: p.config, w: width, d: depth, arms: o.arms, heights, current: p.deck, ignore: [p.id] };
+      const piece = { state, kind: o.kind, config: p.config, w: width, d: depth, arms: o.arms, riser: o.riser ?? null, heights, current: p.deck, ignore: [p.id] };
       const deck = given !== null ? given.value : unchanged ? undefined : landsOn(doc, piece, anchor, turn);
       if (reaches !== undefined && reaches !== "nothing" && deckView(doc, reaches) === null) return fail(noDeck(reaches));
-      const link = reaches === undefined ? {} : { reaches: reaches === "nothing" ? null : reaches };
-      const command: Command = { type: "movePlacement", placementId: p.id, at: anchor, rotation: turn, ...(deck === undefined ? {} : { deck }), ...link };
-      const moved = await edit(command, () => centre, () => ({ object, layout: ref }));
-      return everyLayout === true && moved.isError !== true ? setLink(true) : moved;
+      const reached = reaches === undefined ? {} : { reaches: reaches === "nothing" ? null : reaches };
+      const move: Command = { type: "movePlacement", placementId: p.id, at: anchor, rotation: turn, ...(deck === undefined ? {} : { deck }), ...reached };
+      if (everyLayout === undefined) return edit(move, () => centre, () => ({ object, layout: ref }));
+      const commands = everyLayout ? [move, link(true)] : [link(false), move];
+      const r = await session.editAll(commands);
+      if (r.ok) {
+        session.pointAt(centre);
+        return editReply(doc, r.value, { object, layout: ref });
+      }
+      const { error, done, refused } = r.error;
+      if (refused) return fail(error); // checked together on the current drawing: nothing was sent
+      return fail(done === 0 ? error : `${error} (after ${done} of ${commands.length} changes)`);
     },
     async setConfiguration({ layout: state, object, config }) {
       const doc = session.drawing();
@@ -336,8 +340,8 @@ export function objectTools({ session, editReply, edit }: ToolKit): ObjectTools 
       if (found === undefined) return fail(`Unknown set ${set}`);
       const { w, d } = setBox(found);
       const anchor = anchorAtMm(at, d, rotation);
-      // The whole box lands as one piece: a block as tall as a bed, on the floor or one deck (seated.11).
-      const deck = landsOn(doc, { state, kind: "block", config: "standard", w, d, heights: { h: 1, z: 0 }, current: undefined, ignore: [] }, anchor, rotation);
+      // The whole box lands as one piece: a block as tall as the set's tallest piece, on the floor or one deck (seated.11).
+      const deck = landsOn(doc, { state, kind: "block", config: "standard", w, d, heights: { h: setHeight(found), z: 0 }, current: undefined, ignore: [] }, anchor, rotation);
       return edit({ type: "placePieces", opId: session.newId(), pieces: setPieces(found, anchor, rotation, state, deck) }, () => at, (patch) => ({
         objects: (patch?.puts ?? []).filter((p) => p.table === "objects").map((p) => p.entity.id),
         layout: ref,

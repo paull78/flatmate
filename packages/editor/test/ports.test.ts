@@ -169,7 +169,7 @@ const uiActionTypes: Record<UiAction["type"], true> = {
   swapFrames: true,
 };
 const workspaceEventTypes: Record<WorkspaceEvent["type"], true> = { projects: true, created: true, drawing: true, failed: true };
-const workspaceOpTypes: Record<WorkspaceOp["type"], true> = { list: true, create: true, delete: true, open: true, read: true };
+const workspaceOpTypes: Record<WorkspaceOp["type"], true> = { list: true, create: true, delete: true, open: true, close: true, read: true };
 const noticeTypes: Record<Notice["type"], true> = { accepted: true, rejected: true, remoteChange: true, resynced: true, offline: true };
 const snapKinds: Record<SnapKind, true> = {
   endpoint: true, midpoint: true, perpendicular: true, onWall: true, angle: true, aligned: true, equal: true, grid: true, edge: true, none: true,
@@ -272,7 +272,7 @@ describe("ports", () => {
     ]);
     expect(Object.keys(uiActionTypes)).toEqual(["createProject", "openProject", "showProjectList", "cardSeen", "cardHover", "cardOrbit", "cardNextLayout", "setCardOrder", "deleteProject", "pickTool", "selectEntity", "setField", "setWallThickness", "setColumnSize", "setSnapStep", "setActiveState", "pickUnderPointer", "hoverUnderPointer", "closeUnderPointer", "selectHole", "hoverHole", "setViewedLevel", "pickKind", "pickPreset", "setArmedSize", "chipHover", "chipClick", "pickOpeningKind", "pickDeckPreset", "pickMotif", "setFinishesOn", "toggleFinish", "addState", "renameState", "deleteState", "openExport", "closeExport", "setExport", "download", "setSheetSetting", "selectSheet", "addSheet", "addMissingSheet", "addMissingSection", "duplicateSheet", "deleteSheet", "moveSheet", "tickSheet", "tickAllSheets", "setSheet", "renameSheet", "setSheetDrawing", "setSheetSection", "toggleSheetPane", "frameSheet", "typeReport", "leaveReport", "openSheet", "undo", "redo", "deleteSelection", "duplicate", "breakApart", "split", "pickSet", "importUnderlay", "removeUnderlay", "importLogo", "removeLogo", "setUnderlayFade", "toggleUnderlay", "toggle3d", "toggleRoof3d", "set3dSize", "turn3d", "orbit3d", "reset3d", "showSection", "closeSection", "setSectionMarks", "setDockHeight", "resetDockHeight", "toggleLargerDock", "setDockShare", "swapFrames"]);
     expect(Object.keys(workspaceEventTypes)).toEqual(["projects", "created", "drawing", "failed"]);
-    expect(Object.keys(workspaceOpTypes)).toEqual(["list", "create", "delete", "open", "read"]);
+    expect(Object.keys(workspaceOpTypes)).toEqual(["list", "create", "delete", "open", "close", "read"]);
     expect(Object.keys(noticeTypes)).toEqual(["accepted", "rejected", "remoteChange", "resynced", "offline"]);
     expect(Object.keys(snapKinds)).toEqual(["endpoint", "midpoint", "perpendicular", "onWall", "angle", "aligned", "equal", "grid", "edge", "none"]);
   });

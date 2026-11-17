@@ -73,12 +73,12 @@ The long sides are the traced boundaries of the wall cells, with jambs, sills un
 
 **Joint caps.** At a joint of three or more walls, the share held by a shorter wall is empty above its top. Where a wall's share sits below both of its neighbours in `jointOrder`, the lower neighbour carries it as a cap from the shorter wall's top to its own (`jointCaps` in `view3d/joint-caps.ts`; a tie goes to the lower wall ID). Tops are compared at the joint (`wallTopAt`). A cap is part of its owner's `WallItem.caps`, drawn and hidden with it. An L joint has no caps.
 
-**No seams.** `wallSeams` (`view3d/wall-seams.ts`) runs on the faces a scene shows, so a plain split wall, or a cap over a partition, reads as one flat wall:
+**No seams.** `wallSeams` (`view3d/wall-seams.ts`) runs on the faces a scene shows, so a split wall, plain or in one finish, or a cap over a partition, reads as one flat wall:
 
 - a wall face wholly covered by wall faces in its plane facing the other way lies inside the solid and draws no outline;
 - the stretch of outline two shown wall faces share, in one plane, of one colour, facing the same way, is not drawn.
 
-Only a wall's own faces in the plain wall or selected colours take part, so a side in a finish keeps its seam. Frames, leaves and glass, pieces, decks, guards and the trailer keep every line, as do real corners, edges between colours and back-to-back faces.
+A wall's own faces take part: those in the plain wall or selected colours, and those in a shade of a finish the scene's walls show (`finishedShades` in `view3d/scene-faces.ts`). Two halves in different colours keep the line between them. Frames, leaves and glass, pieces, decks, guards and the trailer keep every line, as do real corners, edges between colours and back-to-back faces.
 
 ## Pieces' parts
 
@@ -117,7 +117,7 @@ Two renderers draw one picture. `raster3d` with culling must equal drawing every
 - No textures, imported models, bevels, lying cylinders or sloped parts.
 - No 3D view on the PDF and no WebGPU 3D renderer.
 - An L joint whose walls have different tops keeps its mitred corner.
-- A split wall whose side carries a finish keeps its seam on that side.
+- A wall's own faces are told by colour, not by a mark: a frame or leaf drawn in exactly a wall finish's shade, in the wall's plane, would lose a line it shares with the wall. The joinery colours are fixed, so it takes a finish typed to match one.
 
 ## At levels
 

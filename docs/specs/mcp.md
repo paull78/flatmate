@@ -46,7 +46,7 @@ A few tools send several edits in their turn, checked together with `execute` fi
 | `add_walls` | one `addWall` per wall; a refusal names the wall's place in the list |
 | `set_zones` | `setZoneSides`, then one `setZoneExtent` per side given a zone |
 | `set_opening` with `offset` and more | `moveOpening` and `setOpening`, in the first order the rules accept |
-| `move_object` with `everyLayout` and a move | `setLinked` and `movePlacement`, not checked together (Limits) |
+| `move_object` with `everyLayout` and a move | `setLinked` and `movePlacement`, checked together before either is sent |
 
 ## The tools
 
@@ -138,13 +138,10 @@ Claude's clients keep the first 4,096 characters of a server's instructions and,
 
 ## Limits
 
-- `place_object` and `move_object` without `on` pass no `stair`, `well` or `beam` role to the landing rule (`landsOn` in `object-tools.ts`), where the Object tool does (`packages/editor/src/snapping/piece.ts`). A stair, wheel well or beam Claude places or moves can land on, or be refused against, another surface than on the canvas. `on` avoids it.
-- `place_set` lands the set's box as a block 1.00 m tall, where the canvas ghost is as tall as the tallest piece, so under something between the two they can pick different surfaces ([seating.md](seating.md)).
-- `add_layout` runs `addState`, which can build a layout with two linked pieces overlapping; a shared drawing's server then rejects it ([layouts.md](layouts.md)).
 - `get_drawing` and `look` never show the "No guard" warnings: no MCP code calls `missingGuards` ([guards.md](guards.md)).
 - `place_object`'s description and `add_stair`'s `handrail` parameter (`server.ts:489-490`, `schemas.ts:415`) say a new stair's handrails start as glass or railing, leaving out None, which a low stair gets ([guards.md](guards.md)).
 - `set_opening`'s description doesn't say it moves an opening by `offset`; only the parameter's does.
 - A retired kind is refused by the schema and by `place_object`; a stored one still moves, resizes and changes configuration.
-- `move_object` with `everyLayout` and a move sends two edits (`false` unlinks first, `true` links after); if the second is refused the first stays, and the reply lists only the last one's rows.
+- `move_object` with `everyLayout` and a move sends two edits (`false` unlinks first, `true` links after). Both are first run together on the current drawing, so a refusal sends neither, and the reply lists the rows of both. Another person's edit arriving between the two can still stop the second; the reply then says "after 1 of 2 changes".
 - No tool deletes a project, changes a section (delete and re-add, losing its sheets), adds a logo, views a loft, duplicates pieces, switches a stair's kind or reorders layouts. Lengths are metres only ([roadmap.md](roadmap.md)).
 - No claim is made about how Claude chooses to use the tools; tests cover the tools, not the model.

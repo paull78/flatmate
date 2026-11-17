@@ -133,7 +133,6 @@ The Custom row (field id `hex`, flag `colour: true`) is a swatch opening the bro
 - No finish on a column, a deck's underside or sides, a joint cap or a wall top.
 - One split per side, no splashback. A side is customised whole, with one Reset.
 - No stone, slate or photo textures; no palette click mode for walls.
-- Refusals of `setRoomWallFinishes`, `setOutsideFinish`, `setRoofCovering` and `setWallSide` toast the domain's raw text, "finish.size must be 0.10–0.40", a band's "height must be 0.10–3.00" in lower case. Properties sends a typed size or height unchecked, so a person sees it.
 - A side faces one thing, found at the wall's middle.
 
 ## At levels

@@ -67,6 +67,7 @@ Messages and their parsers are in `packages/protocol/src/messages.ts`. IDs match
 | `deleteProject { projectId }` | `projects` to the sender, `projectDeleted` to every subscriber |
 | `readProject { projectId }` | `projectDrawing { doc }`, no underlays or logos, joins no session ([cards.md](cards.md)) |
 | `openProject { projectId, generation }` | `snapshot { meta, doc, versions, seq }`, always whole, or `openFailed { message }` |
+| `closeProject { projectId, generation }` | nothing to the sender; `presenceLeft` to the others. The subscription ends and the connection stays |
 | `submit { changeset }` | `changes { seq, changeset, clientId }` to every subscriber, sender included; `ack { changesetId, seq }` or `rejected { changesetId, reason }` to the sender |
 | `presence { cursor, selection, state, level }` | `presence` with `clientId`, `name`, `color` to the others; `presenceLeft` |
 | | `error { requestId, message }`: a delete of an unknown project; `requestId` null for a message that doesn't parse and `rejected` can't answer |
@@ -75,9 +76,9 @@ List, create, delete and read carry a `requestId`; list and create share one que
 
 ## Sessions
 
-- The first message must be `hello`; anything else, or a parse failure before it, closes the connection. Colours go round six (`PRESENCE_COLORS`) in order of joining. The web shell takes the name from `?name=` ("Guest" if blank) and a per-tab client ID from `sessionStorage` (`identity.ts`).
+- The first message must be `hello`; anything else, or a parse failure before it, closes the connection. Colours go round six (`PRESENCE_COLORS`) in order of joining. The web shell takes the name from `?name=` ("Guest" if blank, cut to `MAX_NAME_CHARS` if longer, so the `hello` always parses) and a per-tab client ID from `sessionStorage` (`identity.ts`).
 - One connection has one open project. A generation is a fresh ID per open, reconnect and resync; both sides ignore messages of another generation, and a stale submit gets no answer. A submit for a project the session hasn't opened is `unknownProject`.
-- Opening runs in the project's queue: snapshot first, then subscription, so every later `changes` follows the snapshot. Opening another project leaves the old one, which sends `presenceLeft` to the others.
+- Opening runs in the project's queue: snapshot first, then subscription, so every later `changes` follows the snapshot. Opening another project leaves the old one, which sends `presenceLeft` to the others. Going back to the project list sends `closeProject` for the drawing left behind, open or still opening (`showList` in `packages/editor/src/session.ts`): the server drops the subscription, the leaver gets no more of its changes or presence, and an open still queued for it is superseded. A `closeProject` for another project or generation changes nothing. Claude's `list_projects` goes to the list the same way, so it sends one too. After it, a `submit` from the leaver for that drawing is rejected as `unknownProject` and its `presence` is dropped, as for a drawing it never opened.
 - Creating a project opens it, unless a drawing is open or another open is in progress when the reply arrives.
 - Leaving a drawing with an edit in flight is refused (`LEAVE_BLOCKED`), never queued. Opening or leaving clears gestures, selection, presence, history and the viewed level (`closeDocument` in `packages/editor/src/session.ts`).
 - **Deleting** is offered only on the list. The server runs it in the project's queue, after any save: it moves the file, forgets the project, sends `projectDeleted` to each subscriber, then the list to the sender; later submits get `unknownProject`. A client whose open project gets `projectDeleted`, or `openFailed` for its own reopen, returns to the list with the `PROJECT_DELETED` toast and drops its edit in flight and history.
@@ -160,7 +161,5 @@ Alice   changes{43, c1} is hers: no notice, nothing moves
 
 - One edit in flight per client; no offline editing, no merging, no partial undo.
 - No deleting from inside a drawing, no undoing a delete; other clients' lists don't refresh.
-- Leaving a drawing for the list tells the server nothing: the session stays subscribed, and others keep the leaver's last cursor until it opens another project or disconnects.
-- A `?name=` over 200 characters makes the server refuse the `hello`; the client retries every second and shows "Offline: reconnecting…" with no reason.
 - Saving files: [domain.md](domain.md).
 - Receipts and tombstones are never compacted. A save that keeps failing, such as on a full disk, becomes a restart loop.

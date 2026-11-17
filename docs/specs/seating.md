@@ -200,7 +200,6 @@ The full list and reply format are in [mcp.md](mcp.md).
 - A broken-apart piece is not regrouped, except by undo.
 - Resizing a dining piece across 2.60 m wide jumps between a table of its whole length with no end chairs and a 1.40 m table with them. Presets never land in that range.
 - Chairs are never drawn in part: a size that cannot hold them all draws a bare table.
-- `place_set` sizes its overall box 1.00 m tall for every set, while the editor's ghost uses the set's tallest piece (0.90 for the sofa set). Where a surface leaves 0.90 to under 1.00 m of room, Claude's set can land on another surface than a person's, or be refused where a person's click places it.
 - Round chairs change the drawing only, not the fit.
 - The flip between layouts draws tucked chairs unclipped while it moves.
 - The pieces of a set are not linked to each other, and a set has no size picker.
@@ -213,4 +212,4 @@ The full list and reply format are in [mcp.md](mcp.md).
 - **Free floor** gives a tuck back only where both pieces take floor. A platform's pieces count in their room; a loft's pieces take no floor, so a tuck on a loft changes no room's free floor.
 - **Tables and desks with chairs** stand on a platform or a loft like any piece; their layout and drawing do not depend on the surface.
 - **Break apart** keeps every part on the surface the piece stands on in each layout, platform and loft included.
-- **Sets:** in the editor the overall box lands by the landing rule at the viewed level, and every piece stands on the surface the box lands on, a platform or a loft included. `place_set` lands the box at the floor level: on the floor or a platform, never on a loft.
+- **Sets:** in the editor the overall box lands by the landing rule at the viewed level, and every piece stands on the surface the box lands on, a platform or a loft included. `place_set` lands the box at the floor level: on the floor or a platform, never on a loft. Both size the box as tall as the set's tallest piece (`setHeight` in `packages/editor/src/furniture-sets.ts`; 0.90 m for the sofa and rug), so under a low loft or ceiling they pick the same surface.

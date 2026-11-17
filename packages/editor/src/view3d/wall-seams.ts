@@ -5,8 +5,8 @@ import type { Face3d, Point3 } from "./types";
 // read as one flat wall, but the renderers outline every face. A wall face lying against other wall faces (in its
 // plane, facing the other way, wholly covered by them) is inside the solid: its edges lie on the visible wall, where
 // they drew the seam, so it draws no outline. Only the wall's own faces take part (owner `wall/…`, in the wall's or
-// the selected wall's shades): a door's or window's frame, leaf and glass share the wall's owner but keep every line,
-// as does a piece or deck against a wall. Run once per scene on the faces it shows, so a hidden wall neither covers nor is covered.
+// the selected wall's shades, or in a shade of a finish the scene's walls show, `finished`): a door's or window's
+// frame, leaf and glass share the wall's owner but keep every line, as does a piece or deck against a wall. Run once per scene on the faces it shows, so a hidden wall neither covers nor is covered.
 //
 //   plan at a T-joint                  west half │cap│ east half
 //                                      ──────────┴───┴──────────  the inside face
@@ -113,8 +113,8 @@ function leftOf(s: Segment, others: readonly Segment[]): Segment[] {
  * outline two shown wall faces share, in one plane, of one colour, facing the same way (a wall half and the cap beside
  * it), isn't drawn: such a face has no outline and carries what's left of it as lines in the style's edge colour, after its own.
  */
-export function wallSeams(faces: readonly Face3d[], style: Style3d = STYLE_3D): Face3d[] {
-  const shades = new Set([...Object.values(style.wall), ...Object.values(style.selected)]);
+export function wallSeams(faces: readonly Face3d[], style: Style3d = STYLE_3D, finished: readonly string[] = []): Face3d[] {
+  const shades = new Set([...Object.values(style.wall), ...Object.values(style.selected), ...finished]);
   const isWall = (f: Face3d): boolean => f.owner.startsWith("wall/") && shades.has(f.color);
   const walls = faces.flatMap((f) => (isWall(f) && f.points.length >= 3 ? [{ face: f, plane: planeOf(f.points) }] : []));
   const inside = new Set<Face3d>();

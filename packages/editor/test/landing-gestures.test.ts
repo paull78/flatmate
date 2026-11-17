@@ -87,6 +87,15 @@ describe("the Object tool lands its ghost (decks.11)", () => {
     expect(pin(only(shell, "desk"))).toEqual({ at: { x: 2.9, y: 1.55 }, rotation: 0, deck: null });
   });
 
+  it("› a wheel well over the platform stays on the floor, red, and a click places none (knownbugs AC-13)", () => {
+    const shell = shellOf(studio());
+    shell.ui({ type: "pickKind", kind: "wheelWell" });
+    shell.moveTo({ x: 5.7, y: 0.9 });
+    expect(ghost(shell)).toMatchObject({ fits: false, surface: null });
+    shell.click({ x: 5.7, y: 0.9 });
+    expect(Object.values(shell.doc().objects).filter((o) => o.kind === "wheelWell")).toEqual([]);
+  });
+
   it("› a chair dropped on the platform is stored on the platform, and its ghost was blue there", () => {
     const shell = shellOf(studio());
     shell.ui({ type: "pickKind", kind: "chair" });

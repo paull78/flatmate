@@ -1,7 +1,17 @@
-/** Display name from the `?name=` URL parameter (spec: collaboration); "Guest" when absent or blank. */
+import { MAX_NAME_CHARS } from "@fm/protocol";
+
+/**
+ * Display name from the `?name=` URL parameter (spec: collaboration); "Guest" when absent or blank. Cut to the
+ * protocol's limit, which the server's hello check enforces: a longer name would be refused and the client would retry
+ * for ever. The cut never leaves half a surrogate pair or a trailing space.
+ */
 export function displayNameFrom(search: string): string {
   const name = new URLSearchParams(search).get("name")?.trim() ?? "";
-  return name === "" ? "Guest" : name;
+  if (name === "") return "Guest";
+  if (name.length <= MAX_NAME_CHARS) return name;
+  const last = name.charCodeAt(MAX_NAME_CHARS - 1);
+  const cut = last >= 0xd800 && last <= 0xdbff ? MAX_NAME_CHARS - 1 : MAX_NAME_CHARS; // a high surrogate whose pair fell off
+  return name.slice(0, cut).trimEnd();
 }
 
 /** Tab-scoped client ID: survives reloads of this tab, differs between tabs. */

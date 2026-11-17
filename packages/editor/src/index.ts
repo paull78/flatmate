@@ -3,7 +3,7 @@
 export { brokenApart } from "./break-apart";
 export { placeNote } from "./link-note";
 export { groupCentre, turnedPlaces } from "./tools/turn";
-export { FURNITURE_SETS, furnitureSet, isFurnitureSet, setBox, setPieces, setPoses } from "./furniture-sets";
+export { FURNITURE_SETS, furnitureSet, isFurnitureSet, setBox, setHeight, setPieces, setPoses } from "./furniture-sets";
 export {
   NO_MODS, type Mods, type ProjectInfo, type RemotePresence, type Size, type SnapKind, type SnapResult, type SnapStep, type ToolName,
 } from "./types";
@@ -41,6 +41,7 @@ export type {
 } from "./document/types";
 export type { HistoryState, UndoEntry, UndoRequest } from "./history/history";
 export type { SnapAxis, SnapCandidate } from "./snapping/policies";
+export { landsOn as pieceLandsOn } from "./snapping/piece"; // the landing a click asks for, for Claude too (principle 8)
 export type {
   DragTarget, MoveAttempt, SelectToolState, ToolState, WallPreview, WallToolState, ZoneToolState,
 } from "./tools/types";

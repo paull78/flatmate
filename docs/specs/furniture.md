@@ -70,7 +70,7 @@ The Object tool (`packages/editor/src/tools/object-tool.ts`) is armed by a palet
 
 A corner kind (outline `quarter`, `corner` or `ell`) left touching two faces at a right angle takes the turn that puts its back-left corner on the room's corner, if it fits (`cornerTurn` in `snapping/corner.ts`). A seat takes the tuck snap first ([seating.md](seating.md)). A beam never turns: a long side slides flush to a wall face or to a hollow deck's edge from under it. After contact, on each axis no wall holds, the ghost aligns to the layout's other pieces ([tools.md](tools.md)). Ctrl keeps the start angle with no snap and no guide. A dragged piece and a duplicate's ghost take the same call.
 
-**Fit.** A piece lies inside one room, off every wall body, and overlaps no other piece of its layout in plan and height together; its top stays under the ceiling. Fit reads the kind's shape, not its rectangle. Two exceptions need only their centre in a room: a wheel well may run under walls and a beam meets no wall. The rule in height, decks and the surface a piece lands on are in [heights-decks.md](heights-decks.md); the refusal's words in [warnings.md](warnings.md). `placementFit` gives the first rule broken: `wall`, `deck`, `object`, `ceiling`, `room` or a deck reason.
+**Fit.** A piece lies inside one room, off every wall body, and overlaps no other piece of its layout in plan and height together; its top stays under the ceiling. Fit reads the kind's shape, not its rectangle. Two exceptions need only their centre in a room: a wheel well may run under walls and a beam meets no wall. A wheel well stands on the floor only ([surroundings.md](surroundings.md)). The rule in height, decks and the surface a piece lands on are in [heights-decks.md](heights-decks.md); the refusal's words in [warnings.md](warnings.md). `placementFit` gives the first rule broken: `wall`, `deck`, `object`, `ceiling`, `room`, a deck reason, or `floorOnly` for a wheel well on a deck.
 
 **A piece lowered to fit.** A new piece, by a click, a drawn footprint or quick add, takes the lower of its height and the room over it (`lowerGhost` in `tools/lowered-ghost.ts`).
 
@@ -219,4 +219,5 @@ Quick add, with one row per kind and other names for each, is in [tools.md](tool
 - **On a loft.** The piece lies inside the loft's deck in place of one room, shows at the loft's level only, takes no free floor and doesn't furnish the room under it.
 - **Lowering** measures the room from the top of the surface the piece lands on.
 - **Use zones** start at their piece's surface and stop at the edge of its deck ([levels.md](levels.md)).
+- **Wheel wells** are floor only: refused on a platform and on a loft ([surroundings.md](surroundings.md)).
 - **Hung pieces** set to `"ceiling"` hang from what is over them: a loft's underside where one is overhead, else the ceiling.

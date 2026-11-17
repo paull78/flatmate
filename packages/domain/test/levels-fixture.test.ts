@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { execute } from "../src/commands/execute";
 import type { Document } from "../src/model";
 import { areaM2, areaRoom } from "../src/queries/areas";
 import { clearanceWarnings } from "../src/queries/clearance";
@@ -10,7 +11,7 @@ import { roomWallSides } from "../src/queries/room-walls";
 import { sideFinishes } from "../src/queries/side-finishes";
 import { zones } from "../src/queries/zones";
 import {
-  AREA, FLOOR_PIECE, FLOOR_WALL, LOFT, LOFT_DOOR, LOFT_PIECE, LOFT_WALL, LOFT_WINDOW, NAVY, PLACE_LOFT_PIECE, PLATFORM_PIECE, ROOM, SHELL_WALL, STATE,
+  AREA, FLOOR_PIECE, FLOOR_WALL, LOFT, LOFT_DOOR, LOFT_PIECE, LOFT_WALL, LOFT_WINDOW, NAVY, PLACE_LOFT_PIECE, PLATFORM, PLATFORM_PIECE, ROOM, SHELL_WALL, STATE,
   levelsHouse, levelsHouseBare, levelsShell, run,
 } from "./fixtures/levels-house";
 
@@ -151,6 +152,13 @@ const ROWS: { name: string; check: () => void }[] = [
       const stool = (deck: string | null): Document => run(levelsHouse(), { type: "placeObject", opId: "b", state: STATE, object: { kind: "stool" }, at: { x: 2, y: 3.2 }, deck });
       expect(clearanceWarnings(stool(LOFT), STATE)).toEqual([{ zone: { table: "openings", id: LOFT_DOOR }, against: { table: "placements", id: "b/p0" } }]);
       expect(clearanceWarnings(stool(null), STATE)).toEqual([]);
+    },
+  },
+  {
+    name: "wheel wells: floor only, refused on the platform and on the loft, placed on the floor under the loft",
+    check: () => {
+      const well = (deck: string | null, x: number, y: number) => execute(levelsHouse(), { type: "placeObject", opId: "ww", state: STATE, object: { kind: "wheelWell", size: { w: 0.9, d: 0.4 } }, at: { x, y }, deck });
+      expect([well(PLATFORM, 6.6, 1).ok, well(LOFT, 3, 3).ok, well(null, 3, 3).ok]).toEqual([false, false, true]);
     },
   },
 ];

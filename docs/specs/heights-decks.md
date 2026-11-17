@@ -42,7 +42,7 @@ A wall's `top` is "ceiling", a number, or a deck's ID. "ceiling" is a full wall:
 
 - `setWallTop { wallId, top }` (`packages/domain/src/commands/heights.ts`) takes "ceiling" or a number, kept to the millimetre. It refuses a column row and a deck's ID ("Only a free column on the floor reaches up to a deck").
 - I17 (`packages/domain/src/ceiling.ts`): every wall and column is at least 0.10 m tall (`MIN_WALL_TOP`), and a fixed top reaches at most the lowest ceiling along the wall (`ceilingAlong`): "A wall can't be taller than the 2.20 m ceiling".
-- Properties shows "To ceiling" (a switch) and "Top", the height above the base, read-only while the wall follows the ceiling. Switching "To ceiling" off stores the wall's present range as a fixed top: its height up to the highest ceiling along it.
+- Properties shows "To ceiling" (a switch) and "Top", the height above the base, read-only while the wall follows the ceiling. Switching "To ceiling" off stores a fixed top: the wall's present height above its base, or under a shed or gable the lowest ceiling along it (`ceilingAlong`), which is as high as a fixed top may go (I17). So the wall's top becomes level at the low end of its slope.
 
 ## The ceiling as a height
 
@@ -223,8 +223,6 @@ A point is on a deck when it is in the rectangle and strictly inside no hole (`o
 - Decks do not overlap on the plan, except a deck standing in another's hole.
 - A deck changes no room, named area or tag. No round or polygon holes, and no holes in the ceiling.
 - I18 tests only a deck's centre and four corners against the building. Over low walls a deck is refused when a corner lies in the square outside a wall junction, so it stops short of the outer corners, while an edge may pass outside the building between two corners, as across the missing quarter of an L-shaped shell.
-- Under a shed or gable ceiling, switching a wall's "To ceiling" off is refused: Properties stores the highest ceiling along the wall, while I17 allows a fixed top only up to the lowest. So in Properties such a wall stays full; `setWallTop` with a height at or under the lowest ceiling still makes it a half wall.
-- Claude's `place_object` and `move_object` pass no stair, wheel well or beam to the landing rule. Claude can land a beam on a platform where a click lands it on the floor, and be refused an open stair a click places.
 
 ## At levels
 

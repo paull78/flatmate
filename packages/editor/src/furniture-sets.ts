@@ -1,4 +1,4 @@
-import { add, defaultSize, kindConfigs, rotateAbout, type NewPiece } from "@fm/domain";
+import { add, defaultSize, heightsOf, kindConfigs, rotateAbout, type NewPiece } from "@fm/domain";
 import type { Point } from "@fm/protocol";
 
 // Multi-piece sets (seated.03, .06): a list of pieces and offsets, in the editor only. Nothing links the pieces once placed.
@@ -56,6 +56,15 @@ export function setBox(set: FurnitureSet): { w: number; d: number } {
   const halves = set.pieces.map((p) => Math.abs(p.offset.x) + sizeOf(p.kind).w / 2);
   const fronts = set.pieces.map((p) => sizeOf(p.kind).d - p.offset.y);
   return { w: 2 * Math.max(...halves), d: Math.max(...fronts) };
+}
+
+/**
+ * The height of the set's box: its tallest piece's, in any configuration (seated.11). The one owner: the Object tool's
+ * ghost and Claude's `place_set` land the box with it, so a set lands for Claude where it does for a click.
+ */
+export function setHeight(set: FurnitureSet): number {
+  const heights = set.pieces.map((p) => defaultSize(p.kind)).flatMap((s) => (s ? Object.keys(s.h).flatMap((c) => heightsOf(s, c) ?? []) : []));
+  return Math.max(...heights.map((x) => x.h));
 }
 
 /** The set's pieces with the box's back edge's middle at `at`, turned to `rotation`: what the ghost draws and a click places. */

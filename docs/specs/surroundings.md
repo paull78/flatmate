@@ -78,7 +78,9 @@ With nothing selected and Surroundings On wheels, Properties shows a Trailer sec
 
 ## Wheel wells
 
-A Wheel well (kind `wheelWell`, `well` flag, in `packages/domain/src/kinds-more.ts`) is 1.80 × 0.40 m and 0.35 m tall, with presets Single, Tandem and Triple, 0.90, 1.80 and 2.70 m long (`WHEEL_WELL_PRESETS`). It is in the palette under every surroundings ([furniture.md](furniture.md)) and stands in every layout at one place ([layouts.md](layouts.md)). Claude places it with `place_object`; without `on`, its landing is asked as for an ordinary piece (`landsOn` in `packages/mcp/src/object-tools.ts` passes no well flag), then the command applies the well's rules.
+A Wheel well (kind `wheelWell`, `well` flag, in `packages/domain/src/kinds-more.ts`) is 1.80 × 0.40 m and 0.35 m tall, with presets Single, Tandem and Triple, 0.90, 1.80 and 2.70 m long (`WHEEL_WELL_PRESETS`). It is in the palette under every surroundings ([furniture.md](furniture.md)) and stands in every layout at one place ([layouts.md](layouts.md)). Claude places it with `place_object`; without `on` it lands as a click's does, on the floor.
+
+**On the floor only.** A well stands on the floor: one on a deck is refused (see At levels).
 
 **Under walls.** A well meets no wall (`solidsCollide` in `packages/domain/src/queries/fit.ts`). On the floor it needs only its centre in a room, outside every floor wall's body (`wellRoom` in `queries/footprints.ts`); a well with its centre under a wall is refused as not inside a room.
 
@@ -101,10 +103,9 @@ A Wheel well (kind `wheelWell`, `well` flag, in `packages/domain/src/kinds-more.
 - No porch and no cantilevered loft over the trailer.
 - A well whose part spans two arms of an `L` piece is not covered by it. Only a piece on the well's centre's side of a partition crossing it can cover it.
 - The ground has no textures, sky or shadows.
-- No test covers a wheel well on a deck; the At levels lines below rest on the code.
 
 ## At levels
 
 - **Ground and trailer.** They belong to the whole house: the frame comes from every wall's outline and the highest ceiling. The 3D view has no viewed level, so they draw the same at every level ([levels.md](levels.md)).
 - **Door steps.** Floor only: `outsideDoors` takes only openings on floor walls, and the steps run from the floor to the ground. A door on a wall standing on a loft gets none; no wall stands on a platform ([levels.md](levels.md)).
-- **Wheel wells.** A well lands by the landing rule as any piece, so it may stand on a platform or a loft. There it lies on its deck by the deck's rules ([heights-decks.md](heights-decks.md)), so it can't run under a floor wall. It still meets no wall, so on a loft it may cross a wall standing on the loft. Its part is cut only at floor walls.
+- **Wheel wells.** Floor only: a well is part of the trailer under the floor, so no deck carries one. On a platform or a loft it is refused ("Wheel well stands on the floor only, not on Platform, in Day"; `placementFit`'s reason `floorOnly`), by a click, a drag and Claude's `on` alike, and the landing rule answers the floor for a well over a platform. On the floor under a loft it stands as anywhere. The levels table has the row (`packages/domain/test/levels-fixture.test.ts`).

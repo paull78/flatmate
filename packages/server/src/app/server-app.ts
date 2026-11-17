@@ -103,6 +103,16 @@ export function createServerApp(deps: ServerAppDeps): ServerApp {
     });
   }
 
+  /**
+   * The client went back to its project list: the subscription it names ends at once, the others see presenceLeft, and
+   * an open still queued for it is superseded. One for another project or generation is stale and changes nothing.
+   */
+  function close(c: Client, projectId: string, generation: string): void {
+    if (c.project === null || c.project.projectId !== projectId || c.project.generation !== generation) return;
+    leave(c);
+    c.project = null;
+  }
+
   /** A project card's drawing (cards.02): in the project's queue, after a save in progress; no session, no underlay, no logo. */
   function read(c: Client, requestId: string, projectId: string): void {
     enqueue(projectId, async () => {
@@ -211,6 +221,8 @@ export function createServerApp(deps: ServerAppDeps): ServerApp {
         return remove(c, msg.requestId, msg.projectId);
       case "openProject":
         return open(c, msg.projectId, msg.generation);
+      case "closeProject":
+        return close(c, msg.projectId, msg.generation);
       case "readProject":
         return read(c, msg.requestId, msg.projectId);
       case "submit":

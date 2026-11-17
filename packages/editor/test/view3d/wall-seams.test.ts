@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emptyDocument, execute, rectangleRoom, unwrap, type Command, type Document } from "@fm/domain";
+import { emptyDocument, execute, motifDefaults, rectangleRoom, unwrap, type Command, type Document } from "@fm/domain";
 import type { Point } from "@fm/protocol";
 import { faces3d } from "../../src/view3d/faces";
 import { view3dItems } from "../../src/view3d/items";
@@ -183,5 +183,45 @@ describe("sceneFaces on the studio's T-joint (step 04)", () => {
   it("a scene with no walls gives exactly today's faces", () => {
     const items = view3dItems(partitioned(), "s0", null, new Set(), false).filter((i) => i.item !== "wall");
     expect(sceneFaces({ items, hidden: new Set() })).toEqual(items.flatMap((i) => faces3d(i)));
+  });
+});
+
+// A finished side (knownbugs AC-09): two halves of a split wall whose side shows one finish read as one flat wall too.
+// The studio's south wall is split at x 1.5 by the partition's T; its outside face lies in y = −0.1.
+describe("sceneFaces on a split wall with a finish", () => {
+  const SAGE = { ...motifDefaults("plain"), colour: "#a8b59a" };
+  const NAVY = { ...motifDefaults("plain"), colour: "#2f3e57" };
+  const finished = (doc: Document) => sceneFaces({ items: view3dItems(doc, "s0", null, new Set(), true), hidden: new Set() });
+  const atSplit = (faces: readonly Face3d[]): string[] => faces.flatMap(drawnEdges)
+    .filter((e) => [e.a, e.b].every((p) => Math.abs(p.x - 1.5) < 1e-9 && Math.abs(p.y + 0.1) < 1e-9) && Math.abs(e.a.z - e.b.z) > 1e-9).map(key);
+  const outside = run(partitioned(), { type: "setOutsideFinish", part: "finish", finish: SAGE });
+
+  it("the fixture shows the finish on both halves' outside faces", () => {
+    const sides = finished(outside).filter((f) => f.owner.startsWith("wall/") && f.color.toLowerCase() !== STYLE_3D.wall.lit && f.points.every((p) => Math.abs(p.y + 0.1) < 1e-9));
+    expect(sides.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("draws no line at the split on the finished side", () => {
+    expect(atSplit(finished(outside))).toEqual([]);
+  });
+
+  it("with the Finishes switch off the plain halves draw none either, as before", () => {
+    expect(atSplit(scene(outside))).toEqual([]);
+  });
+
+  it("halves in different colours keep the line between them", () => {
+    const west = wallBetween(outside, { x: 0, y: 0 }, { x: 1.5, y: 0 });
+    const two = run(outside, { type: "setWallSide", wallId: west, side: "left", finish: NAVY, lower: null }, { type: "setWallSide", wallId: west, side: "right", finish: NAVY, lower: null });
+    expect(atSplit(finished(two)).length).toBeGreaterThan(0);
+  });
+});
+
+describe("wallSeams with finished colours", () => {
+  it("two wall faces side by side in a finish's colour lose the edge they share only when the colour is named as a wall's", () => {
+    const pair = [upright("wall/a", 0.1, [0, 1], [0, 3], 1, "#a8b59a"), upright("wall/b", 0.1, [1, 2], [0, 3], 1, "#a8b59a")];
+    expect(wallSeams(pair)).toEqual(pair);
+    const [a] = wallSeams(pair, STYLE_3D, ["#a8b59a"]);
+    expect(a?.outline).toBe(false);
+    expect(edgeKeys(a!)).not.toContain(seg([1, 0.1, 0], [1, 0.1, 3]));
   });
 });

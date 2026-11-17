@@ -57,6 +57,7 @@ export const MESSAGES = {
   decksOverlap: (a: string, b: string): string => `${a} and ${b} overlap`,
   deckCarries: (deck: string, piece: string, state: string): string => `${deck} carries ${piece} in ${state}; move it off first`,
   outsideDeck: (piece: string, deck: string, state: string): string => `${piece} lies outside ${deck} in ${state}`,
+  floorOnly: (piece: string, deck: string, state: string): string => `${piece} stands on the floor only, not on ${deck}, in ${state}`, // a wheel well (surroundings.md)
   overHole: (piece: string, deck: string, state: string): string => `${piece} stands over a hole in ${deck} in ${state}`,
   // Overhanging a platform (steps.06, .11): the centre, the reach and the room, in that order.
   winderDepth: "A winder stair is deeper than it is wide, by 0.05 m at least", // I19 (steps.09)

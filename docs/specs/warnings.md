@@ -38,7 +38,7 @@ A domain refusal carries `message`, which names rows by ID for Claude, and on so
 | `splitText` | an `I12` from `addWall`, `connectJoint`, `splitWall`, `placeColumn`, `setColumn` | "A wall can't end inside a door", "A wall can't be split inside a window", "A column can't cover a door" |
 | `openingText` | any other `I12` | the violation's `plain`, else a sentence built from the openings' kinds (below) |
 | `plainText` (`column-toast.ts`) | an `I20` from `addWall` with two rows, or from `addOpening`; any other named violation with `plain` | "A wall can't touch a column", "Doors and windows can't go on a column", else `plain` |
-| `finishText` | `setFinish`, `labelZone`, `setDeckFinish`, `setWallFinish` | the field's name and rule: "Size must be 0.10–0.40"; a wall's lower part: "Height must be 0.10–3.00" |
+| `finishText` | every command that carries a finish: `setFinish`, `labelZone`, `setDeckFinish`, `setWallFinish`, `setRoomWallFinishes`, `setOutsideFinish`, `setWallSide`, `setRoofCovering` | the field's name and rule: "Size must be 0.10–0.40"; a lower band's height: "Height must be 0.10–3.00" |
 | fallback | everything else | `error.message` |
 
 - `runCommand` in `packages/editor/src/commit.ts` passes the error through `inViewFirst`: when the edit breaks pieces in the layout in view, those violations go first, so the toast and a sticky plate name that layout. A rest's plate (`dragReason` during a drag) and a ghost's words (`reasonOf`) skip this, so for an edit breaking pieces in two layouts they can name another layout than the toast that follows.

@@ -5,14 +5,15 @@ import { sortedIds } from "../graph";
 import type { Document, LayoutState, Placement } from "../model";
 import { diffPatch } from "../patch";
 import { isValidId, isValidName } from "../shape";
+import { isLinked } from "../linked";
+import { finish } from "./object-helpers";
 import { withoutPlacements } from "./objects";
 import { MAX_OP_ID_LENGTH, opIdUsed } from "./op-ids";
 import { sheetsInStep } from "./sheets-strip";
-import { syncDeps, syncLinkedCopies } from "./linked-copies";
 import type { CommandOf, CommandResult } from "./types";
 
-// Layout-state commands (spec: layouts). States hold placements only; walls and rooms are shared, so a state edit
-// never changes fit and needs no validation beyond its own fields.
+// Layout-state commands (spec: layouts). States hold placements only; walls and rooms are shared, so a rename, a copy
+// or a delete never changes fit and needs no validation beyond its own fields; addState validates.
 
 const stateKey = (id: string): EntityKey => ({ table: "states", id });
 
@@ -27,14 +28,27 @@ function checkNew(doc: Document, opId: string, name: string): string | null {
   return null;
 }
 
-/** An empty state `${opId}/s0`, after the last one. */
+/**
+ * A state `${opId}/s0`, after the last one, holding only what stands in every layout: each linked piece, stair, beam and
+ * wheel well (stairs.18) as the first layout by order has it, configuration, sides and zones included, as
+ * `${object}/${state}`. A part of a valid layout, so it fits; the result is validated all the same (knownbugs AC-01).
+ */
 export function addState(doc: Document, cmd: CommandOf<"addState">): CommandResult {
   const problem = checkNew(doc, cmd.opId, cmd.name);
   if (problem) return err(domainError("invalidInput", problem));
   const state: LayoutState = { id: `${cmd.opId}/s0`, name: cmd.name, order: nextOrder(doc) };
-  const bare: Document = { ...doc, states: { ...doc.states, [state.id]: state } };
-  const next = syncLinkedCopies(doc, bare); // the stairs, in every layout, are in the new one too (stairs.18)
-  return ok({ doc: next, patch: diffPatch(doc, next, [stateKey(state.id), ...syncDeps(bare, next)]) });
+  const first = sortedIds(doc.states).map((id) => doc.states[id]).reduce<LayoutState | undefined>((a, b) => (a === undefined || (b !== undefined && b.order < a.order) ? b : a), undefined);
+  const placements = { ...doc.placements };
+  const deps: EntityKey[] = [stateKey(state.id), ...(first ? [stateKey(first.id)] : [])];
+  for (const id of sortedIds(doc.placements)) {
+    const p = doc.placements[id];
+    const object = p ? doc.objects[p.object] : undefined;
+    if (!p || !object || p.state !== first?.id || !isLinked(object)) continue;
+    deps.push({ table: "placements", id });
+    const copy: Placement = { ...p, id: `${object.id}/${state.id}`, state: state.id, at: { ...p.at }, sides: { ...p.sides }, zones: { ...p.zones } };
+    placements[copy.id] = copy;
+  }
+  return finish(doc, { ...doc, states: { ...doc.states, [state.id]: state }, placements }, deps);
 }
 
 /**

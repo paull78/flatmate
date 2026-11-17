@@ -23,6 +23,18 @@ describe("the Ceiling section, flat", () => {
   });
 });
 
+describe("the pressed Flat button on a ceiling never shaped (knownbugs AC-05)", () => {
+  it("changes nothing and adds no undo step, so a first Shed still falls across the short span", () => {
+    const s = shell();
+    const before = doc(s);
+    set(s, "ceiling.shape", "flat");
+    expect(doc(s).ceilings).toEqual(before.ceilings);
+    expect(s.view().canUndo).toBe(false);
+    set(s, "ceiling.shape", "shed");
+    expect(roofOf(doc(s)).falls).toBe("-y"); // the 6.20 × 4.20 box is shorter along y
+  });
+});
+
 describe("a shed", () => {
   it("shows Low side, Low wall, Pitch with its other units, High wall and Overhang", () => {
     const s = shell();

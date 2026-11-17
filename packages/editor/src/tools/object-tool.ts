@@ -1,8 +1,8 @@
-import { defaultSize, distance, execute, heightsOf, isObjectSize, kindConfigs, placementFit, squareSize, stairRuleOf, type Command, type Document, type Heights, type Landed, type Level } from "@fm/domain";
+import { distance, execute, heightsOf, isObjectSize, kindConfigs, placementFit, squareSize, stairRuleOf, type Command, type Document, type Heights, type Landed, type Level } from "@fm/domain";
 import { assertNever, type Point } from "@fm/protocol";
 import { runCommand } from "../commit";
 import { visibleDoc } from "../document/open-document";
-import { furnitureSet, setBox, setPieces, setPoses, type FurnitureSet } from "../furniture-sets";
+import { furnitureSet, setBox, setHeight, setPieces, setPoses, type FurnitureSet } from "../furniture-sets";
 import type { PointerInput, UiAction } from "../ports/events";
 import type { Host } from "../ports/host";
 import { drawnFootprint, footprintCorner, roundCm } from "../snapping/drawn-footprint";
@@ -249,8 +249,7 @@ const armedSet = (state: EditorState): FurnitureSet | null => (state.objectSet =
 function setGhost(state: EditorState, tool: ObjectToolState, set: FurnitureSet, on: { doc: Document; layout: string; level: Level }, mods: Mods, world: Point): ObjectGhost | null {
   const { doc, layout, level } = on;
   const size = setBox(set);
-  const heights = set.pieces.map((p) => defaultSize(p.kind)).flatMap((s) => (s ? Object.keys(s.h).flatMap((c) => heightsOf(s, c) ?? []) : []));
-  const h = Math.max(...heights.map((x) => x.h));
+  const h = setHeight(set);
   const config = kindConfigs(SET_BOX_KIND)[0]?.id;
   if (config === undefined) return null;
   const centre: Point = { x: roundCm(world.x), y: roundCm(world.y) };

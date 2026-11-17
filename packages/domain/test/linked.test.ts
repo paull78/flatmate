@@ -171,6 +171,30 @@ describe("layouts and stored rows", () => {
     expect(copies(doc, "c-s0-1-1/o0").map((p) => p.state)).toEqual(["n/s0", "s0"]);
   });
 
+  it("a new empty layout takes every linked piece as the first layout has it, and is valid (knownbugs AC-01)", () => {
+    // Two sofa beds face to face, 2.8 m apart: either opens, not both. Day: a sofa, b bed. Night: a bed, b sofa.
+    let doc = run(room(), { type: "placeObject", opId: "a", state: "s0", object: { kind: "sofaBed" }, at: { x: 2, y: 1 }, rotation: 180, deck: null });
+    doc = run(doc, { type: "placeObject", opId: "b", state: "night", object: { kind: "sofaBed" }, at: { x: 2, y: 3.8 }, rotation: 0, deck: null });
+    doc = run(doc, { type: "setConfiguration", placementId: placementIn(doc, "a/o0", "night").id, config: "bed" });
+    doc = run(doc, { type: "setConfiguration", placementId: placementIn(doc, "b/o0", "s0").id, config: "bed" });
+    expect(validateDocument(doc).ok).toBe(true);
+    // The first copy by ID of `a` is Night's and of `b` is Day's: both beds, which overlap.
+    const firstById = (object: string): string | undefined => Object.keys(doc.placements).sort().map((id) => doc.placements[id]).find((p) => p?.object === object)?.config;
+    expect([firstById("a/o0"), firstById("b/o0")]).toEqual(["bed", "bed"]);
+    const added = execute(doc, { type: "addState", opId: "n", name: "Guests" });
+    if (!added.ok) throw new Error(added.error.message);
+    const next = added.value.doc;
+    expect(validateDocument(next).ok).toBe(true);
+    const standing = (p: Placement) => ({ ...p, id: "", state: "" });
+    for (const id of ["a/o0", "b/o0"]) expect(standing(placementIn(next, id, "n/s0"))).toEqual(standing(placementIn(next, id, "s0")));
+    expect(added.value.patch.puts.map((p) => `${p.table}/${p.entity.id}`).sort()).toEqual(["placements/a/o0/n/s0", "placements/b/o0/n/s0", "states/n/s0"]);
+  });
+
+  it("a new empty layout leaves out a piece that is an exception in the first layout", () => {
+    const doc = run(nightTable(run(room(), placeChair("s0", 1, 1))), { type: "addState", opId: "n", name: "Guests" });
+    expect(Object.values(doc.placements).filter((p) => p.state === "n/s0").map((p) => p.object)).toEqual(["c-s0-1-1/o0"]);
+  });
+
   it("keeps the link in a copied layout: moving the copy moves the original", () => {
     const one = rectDoc(0, 0, 6, 5);
     let doc = run({ ...one, states: { s0: { id: "s0", name: "Day", order: 0 } } }, placeChair("s0", 1, 1));

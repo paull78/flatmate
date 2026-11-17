@@ -44,6 +44,8 @@ export function clientMessageFor(effect: ServerEffect): ClientMessage {
           return { type: "deleteProject", requestId: op.requestId, projectId: op.projectId };
         case "open":
           return { type: "openProject", projectId: op.projectId, generation: op.generation };
+        case "close":
+          return { type: "closeProject", projectId: op.projectId, generation: op.generation };
         case "read":
           return { type: "readProject", requestId: op.requestId, projectId: op.projectId };
         default:

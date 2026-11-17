@@ -275,6 +275,10 @@ describe("session: an open shared drawing", () => {
     expect(r.shell.state.document).toBeNull();
     expect(r.shell.state.undo).toEqual({ past: [], future: [], pending: null });
     expect(r.shell.effectsOf("workspace").at(-1)?.op.type).toBe("list");
+    // Leaving tells the server, once, before asking for the list (knownbugs AC-10).
+    const closes = r.shell.effectsOf("workspace").map((e) => e.op).filter((op) => op.type === "close");
+    expect(closes).toHaveLength(1);
+    expect(r.shell.effectsOf("workspace").at(-2)?.op.type).toBe("close");
   });
 
   it("Cmd+Z on a paused wall chain waits for the segment and keeps the chain (carried over from phase 3)", () => {

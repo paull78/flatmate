@@ -22,6 +22,7 @@ export type ClientMessage =
   | { type: "createProject"; requestId: string; name: string }
   | { type: "deleteProject"; requestId: string; projectId: string }
   | { type: "openProject"; projectId: string; generation: string }
+  | { type: "closeProject"; projectId: string; generation: string } // back to the project list: the subscription ends, the connection stays
   | { type: "readProject"; requestId: string; projectId: string } // a project card's drawing, without opening it
   | { type: "submit"; projectId: string; generation: string; changeset: Changeset }
   | { type: "presence"; projectId: string; generation: string; cursor: Point | null; selection: EntityKey[]; state: string | null; level: string | null };
@@ -280,6 +281,10 @@ function clientMessage(json: unknown): ClientMessage | string {
     case "openProject": {
       const target = projectTarget(json);
       return target ? { type: "openProject", ...target } : "Invalid openProject";
+    }
+    case "closeProject": {
+      const target = projectTarget(json);
+      return target ? { type: "closeProject", ...target } : "Invalid closeProject";
     }
     case "submit": {
       const target = projectTarget(json);

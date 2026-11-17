@@ -97,11 +97,11 @@ Fit is skipped while I1 or I9 fails, so a broken reference is reported once. The
 
 ## Commands
 
-All in `packages/domain/src/commands/states.ts`. None of them validates its result. Renaming, copying and deleting can't break fit: a copy repeats a valid layout. `addState` can: see Limits.
+All in `packages/domain/src/commands/states.ts`. Renaming, copying and deleting don't validate their result and can't break fit: a copy repeats a valid layout. `addState` validates its result; it holds a part of a valid layout, so it fits.
 
 | Command | Does | Refuses |
 |---|---|---|
-| `addState { opId, name }` | A new state `${opId}/s0`, after the last (`order` is the highest plus 1). It holds every linked piece and every stair, beam and wheel well, and no exception. Each takes the configuration, sides and zones of its own first copy by placement id. | An invalid, too long (over 120 characters) or used `opId`; a name over 200 units ("Name too long") |
+| `addState { opId, name }` | A new state `${opId}/s0`, after the last (`order` is the highest plus 1). It holds every linked piece and every stair, beam and wheel well, and no exception. Each stands as in the first layout by `order`: its configuration, sides and zones are that layout's. | An invalid, too long (over 120 characters) or used `opId`; a name over 200 units ("Name too long") |
 | `copyState { opId, from, name }` | A new state `${opId}/s0` with a copy of every placement of `from`, exceptions included, as `${opId}/p0`, `p1`... in object-id order. Configuration, sides and zones are copied. Linked pieces stay linked. | The same; an unknown `from` ("Layout not found") |
 | `renameState { stateId, name }` | Renames. The same name is accepted and changes nothing. | Unknown state; a name too long |
 | `deleteState { stateId }` | Removes the state, its placements and every object left with none. Sheets follow in the same patch ([export.md](export.md)): a plan or compare sheet loses the drawings of that layout, a compare left with one drawing becomes a plan, a sheet left with none is removed, and a cover that shows the layout points at the first remaining one. | Unknown state; the last one ("A drawing keeps at least one layout") |
@@ -188,7 +188,7 @@ Details are in [mcp.md](mcp.md). Claude names a layout by its id and a piece as 
 
 - `add_layout` runs `addState`: a new layout holding the linked pieces only. `copy_layout` runs `copyState`.
 - `place_object` follows the placing rule above. Its `everyLayout` is `placeObject`'s `linked`, and the reply's note names a layout the new piece is left out of.
-- `move_object` with `everyLayout` runs `setLinked`, alone or with a move: `false` unlinks before the move, `true` links after it.
+- `move_object` with `everyLayout` runs `setLinked`, alone or with a move: `false` unlinks before the move, `true` links after it. The two are checked together first, so a move the rules refuse leaves the link as it was ([mcp.md](mcp.md)).
 - `delete` removes a linked piece from every layout and an exception from the named layout.
 - `get_drawing` lists the layouts in order, each with its blocked zones and swings; each object with its place per layout, and `linked: false` on an exception when there are two or more layouts; and each furnished room's `freeFloor` per layout.
 
@@ -196,7 +196,6 @@ Details are in [mcp.md](mcp.md). Claude names a layout by its id and a piece as 
 
 - Layouts can't be reordered: no command changes `order`, and a new layout always goes last.
 - The pill has no way to make an empty layout; `+` always copies. Only `add_layout` reaches the domain's `addState`.
-- `addState` copies each linked piece in the configuration of its own first copy and does not validate. Two linked pieces whose first copies come from different layouts can overlap in the new layout (two sofa beds, each open in the other's closed layout). A shared drawing's server then rejects the edit as invalid.
 - Walls, rooms, openings, decks and the ceiling can't differ between layouts.
 - An object's size, height and elevation are the same in every layout; only the configuration picks between them.
 - A linked piece shares its surface too, so it can't stand on a deck in one layout and on the floor in another without being made an exception.

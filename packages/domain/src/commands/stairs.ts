@@ -39,7 +39,10 @@ export function linkStair(next: Document, placementId: string, explicit: string 
   if (stairRuleOf(object.kind) === null) return explicit === undefined ? ok(next) : err(domainError("invalidInput", MESSAGES.onlyStairsReach));
   if (typeof explicit === "string" && !Object.hasOwn(next.decks, explicit)) return err(domainError("notFound", "Deck not found"));
   const deck = explicit !== undefined ? explicit : (object.reaches ?? null);
-  return ok({ ...next, objects: { ...next.objects, [object.id]: withHandrail(next, linkedObject(next, object, p, deck)) } });
+  // The rails are chosen on the document that holds the linked height: a new stair's rule reads its rise (knownbugs AC-04).
+  const linked: Document = { ...next, objects: { ...next.objects, [object.id]: linkedObject(next, object, p, deck) } };
+  const made = linked.objects[object.id];
+  return ok(made ? { ...linked, objects: { ...linked.objects, [object.id]: withHandrail(linked, made) } } : linked);
 }
 
 /**

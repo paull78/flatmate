@@ -218,7 +218,7 @@ A change to the stored shape takes no new version number while the versions are 
 3. `fillDecks`: a placement's `deck`, null.
 4. `fillStairStarts`: a stair's `startsAt`, null.
 5. `fillDeckGuards`: a deck's four side guards from its one `guard` or from its top; a hole's guard from its deck.
-6. `fillStairHandrails`: a stair saved without rails takes both sides from the front guard of the deck it reaches; unlike a new stair it ignores the 0.76 m rule (see [guards.md](guards.md)).
+6. `fillStairHandrails`: a flight saved with one `handrail` gets it on both sides. A stair saved with no rails gets Railing as a placeholder, because the parser refuses a stair without rails; after parsing, `withLoadRails` (`packages/domain/src/load-rails.ts`) replaces it with what a new stair gets (see [guards.md](guards.md)). Both load paths, `deserialize` and `upgradeStored`, run it.
 7. `fillSheetSections`: a sheet's `section` null and `marks` true.
 8. `fillOpeningHeights`: an opening's `sill` and `head` from its kind and its wall's height.
 

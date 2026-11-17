@@ -23,6 +23,24 @@ const wardrobe = (doc: Document, y: number, h = 2.4): Document =>
   place(doc, { object: "w", kind: "wardrobe", at: [3, y], state: "s0", size: { w: { standard: 1 }, d: { standard: 0.6 }, h: { standard: h } } });
 
 describe("setCeiling with a roof", () => {
+  it("an explicit Flat on a never-shaped ceiling stores no slope, so a first Shed falls across the short span (knownbugs AC-05)", () => {
+    const tall = rectDoc(0.1, 0.1, 2.45, 5.9); // a 2.55 × 6.00 m outer box: the short span is along x
+    const flat = execute(tall, { type: "setCeiling", shape: "flat" });
+    if (!flat.ok) throw new Error(flat.error.message);
+    expect(flat.value.doc.ceilings).toEqual(tall.ceilings);
+    expect(flat.value.patch.puts).toEqual([]);
+    const shed = run(flat.value.doc, { type: "setCeiling", shape: "shed" });
+    expect(roofOf(shed)).toEqual(roofOf(run(tall, { type: "setCeiling", shape: "shed" })));
+    expect(roofOf(shed).falls).toBe("-x");
+    expect(highSide(shed)).toBe(2.95);
+  });
+
+  it("a Flat on a roof that was shaped keeps its slope fields (roofs.20)", () => {
+    const shed = run(house(), { type: "setCeiling", shape: "shed", height: 2.75, pitch: 10, falls: "-x" });
+    const back = run(run(shed, { type: "setCeiling", shape: "flat" }), { type: "setCeiling", shape: "shed" });
+    expect(roofOf(back)).toMatchObject({ shape: "shed", pitch: 10, falls: "-x" });
+  });
+
   it("takes the whole set, and a later height alone keeps the shape and the pitch", () => {
     const shed = run(house(), { type: "setCeiling", shape: "shed", height: 2.75, pitch: 10 });
     expect(roofOf(shed)).toMatchObject({ shape: "shed", height: 2.75, pitch: 10 });

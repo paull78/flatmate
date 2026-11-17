@@ -1,7 +1,7 @@
 import { reasonOf } from "../toast-text";
 import type { Field } from "../view/view-model-types";
 import { NEAR_SQUARE_DEG } from "../snapping/near-square";
-import { FLOOR_BASE, deckLabel, deckView, halfWallTop, roundMm, wallHelperDimension, wallRange, type Document, shown, offAxisAngle, straightenPlans } from "@fm/domain";
+import { FLOOR_BASE, ceilingAlong, deckLabel, deckView, halfWallTop, roundMm, wallHelperDimension, wallRange, type Document, shown, offAxisAngle, straightenPlans } from "@fm/domain";
 import { field, numberField, parseNumber, type FieldCommand, type Properties } from "./fields";
 import { wallSideCommand, wallSideFields } from "./wall-finish";
 
@@ -51,8 +51,9 @@ export function wallFieldCommand(doc: Document, wallId: string, fieldId: string,
       if (value === "true") return { type: "setWallTop", wallId, top: "ceiling" };
       if (value !== "false") return null;
       // Switched off, the wall keeps its height above its base as a fixed top and stops following the ceiling; typing a
-      // lower Top makes it a half wall (decks.56).
-      return range ? { type: "setWallTop", wallId, top: roundMm(range.top - range.bottom) } : null;
+      // lower Top makes it a half wall (decks.56). Under a slope a full wall rises to the highest ceiling over it, and a
+      // fixed top may reach only the lowest (I17, roofs.17): it takes that, so the switch is never refused.
+      return range ? { type: "setWallTop", wallId, top: roundMm(Math.min(range.top, ceilingAlong(doc, wallId)) - range.bottom) } : null;
     default:
       if (fieldId.startsWith("left.") || fieldId.startsWith("right.")) return wallSideCommand(doc, wallId, fieldId, value);
       return null;

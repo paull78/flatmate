@@ -157,7 +157,7 @@ The full list is in [mcp.md](mcp.md).
 
 ## Limits
 
-- On a row that has never taken a shape, an explicit Flat (a click on the pressed Flat button, or `set_ceiling` with `shape: "flat"`) stores `falls: "-y"`, pitch 10 and overhang 0.30. A later first Shed or Gable keeps that direction instead of the shorter span. Without `shape`, pitch, falls and overhang sent to such a row are accepted and not stored.
+- On a row that has never taken a shape, Flat stores no slope, given or not: pitch, falls and overhang sent to such a row are accepted and not stored, so the first Shed or Gable takes the shorter span. A click on the pressed Flat button, or `set_ceiling` with `shape: "flat"` and the height it has, changes nothing and adds no undo step.
 - Once the row has had a shape, a flat row keeps any finite pitch or overhang sent to it; the next slope is then refused by the bounds.
 - One roof over the whole box. An L-shaped house's roof covers its empty corner. No hips, valleys, dormers, skylights or roofs per level.
 - One storey per drawing: two floors drawn side by side stand under one roof.

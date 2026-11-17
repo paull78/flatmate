@@ -22,7 +22,7 @@ export const OVERHANG = 0.3;
 export const PLATFORM_TOP = GUARD_DROP;
 
 /** Why a piece doesn't stand on a deck, by the first rule it breaks, or null when it does. */
-export type DeckStanding = null | "overHole" | "deckCentre" | "deckReach" | "deckRoom" | "outsideDeck";
+export type DeckStanding = null | "overHole" | "deckCentre" | "deckReach" | "deckRoom" | "outsideDeck" | "floorOnly";
 
 /** Whether a shape, as its convex `parts` with its footprint's `centre`, stands on `deck` (see above). */
 export function deckStanding(doc: Document, deck: DeckView, parts: readonly (readonly Point[])[], centre: Point | null): DeckStanding {

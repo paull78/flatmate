@@ -166,7 +166,9 @@ export function fitViolations(doc: Document): Violation[] {
       continue;
     }
     const deck = deckView(doc, surface);
-    const why = deck ? deckStanding(doc, deck, partsOf.get(id) ?? [ring], quadCentre(footprints(doc).get(id) ?? ring)) : "outsideDeck";
+    const kind = doc.objects[doc.placements[id]?.object ?? ""]?.kind;
+    // A wheel well is part of the trailer under the floor: no deck carries one (the user's rule, 2026-11-16; surroundings.md).
+    const why = kind !== undefined && isWell(kind) ? "floorOnly" : deck ? deckStanding(doc, deck, partsOf.get(id) ?? [ring], quadCentre(footprints(doc).get(id) ?? ring)) : "outsideDeck";
     if (why !== null) outside.push({ invariant: "I10", message: MESSAGES[why](objectName(id), deckName(surface), stateName(id)), entities: [placementKey(id), { table: "decks", id: surface }] });
   }
   return [...out, ...outside];
@@ -258,6 +260,7 @@ export function candidateShape(kind: string | undefined, at: Point, w: number, d
  * is a beam (beams.05), which meets no wall, its centre in a room, but meets decks.
  */
 export function footprintFit(doc: Document, ring: readonly Point[], state: string, heights: Heights, surface: string | null, ignore: readonly string[] = [], centre: Point | null = quadCentre(ring), stair?: StairPose, tuck: TuckRole = null, parts: readonly (readonly Point[])[] = [ring], rug = false, well = false, beam = false): PlacementFit {
+  if (well && surface !== null) return { fits: false, reason: "floorOnly" }; // a wheel well stands on the floor only (surroundings.md)
   const range = rangeOf(doc, heights, ring, surface);
   // A moving open flight brings its underside, so the preview says what validation will (stairs.56); its steps begin at its surface here.
   const underside = stair ? undersideAt(stair, range.bottom, range.top) : null;

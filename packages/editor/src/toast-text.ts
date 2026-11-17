@@ -1,4 +1,4 @@
-import { MESSAGES, OPENING_KINDS, execute, finishIssue, givenColour, incidentWalls, lowerHeightProblem, newOpeningId, levelHeight, namedViolation, openingLabel, type Command, type Document, type DomainError, type Level, type OpeningKind, type Violation } from "@fm/domain";
+import { MESSAGES, OPENING_KINDS, execute, finishIssue, givenColour, incidentWalls, lowerHeightProblem, newOpeningId, levelHeight, namedViolation, openingLabel, type Command, type Document, type DomainError, type Finish, type Level, type OpeningKind, type Violation } from "@fm/domain";
 
 import { plainText } from "./column-toast";
 
@@ -21,18 +21,41 @@ export function reasonOf(doc: Document, cmd: Command): string | null {
 }
 
 /**
- * A finish refused by setFinish, labelZone or setDeckFinish: the domain names the field by its path for Claude ("finish.size must be
- * 0.10–0.40"); a person reads the field's name, "Size must be 0.10–0.40", built from the command's finish (finishes.48).
+ * A finish refused by any command that carries one: the domain names the field by its path for Claude ("finish.size must
+ * be 0.10–0.40"); a person reads the field's name, "Size must be 0.10–0.40", built from the command's finishes
+ * (finishes.48), and a lower band's height as "Height must be 0.10–3.00". Each command's finishes are tested in the order
+ * the domain tests them: the finish, the band's finish, the band's height.
  */
 function finishText(cmd: Command | null): string | null {
-  const given = cmd?.type === "setFinish" || cmd?.type === "labelZone" || cmd?.type === "setDeckFinish" || cmd?.type === "setWallFinish" ? cmd.finish : null;
-  const surface = cmd?.type === "setWallFinish" ? "wall" : "floor"; // a wall side's finish (surfaces step 08)
-  const issue = given ? finishIssue({ ...given, colour: givenColour(given.colour) }, surface) : null;
-  if (!issue && cmd?.type === "setWallFinish" && cmd.part === "lower") {
-    const height = lowerHeightProblem(cmd.height); // "Height must be 0.10–3.00", as a field's name reads
-    return height && given ? `${height.charAt(0).toUpperCase()}${height.slice(1)}` : null;
+  for (const { finish, surface } of finishesOf(cmd)) {
+    const issue = finish ? finishIssue({ ...finish, colour: givenColour(finish.colour) }, surface) : null;
+    if (issue) return capital(`${issue.field} ${issue.rule}`);
   }
-  return issue ? `${issue.field.charAt(0).toUpperCase()}${issue.field.slice(1)} ${issue.rule}` : null;
+  const height = bandHeightOf(cmd);
+  const problem = height === null || height.value === undefined ? null : lowerHeightProblem(height.value); // none given: the band keeps its own
+  return problem === null ? null : capital(problem);
+}
+
+const capital = (text: string): string => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
+
+type Given = { finish: Finish | null; surface: "floor" | "wall" | "roof" };
+
+/** The finishes a command carries, each with the surface whose rules check it; none for a command without one. */
+function finishesOf(cmd: Command | null): Given[] {
+  if (cmd === null) return [];
+  if (cmd.type === "setFinish" || cmd.type === "labelZone" || cmd.type === "setDeckFinish") return [{ finish: cmd.finish, surface: "floor" }];
+  if (cmd.type === "setWallFinish" || cmd.type === "setRoomWallFinishes" || cmd.type === "setOutsideFinish") return [{ finish: cmd.finish, surface: "wall" }];
+  if (cmd.type === "setWallSide") return [{ finish: cmd.finish, surface: "wall" }, { finish: cmd.lower, surface: "wall" }];
+  if (cmd.type === "setRoofCovering") return [{ finish: cmd.finish, surface: "roof" }];
+  return [];
+}
+
+/** A lower band's height where the command sets a band: the height the domain checks, given or not. */
+function bandHeightOf(cmd: Command | null): { value: number | undefined } | null {
+  if (cmd === null) return null;
+  if (cmd.type === "setWallFinish" || cmd.type === "setRoomWallFinishes" || cmd.type === "setOutsideFinish") return cmd.part === "lower" && cmd.finish !== null ? { value: cmd.height } : null;
+  if (cmd.type === "setWallSide") return cmd.lower !== null ? { value: cmd.height } : null;
+  return null;
 }
 
 /**

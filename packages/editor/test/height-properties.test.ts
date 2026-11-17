@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ceilingHeight, placementRange, wallRange, type Command, type Document } from "@fm/domain";
+import { ceilingAlong, ceilingHeight, execute, placementRange, wallRange, type Command, type Document } from "@fm/domain";
+import { wallFieldCommand } from "../src/properties/wall";
 import type { Field, ViewModel } from "../src/view/view-model-types";
 import { LOFT_ROOM_LOFT, loftRoomDoc, roomDoc, withCommands } from "./builders";
 import { FakeShell } from "./fake-shell";
@@ -190,6 +191,28 @@ describe("a wall's Top (heights.10, AC-19)", () => {
     expect(shell.view().toast).toBe("A wall can't be taller than the 2.50 m ceiling");
     set(shell, "toCeiling", "true");
     expect(wallRange(shell.doc(), wallId)?.top).toBe(2.5);
+  });
+
+  it("under a shed, To ceiling off on a wall along the fall is accepted: its top is the lowest ceiling along it (knownbugs AC-08)", () => {
+    const shell = selected(withCommands(roomDoc(), { type: "setCeiling", shape: "shed", height: 2.5, pitch: 10 }), { x: 0, y: 2 }); // the left wall: low at y 0, high at y 4
+    const wallId = shell.state.selection[0]?.id ?? "";
+    const before = wallRange(shell.doc(), wallId);
+    const lowest = ceilingAlong(shell.doc(), wallId);
+    expect(before?.top).toBeGreaterThan(lowest + 0.5); // the fixture tells the highest from the lowest
+    set(shell, "toCeiling", "false");
+    expect(shell.view().toast).toBeNull();
+    expect(shell.doc().walls[wallId]?.top).toBe(lowest);
+    expect(field(shell, "toCeiling")).toMatchObject({ value: "false" });
+  });
+
+  it("under a shed, To ceiling off on a wall standing on a loft measures the top from the loft", () => {
+    const doc = withCommands(loftRoomDoc(), { type: "setCeiling", shape: "shed", pitch: 10 },
+      { type: "addWall", opId: "k", from: { at: { x: 2, y: 1.6 } }, to: { at: { x: 2, y: 3.6 } }, base: LOFT_ROOM_LOFT });
+    const wallId = Object.keys(doc.walls).find((id) => doc.walls[id]?.base === LOFT_ROOM_LOFT) ?? "";
+    const cmd = wallFieldCommand(doc, wallId, "toCeiling", "false");
+    if (cmd === null || typeof cmd === "string") throw new Error("no command");
+    expect(cmd).toMatchObject({ type: "setWallTop", top: Math.round((ceilingAlong(doc, wallId) - 2.15) * 1000) / 1000 });
+    expect(execute(doc, cmd).ok).toBe(true);
   });
 
   it("a wall with a door switched off To ceiling keeps its height and its door; only lowering it under the door's head and 0.10 m is refused (sills.02)", () => {

@@ -3,10 +3,11 @@ import type { Result, StoredDocument, TableName } from "@fm/protocol";
 import { domainError, type DomainError } from "./errors";
 import { sortedIds } from "./graph";
 import { OPENING_KINDS, defaultSides, defaultSize, isOpeningKind, railShape, stairRuleOf } from "./kinds";
-import { CEILING_ID, DEFAULT_CEILING, DEFAULT_WALL_THICKNESS, FIRST_STATE, FLOOR_BASE, guardFor, guardValue, handrailFor, isGuard, isHandrailKind, sameGuards, sameRails, type Document, type Guard } from "./model";
+import { CEILING_ID, DEFAULT_CEILING, DEFAULT_WALL_THICKNESS, FIRST_STATE, FLOOR_BASE, guardFor, guardValue, isGuard, isHandrailKind, sameGuards, sameRails, type Document, type HandrailKind } from "./model";
 import { DECK_THICKNESS } from "./presets";
 import { defaultOpeningHeights } from "./queries/vertical";
-import { parseTables } from "./shape-tables";
+import { stairsWithoutRails, withLoadRails } from "./load-rails";
+import { parseTables, toStored } from "./shape-tables";
 import { nullZones } from "./use-zone";
 import { validateDocument } from "./validate";
 
@@ -175,30 +176,18 @@ function fillDeckGuards(json: Record<string, unknown>): Record<string, unknown> 
 }
 
 /**
- * Stairs saved before the handrail setting get it once, by the rule a new one follows (guards.28): from the deck the
- * stair goes up to, its stored guard or, on a row saved before guards, the one its top gives (as parseDeck reads it).
- * An L's lower flight reaches its landing, which another row starts at: it takes the deck that row reaches, as
- * placeStair gives it. Runs after fillStairStarts. Only on kinds with rails; fill-only and idempotent; never throws.
+ * A flight saved with the older single `handrail` gets it on both sides (edges.06). A stair saved with no rails at all
+ * gets Railing as a placeholder the parser accepts: `withLoadRails` (load-rails.ts) then chooses by the rule a new stair
+ * follows, which needs the parsed document. Only on kinds with rails; fill-only and idempotent; never throws.
  */
 function fillStairHandrails(json: Record<string, unknown>): Record<string, unknown> {
-  const { objects, decks } = json;
+  const { objects } = json;
   if (!isRecord(objects)) return json;
-  const guardOf = (id: unknown): Guard | null => {
-    const deck = typeof id === "string" && isRecord(decks) && Object.hasOwn(decks, id) ? decks[id] : undefined;
-    if (!isRecord(deck)) return null;
-    const front: unknown = deck.guardFront; // filled by fillDeckGuards, which runs first
-    const guard: unknown = isRecord(front) ? front.kind : null;
-    return isGuard(guard) ? guard : null;
-  };
-  const above = new Map<unknown, unknown>(); // a landing → the deck the flight starting at it reaches
-  for (const o of Object.values(objects)) if (isRecord(o) && typeof o.startsAt === "string") above.set(o.startsAt, o.reaches);
-  const top = (reaches: unknown): unknown => (above.has(reaches) ? above.get(reaches) : reaches);
-  // A flight's one handrail, kept or chosen, goes to both its sides (edges.06); a spiral keeps one.
   const filled = (o: unknown): unknown => {
     if (!isRecord(o) || typeof o.kind !== "string") return o;
     const shape = railShape(o.kind);
     if (shape === null || Object.hasOwn(o, "handrails")) return o;
-    const kind = Object.hasOwn(o, "handrail") ? o.handrail : handrailFor(guardOf(top(o.reaches)));
+    const kind = Object.hasOwn(o, "handrail") ? o.handrail : PLACEHOLDER_RAIL;
     if (shape === "spiral") return Object.hasOwn(o, "handrail") ? o : { ...o, handrail: kind };
     const rest: Record<string, unknown> = { ...o };
     delete rest.handrail;
@@ -207,6 +196,8 @@ function fillStairHandrails(json: Record<string, unknown>): Record<string, unkno
   // fromEntries keeps a "__proto__" key as an own key, as in fillZoneSides.
   return { ...json, objects: Object.fromEntries(Object.entries(objects).map(([id, o]) => [id, filled(o)])) };
 }
+
+const PLACEHOLDER_RAIL: HandrailKind = "railing";
 
 /** Sheet rows saved before Section sheets name no section (section.10) and draw their marks (section.60). Fill-only and idempotent; never throws. */
 function fillSheetSections(json: Record<string, unknown>): Record<string, unknown> {
@@ -268,7 +259,12 @@ export function fillOnLoad(json: Record<string, unknown>): Record<string, unknow
 export function upgradeStored(stored: StoredDocument): StoredDocument {
   let json: Record<string, unknown> = stored;
   for (const m of MIGRATIONS) json = m.migrate(json);
-  return parseStoredDocument(fillOnLoad(json)) ?? stored;
+  const bare = stairsWithoutRails(json);
+  const filled = parseStoredDocument(fillOnLoad(json));
+  if (!filled) return stored;
+  if (bare.length === 0) return filled;
+  const doc = parseTables(filled); // the rails' rule reads the document (load-rails.ts); one that won't parse keeps the placeholder
+  return doc.ok ? toStored(withLoadRails(doc.value, bare)) : filled;
 }
 
 function sortedTable<T>(table: Record<string, T>): Record<string, T> {
@@ -331,8 +327,9 @@ export function deserialize(json: unknown): Result<Document, DomainError> {
   }
   const migrated = migrateJson(json, version, CURRENT_VERSION, MIGRATIONS);
   if (!migrated.ok) return migrated;
-  const doc = parseTables(fillOnLoad(migrated.value));
-  if (!doc.ok) return doc;
+  const parsed = parseTables(fillOnLoad(migrated.value));
+  if (!parsed.ok) return parsed;
+  const doc = ok(withLoadRails(parsed.value, stairsWithoutRails(migrated.value)));
   const valid = validateDocument(doc.value);
   if (!valid.ok) {
     return err(domainError("format", `Drawing is invalid: ${valid.error[0]?.message ?? "unknown problem"}`, valid.error));

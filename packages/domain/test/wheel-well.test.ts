@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { canSwitchKind, emptyDocument, execute, inEveryLayout, kindOf, rectangleRoom, type Command, type Document, type Placement } from "../src";
+import { candidateShape, placementFit } from "../src/queries/fit";
+import { landing } from "../src/queries/landing";
+import { levels } from "../src/queries/levels";
+import { LOFT, PLATFORM, STATE, levelsHouseBare } from "./fixtures/levels-house";
 
 // The Wheel well kind (trailer.07, .11, .12; AC-06): a piece placed at will, the same in every layout state as a stair.
 
@@ -70,5 +74,42 @@ describe("in every layout (AC-06)", () => {
   it("a new layout gets it too", () => {
     const doc = run(placed(), { type: "addState", opId: "e", name: "Evening" });
     expect(copies(doc, "w/o0")).toHaveLength(3);
+  });
+});
+
+// Floor only (the user's rule, 2026-11-16; knownbugs AC-13): a well is part of the trailer under the floor, so no deck carries one.
+describe("a wheel well stands on the floor only", () => {
+  const well = (deck: string | null, at = { x: 6.6, y: 1 }): Command => ({ type: "placeObject", opId: "ww", state: STATE, object: { kind: "wheelWell", size: { w: 0.9, d: 0.4 } }, at, deck });
+  const refusal = (doc: Document, cmd: Command): string => {
+    const r = execute(doc, cmd);
+    return r.ok ? "" : r.error.message;
+  };
+
+  it.each([["the platform", PLATFORM, { x: 6.6, y: 1 }], ["the loft", LOFT, { x: 3, y: 3 }]] as const)("placed on %s it is refused, with the reason", (_, deck, at) => {
+    expect(refusal(levelsHouseBare(), well(deck, at))).toMatch(/^Wheel well stands on the floor only, not on (Platform|Loft)/);
+    expect(refusal(levelsHouseBare(), { type: "placeObject", opId: "bb", state: STATE, object: { kind: "block", size: { w: 0.9, d: 0.4 } }, at, deck })).toBe(""); // a box of its size stands there
+  });
+
+  it("moved onto a deck it is refused, and stays on the floor", () => {
+    const doc = run(levelsHouseBare(), well(null, { x: 4.7, y: 2.6 }));
+    const id = Object.values(doc.placements).find((p) => p.object === "ww/o0")?.id ?? "";
+    expect(refusal(doc, { type: "movePlacement", placementId: id, at: { x: 6.6, y: 1 }, rotation: 0, deck: PLATFORM })).toMatch(/floor only/);
+  });
+
+  it("the fit query says why, and the landing rule answers the floor over a platform", () => {
+    const doc = levelsHouseBare();
+    const at = { x: 6.6, y: 1 };
+    expect(placementFit(doc, { kind: "wheelWell", state: STATE, at, rotation: 0, config: "standard", w: 0.9, d: 0.4, surface: PLATFORM })).toEqual({ fits: false, reason: "floorOnly" });
+    const shape = candidateShape("wheelWell", at, 0.9, 0.4, 0);
+    const floor = levels(doc)[0];
+    if (!floor) throw new Error("no floor level");
+    const landed = landing(doc, { state: STATE, ...shape, heights: { h: 0.35, z: 0 }, current: undefined, ignore: [] }, floor);
+    expect(landed).toEqual({ kind: "surface", deck: null });
+    // A box of the same size lands on the platform: the fixture tells the two apart.
+    expect(landing(doc, { state: STATE, ...candidateShape("block", at, 0.9, 0.4, 0), heights: { h: 0.35, z: 0 }, current: undefined, ignore: [] }, floor)).toEqual({ kind: "surface", deck: PLATFORM });
+  });
+
+  it("on the floor under the loft it still fits", () => {
+    expect(refusal(levelsHouseBare(), well(null, { x: 3, y: 3 }))).toBe("");
   });
 });
